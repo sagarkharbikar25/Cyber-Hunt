@@ -1,0 +1,15 @@
+export const TEAM_ID_PREFIX = "TEAM-";
+export const TEAM_ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+export const TEAM_ID_LENGTH = 5;
+export const MAX_TEAM_SIZE = 2;
+export const EVENT_DURATION_MINUTES = 90;
+export const EVENT_DURATION_SECONDS = EVENT_DURATION_MINUTES * 60;
+export const MAX_GLOBAL_HINTS = 5;
+export const MAX_LEVELS = 10;
+export const RATE_LIMIT_ATTEMPTS = 5;
+export const RATE_LIMIT_WINDOW_MS = 60_000;
+export const HINT_UNLOCK_INTERVAL_MINUTES = 10; // Token 1 at 10m, Token 2 at 20m, etc.
+export const POINTS_PER_LEVEL = 100;
+export const HINT_PENALTIES = [0, 10, 20, 30, 40, 50]; // Per hint cost
+export const COOKIE_NAME = "cyberhunt_token";
+export const ADMIN_COOKIE_NAME = "cyberhunt_admin";

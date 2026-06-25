@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberHunt Master Blueprint — TechAlfa</title>
+<script>
+  // Tab switching — runs immediately, no defer issues
+  function showTab(name) {
+    document.querySelectorAll('.nav-tab').forEach(function(t){ t.classList.remove('active'); });
+    document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+    var pane = document.getElementById('pane-' + name);
+    if (pane) pane.classList.add('active');
+    var tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(function(t){
+      if (t.getAttribute('data-tab') === name) t.classList.add('active');
+    });
+  }
+  // Init after DOM ready
+  document.addEventListener('DOMContentLoaded', function(){
+    document.querySelectorAll('.nav-tab').forEach(function(t){
+      t.addEventListener('click', function(){ showTab(this.getAttribute('data-tab')); });
+    });
+    showTab('overview');
+  });
+</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0E1A;--surface:#111827;--surface2:#1a2235;
+  --border:#1f2d45;--border2:#263348;
+  --accent:#00FF88;--red:#FF3B3B;--amber:#F59E0B;
+  --blue:#3B82F6;--purple:#8B5CF6;--teal:#14B8A6;--coral:#F97316;
+  --text:#E5E7EB;--text2:#9CA3AF;--text3:#4B5563;
+  --mono:'Courier New',monospace;--sans:Arial,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh;}
+
+/* HEADER */
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,26,0.97);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;}
+.logo{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:0.05em;}
+.logo span{color:var(--text2);font-weight:400;font-size:11px;margin-left:8px;}
+.event-badge{font-family:var(--mono);font-size:10px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);color:var(--accent);padding:4px 10px;border-radius:4px;}
+
+/* NAV */
+.nav{display:flex;gap:1px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;padding:0 24px;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none}
+.nav-tab{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;border:none;border-bottom:2px solid transparent;white-space:nowrap;background:none;font-family:var(--sans);letter-spacing:0.05em;text-transform:uppercase;transition:color 0.15s,border-color 0.15s;}
+.nav-tab:hover{color:var(--text2);}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* CONTENT */
+.main{padding:24px;max-width:1100px;margin:0 auto;}
+.tab-pane{display:none;}
+.tab-pane.active{display:block;}
+
+/* SECTION */
+.sec-label{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:14px;}
+.section{margin-bottom:28px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;}
+.card-title{font-size:11px;font-weight:600;margin-bottom:10px;color:var(--text2);text-transform:uppercase;letter-spacing:0.05em;}
+
+/* CHIPS */
+.chip{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.c-green{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--accent);}
+.c-red{background:rgba(255,59,59,0.1);border:1px solid rgba(255,59,59,0.3);color:var(--red);}
+.c-amber{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);color:var(--amber);}
+.c-blue{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);color:var(--blue);}
+.c-purple{background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);color:var(--purple);}
+.c-teal{background:rgba(20,184,166,0.1);border:1px solid rgba(20,184,166,0.3);color:var(--teal);}
+.c-coral{background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);color:var(--coral);}
+
+/* ALERTS */
+.alert{padding:10px 14px;border-radius:6px;font-size:11px;margin-bottom:14px;line-height:1.7;}
+.a-info{background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);color:#93C5FD;}
+.a-warn{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);color:#FCD34D;}
+.a-danger{background:rgba(255,59,59,0.08);border:1px solid rgba(255,59,59,0.25);color:#FCA5A5;}
+.a-success{background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);color:var(--accent);}
+.a-purple{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.3);color:#C4B5FD;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3);padding:7px 10px;border-bottom:1px solid var(--border);}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover td{background:rgba(255,255,255,0.02);}
+
+/* MONO BLOCK */
+.mono{font-family:var(--mono);font-size:11px;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:6px;padding:12px 14px;line-height:2;color:#A7F3D0;}
+.mono .pos{color:var(--accent);}
+.mono .neg{color:var(--red);}
+.mono .dim{color:var(--text3);}
+
+/* ROW */
+.row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.row:last-child{border-bottom:none;}
+
+/* LEVEL BADGE */
+.lvl{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:10px;font-weight:700;flex-shrink:0;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);}
+.lvl.boss{background:rgba(255,59,59,0.15);border-color:var(--red);color:var(--red);}
+.lvl.new-lvl{background:rgba(139,92,246,0.15);border-color:var(--purple);color:var(--purple);}
+
+/* FRAGMENT */
+.frag{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);color:var(--accent);}
+
+/* HINT DOTS */
+.hdots{display:flex;gap:4px;align-items:center;}
+.hd{width:8px;height:8px;border-radius:50%;}
+.h1{background:#00FF88;}.h2{background:#F59E0B;}.h3{background:#FF3B3B;}
+
+/* SCHEMA */
+.sbox{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
+.shead{padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--accent);font-family:var(--mono);}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:5px 12px;border-bottom:1px solid var(--border);gap:8px;}
+.srow:last-child{border-bottom:none;}
+.cn{font-family:var(--mono);font-size:11px;color:var(--text);}
+.ct{font-size:11px;color:var(--text3);}
+.bpk{font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3);}
+.bfk{font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3);}
+.buq{font-size:9px;padding:1px 5px;border-radius:3px;background:rgba(0,255,136,0.1);color:var(--accent);border:1px solid rgba(0,255,136,0.25);}
+
+/* API */
+.api{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.api-top{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.mth{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;}
+.m-post{background:rgba(0,255,136,0.12);color:var(--accent);}
+.m-get{background:rgba(59,130,246,0.12);color:var(--blue);}
+.m-put{background:rgba(245,158,11,0.12);color:var(--amber);}
+.m-del{background:rgba(255,59,59,0.12);color:var(--red);}
+.api-path{font-family:var(--mono);font-size:12px;color:var(--text);}
+.api-desc{font-size:11px;color:var(--text2);margin-bottom:2px;}
+.api-note{font-family:var(--mono);font-size:10px;color:var(--text3);}
+
+/* PHASE */
+.phase{border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.phead{padding:9px 12px;font-size:12px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+.p1 .phead{background:rgba(59,130,246,0.12);color:#93C5FD;border-bottom:1px solid rgba(59,130,246,0.2);}
+.p2 .phead{background:rgba(0,255,136,0.08);color:var(--accent);border-bottom:1px solid rgba(0,255,136,0.15);}
+.p3 .phead{background:rgba(245,158,11,0.1);color:var(--amber);border-bottom:1px solid rgba(245,158,11,0.2);}
+.p4 .phead{background:rgba(255,59,59,0.1);color:var(--red);border-bottom:1px solid rgba(255,59,59,0.2);}
+.pbody{padding:10px 12px;}
+.task{display:flex;gap:6px;font-size:11px;color:var(--text2);padding:3px 0;}
+.task::before{content:"→";color:var(--text3);flex-shrink:0;}
+.pdate{font-size:10px;font-weight:400;opacity:0.7;}
+
+/* CHECKLIST */
+.chk{display:flex;gap:6px;font-size:11px;padding:4px 0;color:var(--text2);}
+.chk::before{content:"□";color:var(--text3);flex-shrink:0;}
+
+/* TIMELINE */
+.tl{display:flex;flex-direction:column;}
+.tl-item{display:flex;gap:12px;padding:0 0 16px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
+.tl-dot{width:11px;height:11px;border-radius:50%;border:2px solid;flex-shrink:0;margin-top:3px;}
+.td-b{background:rgba(59,130,246,0.15);border-color:var(--blue);}
+.td-g{background:rgba(0,255,136,0.1);border-color:var(--accent);}
+.td-a{background:rgba(245,158,11,0.1);border-color:var(--amber);}
+.td-r{background:rgba(255,59,59,0.1);border-color:var(--red);}
+.td-p{background:rgba(139,92,246,0.1);border-color:var(--purple);}
+.tl-line{width:2px;background:var(--border);flex:1;margin-top:4px;}
+.tl-t{font-size:12px;font-weight:600;margin-bottom:2px;}
+.tl-d{font-size:11px;color:var(--text2);line-height:1.6;}
+.tl-time{font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:3px;}
+
+/* STEP */
+.step{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:11px;}
+.step:last-child{border-bottom:none;}
+.stn{width:22px;height:22px;border-radius:50%;background:var(--surface2);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;color:var(--text2);}
+
+/* ELIM */
+.elim{border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.ehead{padding:8px 12px;font-size:11px;font-weight:600;}
+.e1 .ehead{background:rgba(0,255,136,0.1);color:var(--accent);border-bottom:1px solid rgba(0,255,136,0.2);}
+.e2 .ehead{background:rgba(245,158,11,0.1);color:var(--amber);border-bottom:1px solid rgba(245,158,11,0.2);}
+.e3 .ehead{background:rgba(255,59,59,0.1);color:var(--red);border-bottom:1px solid rgba(255,59,59,0.2);}
+.e1{border:1px solid rgba(0,255,136,0.2);}
+.e2{border:1px solid rgba(245,158,11,0.2);}
+.e3{border:1px solid rgba(255,59,59,0.2);}
+.ebody{padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.6;}
+
+/* POST */
+.post{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px;}
+.post-h{padding:8px 12px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--border);background:var(--surface2);}
+.post-b{padding:10px 12px;font-size:11px;color:var(--text2);line-height:1.7;}
+.post-clue{font-size:10px;padding:6px 10px;border-radius:5px;background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.15);margin-top:8px;font-family:var(--mono);color:var(--accent);}
+
+/* CODING SPECIAL */
+.idea-box{background:rgba(139,92,246,0.05);border:1px solid rgba(139,92,246,0.25);border-radius:10px;padding:16px;margin-bottom:14px;}
+.idea-title{font-size:14px;font-weight:700;color:#C4B5FD;margin-bottom:6px;}
+.url-demo{font-family:var(--mono);font-size:12px;padding:10px 14px;border-radius:6px;background:rgba(0,0,0,0.5);border:1px solid rgba(139,92,246,0.3);color:#C4B5FD;line-height:2;margin-bottom:10px;}
+.ua{display:inline-block;padding:1px 5px;border-radius:3px;background:rgba(255,59,59,0.2);color:#FCA5A5;font-weight:700;}
+.ub{display:inline-block;padding:1px 5px;border-radius:3px;background:rgba(245,158,11,0.2);color:#FCD34D;font-weight:700;}
+
+/* SWATCH */
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:middle;margin-right:5px;border:1px solid rgba(255,255,255,0.1);}
+
+/* ENV */
+.env{padding:5px 9px;background:var(--surface);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:10px;color:var(--text2);}
+
+/* RESPONSIVE */
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">&#x2329; CYBER<span style="color:var(--accent)">HUNT</span> &#x232A; <span>Master Blueprint &middot; TechAlfa</span></div>
+  <div class="event-badge">05 JUL 2026 &middot; 90 MIN</div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-tab active" data-tab="overview">Overview</button>
+  <button class="nav-tab" data-tab="levels">10 Levels</button>
+  <button class="nav-tab" data-tab="coding">&#x1F4BB; Coding Level</button>
+  <button class="nav-tab" data-tab="schema">DB Schema</button>
+  <button class="nav-tab" data-tab="api">APIs</button>
+  <button class="nav-tab" data-tab="flow">Submission Flow</button>
+  <button class="nav-tab" data-tab="rules">Rules &amp; Scoring</button>
+  <button class="nav-tab" data-tab="social">Social Clues</button>
+  <button class="nav-tab" data-tab="theme">UI Theme</button>
+  <button class="nav-tab" data-tab="roadmap">Roadmap</button>
+  <button class="nav-tab" data-tab="ops">Event Ops</button>
+</nav>
+
+<main class="main">
+
+<!-- ══════════════════════════════════════════════════
+     OVERVIEW
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-overview">
+
+  <div class="section">
+    <div class="sec-label">Stack &amp; Deployment</div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-title">Frontend</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="chip c-blue">Next.js 15</span>
+          <span class="chip c-blue">TypeScript</span>
+          <span class="chip c-blue">Tailwind CSS</span>
+          <span class="chip c-blue">Framer Motion</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Backend &amp; Database</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="chip c-teal">Next.js API Routes</span>
+          <span class="chip c-teal">Supabase PostgreSQL</span>
+          <span class="chip c-teal">Supabase Storage</span>
+          <span class="chip c-teal">RLS Policies</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Deployment</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="chip c-purple">Vercel</span>
+          <span class="chip c-purple">cyberhunt.techalfa.in</span>
+          <span class="chip c-purple">Separate Supabase project</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Event Facts</div>
+    <div class="alert a-warn">&#9888;&#65039; Poster says 1&ndash;2 members only. Enforce CHECK (member_count BETWEEN 1 AND 2) at DB level before build.</div>
+    <div class="g4">
+      <div class="card"><div class="card-title">Event Date</div><strong>5 July 2026</strong></div>
+      <div class="card"><div class="card-title">Duration</div><strong>90 minutes</strong></div>
+      <div class="card"><div class="card-title">Entry Fee</div><strong>&#8377;49/person duo &middot; &#8377;59 solo</strong></div>
+      <div class="card"><div class="card-title">Max Team Size</div><strong>2 members</strong></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Page Routes</div>
+    <div class="g2">
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div class="env">/</div>
+        <div class="env">/register</div>
+        <div class="env">/login</div>
+        <div class="env">/dashboard</div>
+        <div class="env">/play/[levelId]</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <div class="env">/submit</div>
+        <div class="env">/leaderboard</div>
+        <div class="env">/complete</div>
+        <div class="env">/results (gated)</div>
+        <div class="env">/admin (emergency only)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Team ID Generation</div>
+    <div class="mono">
+      prefix = "TEAM"<br>
+      chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789" <span class="dim">// no 0/O/1/I confusion</span><br>
+      id = prefix + "-" + random(chars, 5)<br>
+      <span class="dim">// check uniqueness in DB before assigning</span><br>
+      <span class="dim">// examples: TEAM-X7K92 &nbsp; TEAM-A92LM &nbsp; TEAM-Z4KQ8</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Auth Flow</div>
+    <div class="card">
+      <div class="step"><span class="stn">1</span><span>Team registers &rarr; DB creates team row + generates TEAM-XXXXX ID &rarr; sends confirmation email with ID</span></div>
+      <div class="step"><span class="stn">2</span><span>Login: POST /api/auth/login with <code style="font-family:var(--mono)">{email, team_id}</code> &rarr; server validates &rarr; returns JWT (HttpOnly cookie)</span></div>
+      <div class="step"><span class="stn">3</span><span>JWT contains: <code style="font-family:var(--mono)">{team_id, leader_email, iat, exp:6h}</code> &mdash; signed with NEXTAUTH_SECRET</span></div>
+      <div class="step"><span class="stn">4</span><span>Middleware checks cookie on every /dashboard, /play/*, /leaderboard &mdash; redirects to /login if expired</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Vercel &amp; Supabase — 300 Students, Will It Crash?</div>
+    <div class="alert a-success">&#9989; <strong>Vercel:</strong> 300 concurrent users is nothing. Free tier auto-scales serverless functions. No crash risk. Only watch: cold starts at event launch — warm it up by reloading the dashboard every few minutes before start.</div>
+    <div class="alert a-warn">&#9888;&#65039; <strong>Supabase free tier:</strong> Use Transaction Pooler (port 6543) in your connection string, not direct port 5432. Cache the leaderboard API for 25s. These two changes = zero DB connection issues.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Connection string fix (one line)</div>
+        <div class="mono" style="font-size:10px;">
+          <span class="dim"># WRONG — direct connection</span><br>
+          postgres://...@db.xxx.supabase.co:<span class="neg">5432</span>/postgres<br><br>
+          <span class="dim"># RIGHT — transaction pooler</span><br>
+          postgres://...@db.xxx.supabase.co:<span class="pos">6543</span>/postgres
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Leaderboard cache (25s)</div>
+        <div class="mono" style="font-size:10px;">
+          <span class="dim">// In /api/leaderboard route</span><br>
+          <span class="pos">export const revalidate = 25;</span><br><br>
+          <span class="dim">// 300 students polling every 30s</span><br>
+          <span class="dim">// = ~3 DB hits/min instead of 150</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     10 LEVELS
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-levels">
+
+  <div class="alert a-info">&#128737; Single question set for all teams. AI-resistance comes from fragment accumulation &mdash; a fresh AI prompt without session history can&apos;t reconstruct fragments. Answers are never returned in API responses.</div>
+
+  <div class="section">
+    <div class="sec-label">Challenge Table</div>
+    <table class="tbl">
+      <thead>
+        <tr><th>#</th><th>Type</th><th>Challenge</th><th>Fragment</th><th>Hints</th><th>AI Resistance</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="lvl">1</span></td>
+          <td><span class="chip c-teal">HTML source</span></td>
+          <td style="font-size:11px;">Answer hidden in HTML comment. Not visible in rendered content &mdash; must View Source or use DevTools.</td>
+          <td><span class="frag">CY</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">AI can&apos;t view live page source without browser tool</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">2</span></td>
+          <td><span class="chip c-blue">URL discovery</span></td>
+          <td style="font-size:11px;">A fake 404 page at a cryptic URL contains a redirect chain. Final destination has the answer. URL hinted via pattern in Level 1&apos;s fragment.</td>
+          <td><span class="frag">BE</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">URL must be discovered by observation</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">3</span></td>
+          <td><span class="chip c-purple">GitHub commit</span></td>
+          <td style="font-size:11px;">Dedicated @cyberhunt-techalfa repo. Clue buried in a commit message from 2 weeks ago &mdash; not in README. Must read commit history.</td>
+          <td><span class="frag">RH</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Requires navigating GitHub UI</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">4</span></td>
+          <td><span class="chip c-amber">Logic puzzle</span></td>
+          <td style="font-size:11px;">Fake "encrypted log file" with 6 lines. Only even-numbered lines with a specific prefix form the answer when concatenated. Rule hidden in Level 3&apos;s fragment.</td>
+          <td><span class="frag">UN</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">AI confused without Level 3 rule</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">5</span></td>
+          <td><span class="chip c-red">Coding challenge</span></td>
+          <td style="font-size:11px;">Two buggy programs (Python + JS). Fix both. Each error output hides half a LinkedIn URL slug. Combine fragments &rarr; visit TechAlfa LinkedIn &rarr; find answer posted there. <strong>See Coding Level tab.</strong></td>
+          <td><span class="frag">T_</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Multi-step: code + decode + external URL + social</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">6</span></td>
+          <td><span class="chip c-coral">ZIP challenge</span></td>
+          <td style="font-size:11px;">Supabase Storage UUID-path ZIP download. Inside: 3 text files + 1 image. Only one file is real. ZIP password derived from Levels 1&ndash;4 fragments combined.</td>
+          <td><span class="frag">HU</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Password requires earlier fragments</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">7</span></td>
+          <td><span class="chip c-green">EXIF / Base64</span></td>
+          <td style="font-size:11px;">Image on page has EXIF Comment field with Base64 string &rarr; decode &rarr; ROT13 cipher &rarr; final answer. Two-step decode. <strong>See Level 7 section below.</strong></td>
+          <td><span class="frag">NT</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Must know to check image metadata</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">8</span></td>
+          <td><span class="chip c-blue">DB investigation</span></td>
+          <td style="font-size:11px;">Fake "leaked database dump" JSON with 10 records. One record has an MD5 hash. Cross-reference the provided rainbow table on the page. That word is the answer.</td>
+          <td><span class="frag">ER</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Requires reading two sources on same page</td>
+        </tr>
+        <tr>
+          <td><span class="lvl">9</span></td>
+          <td><span class="chip c-purple">Hidden JS function</span></td>
+          <td style="font-size:11px;">Page looks static. Hidden function <code style="font-family:var(--mono)">revealMission()</code> in JS. Running it in console transforms page and reveals fragment. Hint 1: "Not every function is called automatically."</td>
+          <td><span class="frag">S_</span></td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Must discover and run function in console</td>
+        </tr>
+        <tr>
+          <td><span class="lvl boss">10</span></td>
+          <td><span class="chip c-red">Final boss</span></td>
+          <td style="font-size:11px;">All 9 fragments displayed. Cipher key on page tells participants to reorder by level number reversed, remove underscores. Answer = <strong>CYBERHUNTERS</strong>.</td>
+          <td>&mdash;</td>
+          <td><div class="hdots"><span class="hd h1"></span><span class="hd h2"></span><span class="hd h3"></span></div></td>
+          <td style="font-size:11px;color:var(--text3);">Can&apos;t assemble without all 9 session fragments</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:11px;color:var(--text3);display:flex;flex-wrap:wrap;gap:14px;">
+      <span><span class="hd h1" style="display:inline-block;vertical-align:middle;margin-right:3px;"></span>Hint 1 at 5 min</span>
+      <span><span class="hd h2" style="display:inline-block;vertical-align:middle;margin-right:3px;"></span>Hint 2 at 10 min (screenshot required)</span>
+      <span><span class="hd h3" style="display:inline-block;vertical-align:middle;margin-right:3px;"></span>Hint 3 at 15 min (screenshot required)</span>
+      <span>Final assembled: <span class="frag">CYBERHUNTERS</span></span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Level 7 — EXIF Challenge Explained Simply</div>
+    <div class="alert a-info">&#128247; The challenge page shows one image. No other instructions. Secret: the image has invisible text in its EXIF metadata. Participants must know to look beyond what they see on screen.</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">What participants see</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8;">A single image &mdash; styled as "CYBER HUNT classified document." Below it, just the answer input. Nothing else. The challenge is discovering the image <em>contains hidden data</em> in its metadata.</div>
+        <div style="margin-top:10px;">
+          <div class="row"><span>Hint 1 (5 min)</span><span style="font-style:italic;color:var(--text2);">"Every photo remembers more than you see."</span></div>
+          <div class="row"><span>Hint 2 (10 min)</span><span style="font-style:italic;color:var(--text2);">"Metadata is data about data. Images have it too."</span></div>
+          <div class="row"><span>Hint 3 (15 min)</span><span style="font-style:italic;color:var(--text2);">"Try EXIF. Comment field. Then decode what you find."</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Organizer preparation commands</div>
+        <div class="mono" style="font-size:10px;">
+          <span class="dim"># Install exiftool</span><br>
+          brew install exiftool &nbsp;&nbsp;<span class="dim"># macOS</span><br>
+          apt install libimage-exiftool-perl <span class="dim"># Linux</span><br><br>
+          <span class="dim"># Encode fragment NT to Base64</span><br>
+          echo -n "NT" | base64 <span class="dim"># outputs: TlQ=</span><br><br>
+          <span class="dim"># Embed into image</span><br>
+          <span class="pos">exiftool -Comment="TlQ=" challenge.jpg</span><br><br>
+          <span class="dim"># Verify it&apos;s there</span><br>
+          exiftool challenge.jpg | grep Comment<br>
+          <span class="dim"># &rarr; Comment: TlQ=</span><br><br>
+          <span class="dim"># Upload challenge.jpg to Supabase Storage</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     CODING LEVEL
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-coding">
+
+  <div class="alert a-purple">&#128161; <strong>Your idea, fully designed:</strong> Two buggy programs each hide half a LinkedIn URL in their error output. Fix both &rarr; decode both clues &rarr; combine &rarr; visit TechAlfa LinkedIn &rarr; find the answer posted there.</div>
+
+  <div class="section">
+    <div class="sec-label">The Core Mechanic</div>
+    <div class="idea-box">
+      <div class="idea-title">Split-Hint URL Construction</div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.7;">Two buggy code snippets on the same page. Each has one deliberate error. When participants fix the error, the program&apos;s error output contains exactly half of the TechAlfa LinkedIn URL slug. Combine both halves &rarr; get the full URL &rarr; visit it &rarr; find the answer.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;">Constructed URL:</div>
+      <div class="url-demo">
+        https://www.linkedin.com/company/<span class="ua">tech</span><span class="ub">alfa</span>
+      </div>
+      <div style="display:flex;gap:16px;font-size:11px;">
+        <span><span class="ua" style="padding:1px 5px;">"tech"</span> from fixing Program A</span>
+        <span><span class="ub" style="padding:1px 5px;">"alfa"</span> from fixing Program B</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Program A — Python (Syntax Error)</div>
+    <div class="g2">
+      <div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="card-title" style="color:var(--red);">Buggy code shown to participants</div>
+          <div class="mono" style="font-size:10.5px;">
+            def greet(name)<span style="background:rgba(255,59,59,0.3);color:var(--red);">&nbsp;&nbsp;</span><span class="dim"># missing colon (:)</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print("Hello", name)<br><br>
+            greet("Agent")
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color:var(--red);">Error output they see</div>
+          <div class="mono" style="font-size:10.5px;color:#FCA5A5;">
+            File "mission.py", line 1<br>
+            &nbsp;&nbsp;def greet(name)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^<br>
+            SyntaxError: invalid syntax<br>
+            <span style="color:var(--text3);"># cipher_key: "116 101 99 104"</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="card-title" style="color:var(--accent);">Fixed code</div>
+          <div class="mono" style="font-size:10.5px;">
+            def greet(name)<span style="background:rgba(0,255,136,0.2);color:var(--accent);">:</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;print("Hello", name)<br><br>
+            greet("Agent")
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Decoding the cipher_key</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.9;">
+            ASCII decode: 116&rarr;t, 101&rarr;e, 99&rarr;c, 104&rarr;h<br>
+            Result: <strong style="font-family:var(--mono);color:var(--accent);">"tech"</strong><br>
+            This is the <strong>first half</strong> of the LinkedIn slug.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Program B — JavaScript (Unclosed Brace)</div>
+    <div class="g2">
+      <div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="card-title" style="color:var(--red);">Buggy code shown to participants</div>
+          <div class="mono" style="font-size:10.5px;">
+            const data = {<br>
+            &nbsp;&nbsp;mission: "find the key",<br>
+            &nbsp;&nbsp;agent: "classified"<br>
+            <span class="dim">&nbsp;&nbsp;// missing closing }</span><br><br>
+            console.log(data.mission);
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="color:var(--red);">Error output they see</div>
+          <div class="mono" style="font-size:10.5px;color:#FCA5A5;">
+            Uncaught SyntaxError:<br>
+            Unexpected end of input<br>
+            &nbsp;&nbsp;at mission.js:6<br>
+            <span style="color:var(--text3);"># hint_b64: "YWxmYQ=="</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:8px;">
+          <div class="card-title" style="color:var(--accent);">Fixed code</div>
+          <div class="mono" style="font-size:10.5px;">
+            const data = {<br>
+            &nbsp;&nbsp;mission: "find the key",<br>
+            &nbsp;&nbsp;agent: "classified"<br>
+            <span style="background:rgba(0,255,136,0.2);color:var(--accent);">}</span><br><br>
+            console.log(data.mission);
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Decoding hint_b64</div>
+          <div style="font-size:11px;color:var(--text2);line-height:1.9;">
+            Base64 decode "YWxmYQ==" &rarr; <strong style="font-family:var(--mono);color:var(--amber);">"alfa"</strong><br>
+            This is the <strong>second half</strong> of the LinkedIn slug.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Assembly &amp; LinkedIn Answer</div>
+    <div class="idea-box">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">The challenge page instruction: <em>"Each program hides a fragment in its error. Fix both. Combine A + B to complete: https://www.linkedin.com/company/[A][B]"</em></div>
+      <div class="url-demo">
+        Frag A: <span class="ua">tech</span> + Frag B: <span class="ub">alfa</span> = <span style="color:var(--accent);">https://linkedin.com/company/techalfa</span>
+      </div>
+      <div class="row"><span>Visit the LinkedIn URL</span><span class="chip c-blue">linkedin.com/company/techalfa</span></div>
+      <div class="row"><span>Find answer in pinned post or About section</span><span class="chip c-amber">Posted morning of event only</span></div>
+      <div class="row"><span>Submit that answer on the platform</span><span class="chip c-green">Level cleared &rarr; fragment earned</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Hints for This Level</div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-title">Hint 1 &mdash; 5 min</div>
+        <div style="font-size:12px;font-style:italic;color:var(--text2);">"Both programs are broken. Fix them. But also &mdash; read every line of the output carefully."</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Hint 2 &mdash; 10 min</div>
+        <div style="font-size:12px;font-style:italic;color:var(--text2);">"Error messages can carry more than just errors. Decode what you find in Program A&apos;s output first."</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Hint 3 &mdash; 15 min</div>
+        <div style="font-size:12px;font-style:italic;color:var(--text2);">"Two fragments, one URL. TechAlfa has a professional presence online. Combine A then B."</div>
+      </div>
+    </div>
+    <div class="alert a-warn" style="margin-top:10px;">&#9888; Post the LinkedIn answer the <strong>morning of the event only</strong>, not before. Use a pinned comment or the About section &mdash; not the main feed. Have a screenshot backup if LinkedIn goes down.</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     DB SCHEMA
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-schema">
+
+  <div class="alert a-warn">&#9888; Fragments must be server-side only. Never store in localStorage or client state. Inventory panel fetches from /api/fragments exclusively.</div>
+
+  <div class="g2">
+    <div>
+      <div class="sbox">
+        <div class="shead">teams</div>
+        <div class="srow"><span class="cn">team_id</span><div style="display:flex;gap:4px;"><span class="ct">varchar(12)</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">team_name</span><span class="ct">varchar(100)</span></div>
+        <div class="srow"><span class="cn">leader_name</span><span class="ct">varchar(100)</span></div>
+        <div class="srow"><span class="cn">leader_email</span><div style="display:flex;gap:4px;"><span class="ct">varchar</span><span class="buq">UQ</span></div></div>
+        <div class="srow"><span class="cn">college_name</span><span class="ct">varchar(200)</span></div>
+        <div class="srow"><span class="cn">member_count</span><span class="ct">smallint CHECK(1&ndash;2)</span></div>
+        <div class="srow"><span class="cn">members_json</span><span class="ct">jsonb</span></div>
+        <div class="srow"><span class="cn">registered_at</span><span class="ct">timestamptz DEFAULT now()</span></div>
+        <div class="srow"><span class="cn">is_disqualified</span><span class="ct">boolean DEFAULT false</span></div>
+      </div>
+
+      <div class="sbox">
+        <div class="shead">progress</div>
+        <div class="srow"><span class="cn">team_id</span><div style="display:flex;gap:4px;"><span class="ct">varchar(12)</span><span class="bfk">FK</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">level_id</span><div style="display:flex;gap:4px;"><span class="ct">smallint 1&ndash;10</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">started_at</span><span class="ct">timestamptz</span></div>
+        <div class="srow"><span class="cn">solved_at</span><span class="ct">timestamptz NULL</span></div>
+        <div class="srow"><span class="cn">attempts</span><span class="ct">int DEFAULT 0</span></div>
+        <div class="srow"><span class="cn">hints_used</span><span class="ct">int[] DEFAULT '{}'</span></div>
+        <div class="srow"><span class="cn">time_on_level_s</span><span class="ct">int COMPUTED</span></div>
+      </div>
+
+      <div class="sbox">
+        <div class="shead">event_settings</div>
+        <div class="srow"><span class="cn">id</span><div style="display:flex;gap:4px;"><span class="ct">int</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">event_start</span><span class="ct">timestamptz</span></div>
+        <div class="srow"><span class="cn">event_end</span><span class="ct">timestamptz</span></div>
+        <div class="srow"><span class="cn">is_paused</span><span class="ct">boolean DEFAULT false</span></div>
+        <div class="srow"><span class="cn">paused_at</span><span class="ct">timestamptz NULL</span></div>
+        <div class="srow"><span class="cn">total_paused_ms</span><span class="ct">bigint DEFAULT 0</span></div>
+        <div class="srow"><span class="cn">registration_open</span><span class="ct">boolean DEFAULT true</span></div>
+        <div class="srow"><span class="cn">results_published</span><span class="ct">boolean DEFAULT false</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sbox">
+        <div class="shead">levels</div>
+        <div class="srow"><span class="cn">level_id</span><div style="display:flex;gap:4px;"><span class="ct">smallint</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">title</span><span class="ct">varchar(200)</span></div>
+        <div class="srow"><span class="cn">challenge_type</span><span class="ct">varchar(50)</span></div>
+        <div class="srow"><span class="cn">content_html</span><span class="ct">text</span></div>
+        <div class="srow"><span class="cn">answer_hash</span><span class="ct">varchar(64) SHA256</span></div>
+        <div class="srow"><span class="cn">answer_salt</span><span class="ct">varchar(32)</span></div>
+        <div class="srow"><span class="cn">fragment</span><span class="ct">varchar(10)</span></div>
+        <div class="srow"><span class="cn">hint_1 / hint_2 / hint_3</span><span class="ct">text</span></div>
+        <div class="srow"><span class="cn">is_active</span><span class="ct">boolean DEFAULT true</span></div>
+      </div>
+
+      <div class="sbox">
+        <div class="shead">submissions</div>
+        <div class="srow"><span class="cn">id</span><div style="display:flex;gap:4px;"><span class="ct">uuid</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">team_id</span><div style="display:flex;gap:4px;"><span class="ct">varchar</span><span class="bfk">FK</span></div></div>
+        <div class="srow"><span class="cn">level_id</span><span class="ct">smallint</span></div>
+        <div class="srow"><span class="cn">submitted_answer</span><span class="ct">text &mdash; NOT STORED</span></div>
+        <div class="srow"><span class="cn">is_correct</span><span class="ct">boolean</span></div>
+        <div class="srow"><span class="cn">submitted_at</span><span class="ct">timestamptz DEFAULT now()</span></div>
+        <div class="srow"><span class="cn">ip_address</span><span class="ct">inet &mdash; rate limiting</span></div>
+      </div>
+
+      <div class="sbox">
+        <div class="shead">final_submissions</div>
+        <div class="srow"><span class="cn">submission_id</span><div style="display:flex;gap:4px;"><span class="ct">uuid</span><span class="bpk">PK</span></div></div>
+        <div class="srow"><span class="cn">team_id</span><div style="display:flex;gap:4px;"><span class="ct">varchar</span><span class="bfk">FK</span></div></div>
+        <div class="srow"><span class="cn">level10_solved_at</span><span class="ct">timestamptz</span></div>
+        <div class="srow"><span class="cn">screenshot_url</span><span class="ct">text NULL (Supabase Storage)</span></div>
+        <div class="srow"><span class="cn">screenshot_uploaded_at</span><span class="ct">timestamptz NULL</span></div>
+        <div class="srow"><span class="cn">status</span><span class="ct">enum: pending / verified / disqualified</span></div>
+        <div class="srow"><span class="cn">is_winner</span><span class="ct">boolean DEFAULT false</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     APIs
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-api">
+
+  <div class="alert a-info">&#128274; All answer hashing happens server-side. API never returns the correct answer &mdash; only <code style="font-family:var(--mono)">{correct: true/false}</code>. Rate limit: 5 attempts/min per team.</div>
+
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/auth/register</span></div><div class="api-desc">Creates team row, generates TEAM-ID, sends email confirmation</div><div class="api-note">Body: {team_name, leader_name, leader_email, college_name, members[]} &rarr; {team_id, message}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/auth/login</span></div><div class="api-desc">Validates email + team_id, returns HttpOnly JWT cookie (6h expiry)</div><div class="api-note">Body: {email, team_id} &rarr; sets cookie, returns {team_name, current_level}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/level/[levelId]</span></div><div class="api-desc">Returns level content ONLY if team has reached this level. Server checks progress table.</div><div class="api-note">Returns: {title, content_html, challenge_type} &mdash; never returns answer_hash or fragment</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/level/[levelId]/submit</span></div><div class="api-desc">Hashes submitted answer server-side, compares to stored hash. Rate-limited 5 attempts/min.</div><div class="api-note">Body: {answer} &rarr; {correct: bool, fragment?: string} &mdash; fragment only on correct</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/hints/[levelId]</span></div><div class="api-desc">Returns available hints based on time spent on level. Logs to progress.hints_used[].</div><div class="api-note">Returns: {available_hints: [{num:1, text:"..."}]} &mdash; time-unlocked only. Requires screenshot for hints 2 &amp; 3.</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/fragments</span></div><div class="api-desc">Returns all earned fragments for authenticated team from DB. Never from client state.</div><div class="api-note">Returns: {fragments: [{level_id:1, value:"CY"}, ...]}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/leaderboard</span></div><div class="api-desc">Top 20 teams sorted by levels solved. Polled every 30s. Cached 25s. No Supabase Realtime.</div><div class="api-note">Returns: {teams: [{rank, team_name, levels_solved}]} &mdash; score hidden during event</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/dashboard</span></div><div class="api-desc">Team full state: rank, current level, fragment inventory, countdown, hint status</div><div class="api-note">Returns: {team_name, rank, current_level, score, fragments[], event_status}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/submit/final</span></div><div class="api-desc">Auto-called when Level 10 solved. Creates row in final_submissions. Redirects to /submit page.</div><div class="api-note">Guard: if row exists &rarr; return existing. Returns: {submission_id, solved_at, redirect:"/submit"}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/submit/upload</span></div><div class="api-desc">Upload screenshot proof. Max 5MB. One upload per team. Within event time or 10-min grace.</div><div class="api-note">Returns: {success:true, uploaded_at} &mdash; stores to Supabase Storage</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-get">GET</span><span class="api-path">/api/results</span></div><div class="api-desc">Public but gated. Returns 403 until results_published = true in event_settings. Cached 60s.</div><div class="api-note">Returns: Full leaderboard + winner flagged &mdash; only after organizer publishes</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/admin/pause</span></div><div class="api-desc">Pause/resume event. Records paused_at. On resume, adds elapsed to total_paused_ms. Admin only.</div><div class="api-note">Body: {action: "pause" | "resume"} &mdash; timer compensation is automatic</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/admin/force-unlock</span></div><div class="api-desc">Emergency: unlocks a level for a specific team. Logged to audit trail. Admin only.</div><div class="api-note">Body: {team_id, level_id}</div></div>
+  <div class="api"><div class="api-top"><span class="mth m-post">POST</span><span class="api-path">/api/admin/results/publish</span></div><div class="api-desc">Sets results_published = true + winner_announced = true. Unlocks /results page for all.</div><div class="api-note">Body: {winner_team_id} &mdash; admin only, run after manual verification</div></div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SUBMISSION FLOW
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-flow">
+
+  <div class="alert a-info">&#8505;&#65039; Key principle: completing Level 10 does NOT show results. It opens a submission page. Results are only visible after organizer manually publishes. Participants only see "submission received."</div>
+
+  <div class="section">
+    <div class="sec-label">Full Participant Journey</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-b"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">Pre-event</div><div class="tl-t">Registration + Team ID</div><div class="tl-d">Team registers on /register. System creates DB row, generates TEAM-XXXXX, sends confirmation email. Login immediately available.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-g"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">T = 0:00 &mdash; Event starts</div><div class="tl-t">Dashboard unlocks</div><div class="tl-d">Admin sets event_start. Level 1 button activates. Global 90-min countdown begins. Live leaderboard shows levels solved (not scores).</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-a"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">T = 0:00 &rarr; 1:30:00</div><div class="tl-t">Playing Levels 1&ndash;10</div><div class="tl-d">Each correct answer unlocks next level + earns fragment. Hints available after 5/10/15 min. Screenshot upload required to unlock Hints 2 or 3.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-g"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">After Level 10 solved</div><div class="tl-t">Auto-redirect to /submit</div><div class="tl-d">System auto-calls POST /api/submit/final. Records level10_solved_at timestamp. Team redirected to /submit &mdash; not a results page.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-p"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">Submission page</div><div class="tl-t">Screenshot upload</div><div class="tl-d">Team uploads screenshot of completed dashboard. Page says: "Mission Complete. Upload your proof screenshot." No score shown. Confirmation: "Submission received. Results announced by organizer."</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-r"></div><div class="tl-line"></div></div>
+        <div><div class="tl-time">T = 1:30:00 &mdash; Event ends</div><div class="tl-t">All submissions locked</div><div class="tl-d">All /play/* routes return 403. Admin exports CSV. Organizer reviews screenshots and verifies winner manually.</div></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left"><div class="tl-dot td-a"></div></div>
+        <div><div class="tl-time">Post-event</div><div class="tl-t">Results announcement</div><div class="tl-d">Admin calls POST /api/admin/results/publish. /results page unlocks for everyone with full leaderboard, winner banner, and certificate download.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Results Page &mdash; Before &amp; After</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">After results_published = true</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.9;">&bull; Winner announced at top with trophy<br>&bull; Full leaderboard with final scores + hints used<br>&bull; Certificate download button per team<br>&bull; Winner gets internship prize banner<br>&bull; Submission screenshots NOT shown publicly</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Before results_published = true</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.9;">&bull; /results returns "Results will be announced soon"<br>&bull; No scores, no rankings visible<br>&bull; Live leaderboard still shows levels solved<br>&bull; Cannot be bypassed with direct URL</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     RULES & SCORING
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-rules">
+
+  <div class="section">
+    <div class="sec-label">Points Per Level</div>
+    <div class="alert a-success">&#127942; No hints on a level = full 100 pts. Hint costs are per-level and independent of other levels.</div>
+    <div class="card">
+      <div class="row"><span>Solve without any hint</span><span style="font-weight:700;color:var(--accent);">100 pts</span></div>
+      <div class="row"><span>Use Hint 1 (unlocks at 5 min)</span><span style="color:#86EFAC;">&minus;10 pts &rarr; 90 pts max</span></div>
+      <div class="row"><span>Use Hint 2 (unlocks at 10 min)</span><span style="color:var(--amber);">&minus;20 more &rarr; 70 pts max</span></div>
+      <div class="row"><span>Use Hint 3 (unlocks at 15 min)</span><span style="color:var(--red);">&minus;30 more &rarr; 40 pts max</span></div>
+      <div class="row"><span>All 3 hints used</span><span style="color:var(--text3);">40 pts (still worth completing)</span></div>
+      <div class="row"><span>Level not solved</span><span style="color:var(--text3);">0 pts, no fragment earned</span></div>
+    </div>
+    <div style="margin-top:6px;font-size:11px;color:var(--text3);">If you solve Level 3 clean but used all hints on Level 2 &mdash; Level 3 still gives 100 pts. Per-level, not cumulative.</div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Total Score Formula</div>
+    <div class="mono">
+      Level score = 100<br>
+      &nbsp;&nbsp;<span class="neg">&minus; 10 if Hint 1 used</span><br>
+      &nbsp;&nbsp;<span class="neg">&minus; 20 if Hint 2 used</span><br>
+      &nbsp;&nbsp;<span class="neg">&minus; 30 if Hint 3 used</span><br><br>
+      Total = SUM(all level scores)<br>
+      Max possible = <span class="pos">1000 pts</span> (10 levels &times; 100, zero hints)<br><br>
+      Tie-breaker &rarr; earliest solved_at on Level 10
+    </div>
+    <div class="g2" style="margin-top:12px;">
+      <div class="card">
+        <div class="card-title">Team A &mdash; clean run</div>
+        <div class="row"><span>10 levels &times; 100</span><span style="color:var(--accent);font-weight:700;">1000 pts</span></div>
+        <div class="row"><span>Hints used</span><span>0</span></div>
+        <div class="row"><span>Result</span><span>Wins tiebreaker by time</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Team B &mdash; some hints</div>
+        <div class="row"><span>8 levels clean (800) + 2 with Hint 1</span><span style="color:var(--amber);">&minus;20 pts</span></div>
+        <div class="row"><span>Final score</span><span style="font-weight:700;">780 pts</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Team C &mdash; heavy hints</div>
+        <div class="row"><span>All 3 hints on 5 levels</span><span style="color:var(--red);">&minus;300 pts</span></div>
+        <div class="row"><span>Final score</span><span style="font-weight:700;">700 pts</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Team D &mdash; incomplete</div>
+        <div class="row"><span>6 levels clean, ran out of time</span><span>600 pts</span></div>
+        <div class="row"><span>4 unsolved levels</span><span style="color:var(--text3);">0 pts each</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Elimination Rules</div>
+    <div class="alert a-danger">&#128683; Two elimination types: (1) No progress timeout. (2) AI abuse via screenshot detection.</div>
+    <div class="elim e2">
+      <div class="ehead">Elimination Type 1 &mdash; No Progress Timeout</div>
+      <div class="ebody">
+        <div class="step"><span class="stn">1</span><span>0 attempts AND 0 correct submissions after 45 min &rarr; flagged as "stuck"</span></div>
+        <div class="step"><span class="stn">2</span><span>Warning banner on dashboard: "No progress detected. 15 minutes before session marked inactive."</span></div>
+        <div class="step"><span class="stn">3</span><span>After 60 min with 0 attempts &rarr; "eliminated" in DB. Dashboard shows "Mission Failed &mdash; Session Closed."</span></div>
+        <div class="step"><span class="stn">!</span><span style="color:var(--amber);">Edge case: team actively trying wrong answers is NOT eliminated &mdash; attempts show genuine effort.</span></div>
+      </div>
+    </div>
+    <div class="elim e1" style="margin-top:8px;">
+      <div class="ehead">AI Rule &mdash; 3 uses allowed, 4th = elimination</div>
+      <div class="ebody">Teams are told in pre-event briefing: AI tools are allowed up to 3 times total. This is fair &mdash; announced upfront. No penalty for first 3 detected uses.</div>
+    </div>
+    <div class="elim e2" style="margin-top:8px;">
+      <div class="ehead">AI Detection &mdash; Screenshot on Hint 2 or Hint 3</div>
+      <div class="ebody">When a team requests Hint 2 or 3, the system shows: "To unlock this hint, upload a screenshot of your current screen." If screenshot shows AI tool UI (ChatGPT, Claude, Gemini visible) &rarr; counts as one AI-use detection. After 3 such screenshots &rarr; elimination review begins.</div>
+    </div>
+    <div class="elim e3" style="margin-top:8px;">
+      <div class="ehead">4th AI Detection &mdash; Disqualification</div>
+      <div class="ebody">Organizer manually reviews screenshots after event. If 4+ AI-use screenshots found &rarr; team marked disqualified. Not eligible for prizes but receives participation certificate.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Timer &amp; Live Leaderboard</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Timer rules</div>
+        <div class="row"><span>Single global 90-min countdown</span><span class="chip c-green">All teams</span></div>
+        <div class="row"><span>Set by organizer at event start</span><span class="chip c-blue">Admin action</span></div>
+        <div class="row"><span>Displayed on every page always</span><span class="chip c-blue">Always visible</span></div>
+        <div class="row"><span>At T=0 all submissions locked server-side</span><span class="chip c-red">Hard lock</span></div>
+        <div class="row"><span>Pause compensation via total_paused_ms</span><span class="chip c-amber">Automatic</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Live leaderboard &mdash; what participants see</div>
+        <div class="row"><span>Sorted by</span><span>Levels solved &rarr; then time</span></div>
+        <div class="row"><span>Visible</span><span>Team name &middot; levels solved</span></div>
+        <div class="row"><span>Hidden during event</span><span>Exact score, hints, fragments</span></div>
+        <div class="row"><span>Refresh</span><span>Every 30 seconds (polling)</span></div>
+        <div class="row"><span>Eliminated teams</span><span>Hidden from board</span></div>
+        <div class="row"><span>Final scores revealed</span><span>After organizer publishes</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     SOCIAL CLUES
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-social">
+
+  <div class="alert a-info">&#128241; TechAlfa posts on Instagram/LinkedIn before and during the event. Teams who follow and pay attention get an edge &mdash; AI can&apos;t scroll social media without context.</div>
+
+  <div class="section">
+    <div class="sec-label">How It Works</div>
+    <div class="card">
+      <div class="step"><span class="stn">1</span><span>Confirmation email says: "Follow @TechAlfa on Instagram. Some answers begin before the event starts."</span></div>
+      <div class="step"><span class="stn">2</span><span>TechAlfa posts 3 strategic posts across 3 days before event. Each looks like normal content but hides a clue useful in a specific level.</span></div>
+      <div class="step"><span class="stn">3</span><span>During event, teams who noticed posts have an advantage. Others get it from Hint 2 or 3 of that level (nudges: "check our social media").</span></div>
+      <div class="step"><span class="stn">4</span><span>After registration closes, one "Mission Briefing" post contains the Level 4 logic rule for attentive readers.</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Planned Posts</div>
+    <div class="post">
+      <div class="post-h"><span class="chip c-purple">3 days before</span><span style="font-size:11px;color:var(--text3);">Instagram &middot; @TechAlfa</span></div>
+      <div class="post-b"><strong>Caption:</strong> "Did you know? Every great hacker starts by reading what others ignore. &#128065;&#65039; The answer is always in the details &mdash; not the headline. #CyberHunt #TechAlfa"<div class="post-clue">Hidden clue: "not the headline" &rarr; HTML comments (not visible text) &mdash; primes participants for Level 1</div></div>
+    </div>
+    <div class="post">
+      <div class="post-h"><span class="chip c-amber">1 day before</span><span style="font-size:11px;color:var(--text3);">LinkedIn &middot; TechAlfa page</span></div>
+      <div class="post-b"><strong>Caption:</strong> "Excited for #CyberHunt tomorrow! Fun fact: in Git, the truth isn&apos;t always in the latest commit. Sometimes you need to dig deeper. &#128269;"<div class="post-clue">Hidden clue: "not always in the latest commit" &rarr; hints Level 3 &mdash; look at older commit history, not README</div></div>
+    </div>
+    <div class="post">
+      <div class="post-h"><span class="chip c-green">Morning of event</span><span style="font-size:11px;color:var(--text3);">Instagram &middot; @TechAlfa</span></div>
+      <div class="post-b"><strong>Caption:</strong> "Mission starts at [time]. Remember: even numbers hold secrets. Look for the pattern, not just the data. Good luck agents. &#128994; #CyberHunt"<div class="post-clue">Hidden clue: "even numbers hold secrets" &rarr; Level 4 rule: only even-numbered log lines form the answer</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Social Media Rules</div>
+    <div class="card">
+      <div class="row"><span>Never post the answer directly</span><span class="chip c-green">Rule</span></div>
+      <div class="row"><span>Clue must look like normal content to non-participants</span><span class="chip c-green">Rule</span></div>
+      <div class="row"><span>Each post ties to exactly one level</span><span class="chip c-green">Rule</span></div>
+      <div class="row"><span>Hint 2 of that level nudges "check our social media"</span><span class="chip c-blue">Fallback</span></div>
+      <div class="row"><span>Never delete posts during the event</span><span class="chip c-red">Critical</span></div>
+      <div class="row"><span>Screenshot all posts before event starts as backup</span><span class="chip c-amber">Backup</span></div>
+      <div class="row"><span>LinkedIn coding-level answer: post morning of event only</span><span class="chip c-red">Critical</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     UI THEME
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-theme">
+
+  <div class="section">
+    <div class="sec-label">Color Palette &mdash; Mission Control</div>
+    <div class="g2">
+      <div class="card">
+        <div class="row"><span>Background</span><span><span class="sw" style="background:#0A0E1A;"></span><code style="font-family:var(--mono);font-size:10px;">#0A0E1A</code> near-black</span></div>
+        <div class="row"><span>Primary accent</span><span><span class="sw" style="background:#00FF88;"></span><code style="font-family:var(--mono);font-size:10px;">#00FF88</code> neon green</span></div>
+        <div class="row"><span>Secondary accent</span><span><span class="sw" style="background:#FF3B3B;"></span><code style="font-family:var(--mono);font-size:10px;">#FF3B3B</code> alarm red</span></div>
+        <div class="row"><span>Surface / cards</span><span><span class="sw" style="background:#111827;"></span><code style="font-family:var(--mono);font-size:10px;">#111827</code> dark card</span></div>
+        <div class="row"><span>Text primary</span><span><span class="sw" style="background:#E5E7EB;"></span><code style="font-family:var(--mono);font-size:10px;">#E5E7EB</code> off-white</span></div>
+        <div class="row"><span>Muted text</span><span><span class="sw" style="background:#6B7280;"></span><code style="font-family:var(--mono);font-size:10px;">#6B7280</code> gray</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Typography</div>
+        <div class="row"><span>Display / headings</span><span>Space Grotesk &mdash; techy, geometric</span></div>
+        <div class="row"><span>Body text</span><span>Inter &mdash; clean, readable</span></div>
+        <div class="row"><span>Code / clues / fragments</span><span>JetBrains Mono &mdash; hacker feel</span></div>
+        <div class="row"><span>Countdown timer</span><span>JetBrains Mono, large, red or green</span></div>
+        <div class="row"><span>Fragment pills</span><span>Mono, neon green on dark bg</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Page-by-Page Feel</div>
+    <div class="g2">
+      <div class="card"><div class="card-title">Landing page</div><div style="font-size:11px;color:var(--text2);line-height:1.8;">Dark full-bleed bg &middot; "SYSTEM BREACH DETECTED" header &middot; Animated typing effect on tagline &middot; Glitching vault graphic &middot; Red "Register Now" CTA &middot; Countdown to event start</div></div>
+      <div class="card"><div class="card-title">Dashboard (mission control)</div><div style="font-size:11px;color:var(--text2);line-height:1.8;">Grid layout like a cockpit &middot; Large green countdown center &middot; Fragment inventory as "classified files" panel &middot; Leaderboard as terminal-style list &middot; "Mission 1 of 10 &mdash; ACTIVE"</div></div>
+      <div class="card"><div class="card-title">Level page</div><div style="font-size:11px;color:var(--text2);line-height:1.8;">Full-screen challenge content &middot; "Classified" header bar &middot; Hint panel slides in from bottom &middot; Monospace answer input &middot; Wrong: red flash + "ACCESS DENIED" &middot; Correct: green pulse + next level unlocks</div></div>
+      <div class="card"><div class="card-title">Mission complete screen</div><div style="font-size:11px;color:var(--text2);line-height:1.8;">Full-screen animation &middot; "ENCRYPTION KEY RECOVERED" &middot; All 9 fragments shown assembled &middot; Final score shown &middot; Scan-line effect &middot; Screenshot share button</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Micro-Interactions</div>
+    <div class="card">
+      <div class="row"><span>Wrong answer</span><span style="font-size:11px;">Screen flashes red &middot; "ACCESS DENIED" mono text &middot; Input shakes</span></div>
+      <div class="row"><span>Correct answer</span><span style="font-size:11px;">Green pulse &middot; "LEVEL CLEARED" &middot; Fragment animates into inventory</span></div>
+      <div class="row"><span>Hint unlock</span><span style="font-size:11px;">Hint panel slides up &middot; Lock icon unlocks with animation</span></div>
+      <div class="row"><span>Timer under 10 min</span><span style="font-size:11px;">Timer turns red &middot; Subtle pulse animation starts</span></div>
+      <div class="row"><span>Eliminated</span><span style="font-size:11px;">"MISSION FAILED" screen &middot; Red scanlines &middot; Session locked</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ROADMAP
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-roadmap">
+
+  <div class="alert a-warn">&#128197; Event date: 5 July 2026 &mdash; ~10 days. Tight but achievable. Challenge content must be designed in parallel with code.</div>
+
+  <div class="section">
+    <div class="sec-label">Build Phases</div>
+    <div class="g2">
+      <div class="phase p1">
+        <div class="phead">Phase 1 &mdash; Foundation <span class="pdate">&rarr; June 26</span></div>
+        <div class="pbody">
+          <div class="task">New Supabase project, all 5 tables + RLS policies</div>
+          <div class="task">Next.js 15 project init, Tailwind, folder structure</div>
+          <div class="task">Registration API + UI + email confirmation (Resend)</div>
+          <div class="task">Login API + JWT HttpOnly cookie middleware</div>
+          <div class="task">event_settings table + admin seed data</div>
+        </div>
+      </div>
+      <div class="phase p2">
+        <div class="phead">Phase 2 &mdash; Game Core <span class="pdate">&rarr; June 29</span></div>
+        <div class="pbody">
+          <div class="task">Dashboard UI &mdash; Mission Control theme</div>
+          <div class="task">Level page + answer submission + rate limiting (5/min)</div>
+          <div class="task">Hint system &mdash; time-based unlock + screenshot upload</div>
+          <div class="task">Fragment server-side storage + inventory panel</div>
+          <div class="task">Global 90-min countdown with pause compensation</div>
+        </div>
+      </div>
+      <div class="phase p3">
+        <div class="phead">Phase 3 &mdash; Content <span class="pdate">&rarr; July 2</span></div>
+        <div class="pbody">
+          <div class="task">Design + write all 10 challenge pages</div>
+          <div class="task">Create @cyberhunt-techalfa GitHub repo + plant commit clues</div>
+          <div class="task">Prepare ZIP file (Supabase Storage UUID path)</div>
+          <div class="task">Prepare EXIF image for Level 7 (exiftool)</div>
+          <div class="task">Write Python + JS buggy programs for Level 5 (Coding)</div>
+          <div class="task">Write all 30 hints (3 per level)</div>
+          <div class="task">Leaderboard page + 30s polling</div>
+        </div>
+      </div>
+      <div class="phase p4">
+        <div class="phead">Phase 4 &mdash; Launch <span class="pdate">&rarr; July 4</span></div>
+        <div class="pbody">
+          <div class="task">Minimal admin panel: pause/resume, force-unlock, publish results, export CSV</div>
+          <div class="task">Full dry-run with 3 test teams &mdash; full 90-min simulation</div>
+          <div class="task">Seed all answer hashes into levels table + verify each</div>
+          <div class="task">Vercel deploy + env vars + domain (cyberhunt.techalfa.in)</div>
+          <div class="task">Save previous Vercel deployment URL as fallback</div>
+          <div class="task">Connection string: switch to port 6543 (Transaction Pooler)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Critical Path &mdash; Must Complete In Order</div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:11px;">
+      <span class="chip c-blue">DB schema</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-blue">Auth APIs</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-green">Level system</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-green">Fragment logic</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-amber">Challenge content</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-amber">Answer hashing</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-purple">Dry run</span><span style="color:var(--text3);">&rarr;</span>
+      <span class="chip c-red">Deploy</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     EVENT OPS
+══════════════════════════════════════════════════ -->
+<div class="tab-pane" id="pane-ops">
+
+  <div class="alert a-info">&#128736;&#65039; Admin panel is minimal &mdash; emergency controls only. No live monitoring dashboard needed. Organizer trusts the system and only intervenes if something breaks.</div>
+
+  <div class="section">
+    <div class="sec-label">Admin Panel &mdash; What You Actually Need</div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Emergency controls only</div>
+        <div class="row"><span>Pause / Resume event</span><span class="chip c-amber">With timer compensation</span></div>
+        <div class="row"><span>Force-unlock a level for a team</span><span class="chip c-amber">If tech issue</span></div>
+        <div class="row"><span>Export results CSV</span><span class="chip c-blue">Post-event</span></div>
+        <div class="row"><span>Publish results (flip results_published)</span><span class="chip c-green">Post-event</span></div>
+        <div class="row"><span>Mark winner (set is_winner = true)</span><span class="chip c-green">Post-event</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">What you do NOT need</div>
+        <div class="row"><span>Live submission monitoring dashboard</span><span class="chip c-red">Remove</span></div>
+        <div class="row"><span>Per-team progress tracker</span><span class="chip c-red">Remove</span></div>
+        <div class="row"><span>Real-time alert system</span><span class="chip c-red">Remove</span></div>
+        <div class="row"><span>Hint review UI during event</span><span class="chip c-red">Remove</span></div>
+        <div class="row"><span>Screenshots reviewed during event</span><span class="chip c-amber">After event only</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Checklists</div>
+    <div class="g3">
+      <div class="card">
+        <div class="card-title">Day before (July 4)</div>
+        <div class="chk">All 10 levels seeded in DB</div>
+        <div class="chk">All answer hashes verified (test each manually)</div>
+        <div class="chk">@cyberhunt-techalfa GitHub repo live</div>
+        <div class="chk">ZIP file on Supabase Storage (UUID path)</div>
+        <div class="chk">EXIF image embedded + verified</div>
+        <div class="chk">Python + JS buggy programs finalized</div>
+        <div class="chk">Dry run: 3 teams, full 90-min simulation</div>
+        <div class="chk">Admin panel pause/resume tested</div>
+        <div class="chk">Previous Vercel deployment URL saved</div>
+        <div class="chk">Email confirmation flow tested</div>
+        <div class="chk">Connection string: port 6543 confirmed</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Event day (July 5)</div>
+        <div class="chk">Post LinkedIn answer (coding level) &mdash; morning only</div>
+        <div class="chk">Warm up Vercel: reload dashboard page 5x before start</div>
+        <div class="chk">Set event_start in event_settings</div>
+        <div class="chk">Set registration_open = false at start</div>
+        <div class="chk">Leaderboard on projector / screen</div>
+        <div class="chk">Admin panel open on second device</div>
+        <div class="chk">Watch for teams with 0 attempts at 45 min</div>
+        <div class="chk">Export results CSV at event end</div>
+        <div class="chk">Lock all level routes after event_end</div>
+        <div class="chk">Review hint screenshots for AI detection</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Emergency recovery</div>
+        <div class="chk">Vercel broke &rarr; revert to saved previous URL</div>
+        <div class="chk">Supabase down &rarr; admin extends event_end</div>
+        <div class="chk">Answer dispute &rarr; check submissions table timestamp</div>
+        <div class="chk">Team locked out &rarr; admin force-unlock</div>
+        <div class="chk">LinkedIn down &rarr; admin reveals via force-unlock on Level 5</div>
+        <div class="chk">Rate limit false positive &rarr; admin resets via DB directly</div>
+        <div class="chk">ZIP file URL exposed &rarr; change storage path, re-seed level</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-label">Env Variables Checklist</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+      <div class="env">NEXT_PUBLIC_SUPABASE_URL</div>
+      <div class="env">NEXT_PUBLIC_SUPABASE_ANON_KEY</div>
+      <div class="env">SUPABASE_SERVICE_ROLE_KEY &nbsp;&#9888; server only</div>
+      <div class="env">NEXTAUTH_SECRET</div>
+      <div class="env">RESEND_API_KEY (email)</div>
+      <div class="env">ADMIN_SECRET (admin login)</div>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);">&#9888; SUPABASE_SERVICE_ROLE_KEY must never appear in client-side code or in any NEXT_PUBLIC_ prefixed variable.</div>
+  </div>
+
+</div>
+
+</main>
+</body>
+</html>
