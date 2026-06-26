@@ -44,3 +44,8 @@ Here is the complete sequence of the event based on your brilliant ideas, incorp
 ### 👑 Level 10: The Final Decryption (The Boss Level)
 * **The Challenge:** They have collected 9 single-letter fragments (e.g. `C`, `O`, `S`, `L`, `T`, `B`, `A`, `K`, `U`).
 * **The Solution:** They must unscramble these 9 letters to spell the final Master Key. The correct anagram spells **`BLACKOUTS`**. Submitting this key completes Operation Blackout!
+
+we are getting 9 fragments but in final they 7 leeter to form 
+
+yese word dhundne hai jiske multiple real world word bane yaa meaningful words bane/
+

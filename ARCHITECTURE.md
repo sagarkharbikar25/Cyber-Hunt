@@ -121,3 +121,9 @@ If you are an AI reading this to implement future changes, **STRICTLY ADHERE TO 
 3. **State Management**: Use `useState` and `useEffect` with `setInterval` polling (every 10s) to keep dashboards live without exhausting Firestore read quotas via WebSockets.
 4. **Security**: API routes must verify the team's identity via cookies before executing actions. Admins have a separate auth token.
 5. **No Destructive DB Changes**: Do not delete collections or modify the schema without explicit user approval.
+
+
+
+KEY = 'C'
+KEY = 'Y'
+KEY = 'B'
