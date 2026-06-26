@@ -180,6 +180,46 @@ export default function DashboardPage() {
     { id: 5, unlockMin: 50 },
   ];
 
+  if (team?.is_disqualified) {
+    return (
+      <div className="min-h-screen bg-bg bg-grid-pattern flex flex-col items-center justify-center font-mono p-6">
+        <div className="bg-red/10 border-2 border-red rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(255,0,0,0.2)]">
+          <svg className="w-24 h-24 text-red mx-auto mb-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <h1 className="text-4xl font-display font-bold text-red tracking-widest mb-4">ACCESS DENIED</h1>
+          <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Team Disqualified</h2>
+          <p className="text-text3 mb-8">
+            Your team has been permanently locked out of Mission Control due to excessive AI strikes or severe rule violations.
+          </p>
+          <button onClick={() => router.push("/")} className="bg-red/20 text-red border border-red/50 hover:bg-red hover:text-white px-8 py-3 rounded tracking-widest uppercase transition-colors">
+            Disconnect
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (team?.current_level > total_levels) {
+    return (
+      <div className="min-h-screen bg-bg bg-grid-pattern flex flex-col items-center justify-center font-mono p-6">
+        <div className="bg-accent/10 border-2 border-accent rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(0,255,136,0.2)]">
+          <div className="text-6xl mb-6">🏆</div>
+          <h1 className="text-4xl font-display font-bold text-accent tracking-widest mb-4 text-glow">MISSION ACCOMPLISHED</h1>
+          <h2 className="text-xl text-white mb-6 uppercase tracking-widest">All Fragments Secured</h2>
+          <div className="bg-bg border border-surface2 p-6 rounded mb-8">
+            <div className="text-text3 text-xs mb-2 tracking-widest uppercase">Decrypted Flag</div>
+            <div className="text-3xl text-white font-bold tracking-widest">{team.fragments.join("")}</div>
+          </div>
+          <p className="text-text2 mb-8">
+            Excellent work, Agent. You have successfully recovered all Intel and completed Operation Vault. Your final time and score have been recorded.
+          </p>
+          <button onClick={() => router.push("/leaderboard")} className="bg-accent/20 text-accent border border-accent/50 hover:bg-accent hover:text-bg px-8 py-3 rounded tracking-widest uppercase transition-colors">
+            View Global Rankings
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-bg bg-grid-pattern font-mono text-sm pb-12">
       

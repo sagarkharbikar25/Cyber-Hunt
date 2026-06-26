@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
         ai_strikes: teamData.ai_strikes || 0,
         score: teamData.score || 0,
         fragments: teamData.fragments || Array(9).fill(""),
+        is_disqualified: teamData.is_disqualified || false,
         startedAt: startTime,
       },
       liveFeed,
