@@ -10,7 +10,11 @@ export async function GET() {
       { id: "TEST-GAMMA", name: "Gamma Ray", email: "gamma@example.com", level: 2, score: 1000 },
       { id: "TEST-DELTA", name: "Delta Force", email: "delta@example.com", level: 5, score: 4800 },
       { id: "TEST-EPSILON", name: "Epsilon Elite", email: "epsilon@example.com", level: 4, score: 3600 },
-      { id: "TEST-ZETA", name: "Zeta Zero", email: "zeta@example.com", level: 2, score: 900 }
+      { id: "TEST-ZETA", name: "Zeta Zero", email: "zeta@example.com", level: 2, score: 900 },
+      { id: "TEST-ETA", name: "Eta Echo", email: "eta@example.com", level: 6, score: 5000 },
+      { id: "TEST-THETA", name: "Theta Protocol", email: "theta@example.com", level: 1, score: 100 },
+      { id: "TEST-IOTA", name: "Iota Insight", email: "iota@example.com", level: 8, score: 7200 },
+      { id: "TEST-KAPPA", name: "Kappa Killers", email: "kappa@example.com", level: 3, score: 2100 }
     ];
 
     for (const t of teams) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Tv, Puzzle, Lock, Unlock } from "lucide-react";
 
 interface DashboardData {
   team: {
@@ -33,7 +34,9 @@ export default function DashboardPage() {
   const [activeHint, setActiveHint] = useState<string | null>(null);
   const [activeHintLink, setActiveHintLink] = useState<string | null>(null);
 
-  const [timeLeft, setTimeLeft] = useState("90:00:00");
+  const [timeLeft, setTimeLeft] = useState("90:00");
+  const [isCritical, setIsCritical] = useState(false);
+  const [isWarning, setIsWarning] = useState(false);
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
   const [selectedHintId, setSelectedHintId] = useState<number | null>(null);
 
@@ -81,6 +84,8 @@ export default function DashboardPage() {
         `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
       );
       setElapsedMinutes(Math.floor(elapsed / 60000));
+      setIsCritical(totalSeconds < 300); // under 5 min
+      setIsWarning(totalSeconds < 900 && totalSeconds >= 300); // under 15 min
     }, 1000);
 
     return () => clearInterval(interval);
@@ -92,7 +97,6 @@ export default function DashboardPage() {
     setSubmitting(true);
 
     try {
-      // Compress image to Base64 to bypass Firebase Storage paywalls and fit within Firestore limits
       const reader = new FileReader();
       reader.readAsDataURL(proofFile);
       reader.onload = (event) => {
@@ -107,13 +111,12 @@ export default function DashboardPage() {
           const ctx = canvas.getContext("2d");
           ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
           
-          // Export as compressed JPEG base64 (quality 0.6)
           const base64Proof = canvas.toDataURL("image/jpeg", 0.6);
 
           const formData = new FormData();
           formData.append("action", "submit");
           formData.append("answer", submission);
-          formData.append("proofBase64", base64Proof); // Send the base64 string instead of the file
+          formData.append("proofBase64", base64Proof);
 
           const res = await fetch("/api/dashboard/action", { method: "POST", body: formData });
           const json = await res.json();
@@ -138,6 +141,7 @@ export default function DashboardPage() {
     setSelectedHintId(hintId);
     setHintWarning(true);
   };
+  
   const confirmHint = async () => {
     setHintWarning(false);
     try {
@@ -165,8 +169,8 @@ export default function DashboardPage() {
 
   if (loading || !data) {
     return (
-      <div className="min-h-screen bg-bg bg-grid-pattern flex items-center justify-center font-mono">
-        <div className="text-accent text-xl tracking-widest animate-pulse">ESTABLISHING SECURE CONNECTION...</div>
+      <div className="min-h-screen bg-bg0 flex items-center justify-center font-mono">
+        <div className="text-[var(--color-neon)] text-xl tracking-widest animate-pulse">ESTABLISHING SECURE CONNECTION...</div>
       </div>
     );
   }
@@ -179,19 +183,20 @@ export default function DashboardPage() {
     { id: 3, unlockMin: 30 },
     { id: 4, unlockMin: 40 },
     { id: 5, unlockMin: 50 },
+    { id: 6, unlockMin: 60 },
   ];
 
   if (team?.is_disqualified) {
     return (
-      <div className="min-h-screen bg-bg bg-grid-pattern flex flex-col items-center justify-center font-mono p-6">
-        <div className="bg-red/10 border-2 border-red rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(255,0,0,0.2)]">
-          <svg className="w-24 h-24 text-red mx-auto mb-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-          <h1 className="text-4xl font-display font-bold text-red tracking-widest mb-4">ACCESS DENIED</h1>
+      <div className="min-h-screen bg-bg0 flex flex-col items-center justify-center font-mono p-6">
+        <div className="bg-red/10 border-2 border-[var(--color-red)] rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(255,51,51,0.2)]">
+          <svg className="w-24 h-24 text-[var(--color-red)] mx-auto mb-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+          <h1 className="text-4xl font-orb font-bold text-[var(--color-red)] tracking-widest mb-4">ACCESS DENIED</h1>
           <h2 className="text-xl text-white mb-6 uppercase tracking-widest">Team Disqualified</h2>
-          <p className="text-text3 mb-8">
+          <p className="text-[var(--color-text2)] mb-8">
             Your team has been permanently locked out of Mission Control due to excessive AI strikes or severe rule violations.
           </p>
-          <button onClick={() => router.push("/")} className="bg-red/20 text-red border border-red/50 hover:bg-red hover:text-white px-8 py-3 rounded tracking-widest uppercase transition-colors">
+          <button onClick={() => router.push("/")} className="bg-red/20 text-[var(--color-red)] border border-[var(--color-red)] hover:bg-[var(--color-red)] hover:text-black px-8 py-3 rounded tracking-widest uppercase transition-colors">
             Disconnect
           </button>
         </div>
@@ -201,19 +206,19 @@ export default function DashboardPage() {
 
   if (team?.current_level > total_levels) {
     return (
-      <div className="min-h-screen bg-bg bg-grid-pattern flex flex-col items-center justify-center font-mono p-6">
-        <div className="bg-accent/10 border-2 border-accent rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(0,255,136,0.2)]">
+      <div className="min-h-screen bg-bg0 flex flex-col items-center justify-center font-mono p-6">
+        <div className="bg-[var(--color-neon)]/10 border-2 border-[var(--color-neon)] rounded-xl p-12 max-w-2xl w-full text-center shadow-[0_0_50px_rgba(0,255,136,0.2)]">
           <div className="text-6xl mb-6">🏆</div>
-          <h1 className="text-4xl font-display font-bold text-accent tracking-widest mb-4 text-glow">MISSION ACCOMPLISHED</h1>
+          <h1 className="text-4xl font-orb font-bold text-[var(--color-neon)] tracking-widest mb-4 drop-shadow-[0_0_10px_rgba(0,255,136,0.5)]">MISSION ACCOMPLISHED</h1>
           <h2 className="text-xl text-white mb-6 uppercase tracking-widest">All Fragments Secured</h2>
-          <div className="bg-bg border border-surface2 p-6 rounded mb-8">
-            <div className="text-text3 text-xs mb-2 tracking-widest uppercase">Decrypted Flag</div>
+          <div className="bg-bg1 border border-[var(--color-border-g2)] p-6 rounded mb-8">
+            <div className="text-[var(--color-text2)] text-xs mb-2 tracking-widest uppercase">Decrypted Flag</div>
             <div className="text-3xl text-white font-bold tracking-widest">{team.fragments.join("")}</div>
           </div>
-          <p className="text-text2 mb-8">
+          <p className="text-[var(--color-text2)] mb-8">
             Excellent work, Agent. You have successfully recovered all Intel and completed Operation Vault. Your final time and score have been recorded.
           </p>
-          <button onClick={() => router.push("/leaderboard")} className="bg-accent/20 text-accent border border-accent/50 hover:bg-accent hover:text-bg px-8 py-3 rounded tracking-widest uppercase transition-colors">
+          <button onClick={() => router.push("/leaderboard")} className="bg-[var(--color-neon)]/20 text-[var(--color-neon)] border border-[var(--color-neon)] hover:bg-[var(--color-neon)] hover:text-black px-8 py-3 rounded tracking-widest uppercase transition-colors">
             View Global Rankings
           </button>
         </div>
@@ -221,266 +226,317 @@ export default function DashboardPage() {
     );
   }
 
+  const securedFragmentsCount = fragments.filter(f => f !== "").length;
+  const progressPercent = Math.round((team.current_level / total_levels) * 100);
+
   return (
-    <div className="min-h-screen bg-bg bg-grid-pattern font-mono text-sm pb-12">
+    <div className="min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col">
       
-      {/* Navbar */}
-      <header className="flex justify-between items-center px-6 py-4 bg-surface/80 backdrop-blur-md border-b border-surface2 sticky top-0 z-50">
-        <div className="font-display font-bold text-lg text-white tracking-widest flex items-center gap-2">
-          <span className="text-accent text-glow">O</span>OPERATION VAULT
+      {/* TOP BAR */}
+      <div className="flex items-center justify-between px-6 h-12 bg-bg1 border-b border-border-g2 shrink-0">
+        <div className="flex items-center gap-2.5">
+          <div className="w-2 h-2 rounded-full bg-neon animate-pulse"></div>
+          <span className="font-orb text-[13px] font-bold tracking-[3px] text-neon">OPERATION VAULT</span>
         </div>
-        <div className="flex items-center gap-6">
-          <div className="text-text2">
-            AGENT: <span className="text-accent font-bold tracking-widest">{team?.name || "UNKNOWN"}</span>
-          </div>
+        <div className="flex items-center gap-5 font-mono text-[11px]">
+          <span className="text-text2">AGENT:</span>
+          <span className="text-neon font-bold tracking-[2px]">{team?.name || "UNKNOWN"}</span>
           <button 
             onClick={() => router.push("/")}
-            className="text-red hover:text-white border border-red/30 hover:border-red px-3 py-1 rounded transition-colors text-xs tracking-widest uppercase"
+            className="border border-red text-red px-3 py-[3px] font-orb text-[10px] tracking-[2px] uppercase transition-colors hover:bg-red hover:text-black"
           >
-            Disconnect
+            DISCONNECT
           </button>
         </div>
-      </header>
+      </div>
 
-      <main className="max-w-[1600px] mx-auto px-6 mt-8">
+      {/* TIMER HERO */}
+      <div className="bg-bg1 border-b border-border-g2 pt-5 pb-[18px] px-6 flex items-center justify-center gap-20 relative shadow-[0_4px_20px_rgba(0,0,0,0.5)] shrink-0">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2/5 h-px bg-neon shadow-[0_0_12px_rgba(0,255,136,1)]"></div>
         
-        {/* Top Hero Bar (Timer & Strike Status) */}
-        <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          <div className="flex-1 bg-surface border border-surface2 rounded-xl p-6 shadow-lg flex flex-col items-center justify-center relative overflow-hidden">
-            <div className="absolute top-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-50"></div>
-            <div className="text-6xl font-display font-bold text-accent text-glow mb-2 tracking-wider">{timeLeft}</div>
-            <div className="text-text3 text-xs tracking-widest uppercase font-bold">Time Remaining</div>
+        <div className="flex gap-10">
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-neon">{team?.hints_used || 0}</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">HINTS USED</div>
           </div>
-          <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-lg flex items-center justify-center gap-12">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-amber mb-1">{team?.hints_used || 0}</div>
-              <div className="text-text3 text-[10px] tracking-widest uppercase">Hints Used</div>
+          <div className="w-px h-[60px] bg-border-g2"></div>
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-amber">{team?.ai_strikes || 0}</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">AI STRIKES</div>
+          </div>
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-red">/ 3</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">MAX STRIKES</div>
+          </div>
+        </div>
+
+        <div className="w-px h-[60px] bg-border-g2"></div>
+
+        <div className="text-center">
+          <div className={`font-mono text-[72px] font-bold tracking-[4px] leading-none drop-shadow-[0_0_20px_rgba(0,255,136,0.6)] ${isCritical ? 'text-red drop-shadow-[0_0_20px_rgba(255,51,51,0.6)] animate-blink' : isWarning ? 'text-amber drop-shadow-[0_0_20px_rgba(255,170,0,0.6)]' : 'text-neon'}`}>
+            {timeLeft}
+          </div>
+          <div className="font-orb text-[9px] tracking-[4px] text-text2 mt-1">TIME REMAINING</div>
+        </div>
+
+        <div className="w-px h-[60px] bg-border-g2"></div>
+
+        <div className="flex gap-10">
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-neon">{team?.current_level || 1}</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">MISSION</div>
+          </div>
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-text2">/ {total_levels}</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">TOTAL</div>
+          </div>
+          <div className="w-px h-[60px] bg-border-g2"></div>
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-neon">{securedFragmentsCount}</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">FRAGS</div>
+          </div>
+          <div className="text-center">
+            <div className="font-mono text-[32px] font-bold leading-none text-text2">/ 9</div>
+            <div className="font-orb text-[8px] tracking-[3px] text-text2 mt-1">SECURED</div>
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN 3-COL GRID */}
+      <div className="grid grid-cols-[280px_1fr_280px] min-h-0 flex-1 overflow-hidden">
+        
+        {/* LEFT: LIVE SCOREBOARD */}
+        <div className="bg-bg1 border-r border-border-g2 flex flex-col overflow-hidden">
+          <div className="p-[14px_18px_10px] border-b border-border-g2 flex items-center gap-2 shrink-0">
+            <Tv size={14} className="text-neon" />
+            <span className="font-orb text-[9px] tracking-[3px] text-neon uppercase">LIVE SCOREBOARD</span>
+          </div>
+          
+          <div className="grid grid-cols-[1fr_60px_70px] p-[8px_18px] font-orb text-[8px] tracking-[2px] text-text2 border-b border-border-g shrink-0">
+            <div>TEAM</div>
+            <div className="text-center">RANK</div>
+            <div className="text-right">SCORE</div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {!activeAgents || activeAgents.length === 0 ? (
+              <div className="p-4 text-center text-text2 text-xs">No agents active.</div>
+            ) : (
+              activeAgents.map((agent: any, i: number) => {
+                const isSelf = agent.id === team.id;
+                const pips = Array.from({ length: 10 });
+                return (
+                  <div key={agent.id} className={`grid grid-cols-[1fr_60px_70px] p-[10px_18px] border-b border-border-g items-center hover:bg-bg2 transition-colors cursor-pointer ${isSelf ? 'bg-[rgba(0,255,136,0.05)]' : ''}`}>
+                    <div className="overflow-hidden">
+                      <div className={`font-raj text-[13px] font-semibold tracking-[1px] truncate ${isSelf ? 'text-neon' : i === 0 ? 'text-amber' : 'text-text'}`}>
+                        {agent.name}
+                      </div>
+                      <div className="flex gap-[3px] mt-[3px]">
+                        {pips.map((_, idx) => (
+                          <div 
+                            key={idx} 
+                            className={`w-[6px] h-[6px] rounded-[1px] ${idx < agent.level ? (i === 0 ? 'bg-amber' : 'bg-neon') : 'bg-border-g2'}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex justify-center">
+                      <div className={`font-mono text-[10px] w-[22px] h-[22px] rounded-[2px] flex items-center justify-center 
+                        ${i === 0 ? 'bg-[#ffaa0022] text-amber border border-[#ffaa0044]' : 
+                          i === 1 ? 'bg-[#c0c0c022] text-[#c0c0c0] border border-[#c0c0c044]' : 
+                          i === 2 ? 'bg-[#cd7f3222] text-[#cd7f32] border border-[#cd7f3244]' : 
+                          'bg-bg3 text-text2'}`}>
+                        {i + 1}
+                      </div>
+                    </div>
+                    <div className={`font-mono text-[13px] text-right ${isSelf || i === 0 ? 'text-amber' : 'text-neon'}`}>
+                      {agent.level} / 10
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          
+          <div className="p-[12px_18px] border-t border-border-g shrink-0 mt-auto">
+            <div className="flex justify-between font-mono text-[10px] text-text2 mb-[6px]">
+              <span>YOUR PROGRESS</span>
+              <span className="text-neon">{progressPercent}%</span>
             </div>
-            <div className="w-px h-12 bg-surface2"></div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red mb-1">{team?.ai_strikes || 0} / 3</div>
-              <div className="text-text3 text-[10px] tracking-widest uppercase">AI Strikes</div>
+            <div className="h-[3px] bg-bg3">
+              <div className="h-full bg-neon transition-all duration-1000" style={{ width: `${progressPercent}%` }}></div>
             </div>
           </div>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* CENTER: MISSION */}
+        <div className="bg-bg0 p-5 flex flex-col gap-4 overflow-y-auto">
           
-          {/* Left Column (Scorecard) */}
-          <div className="lg:col-span-3 flex flex-col gap-6">
-            
-            {/* All Teams Status */}
-            <div className="bg-surface border border-surface2 rounded-xl p-0 shadow-lg overflow-hidden flex flex-col h-full min-h-[800px]">
-              <div className="p-4 border-b border-surface2 bg-surface2/20">
-                <h3 className="text-text2 font-bold tracking-widest uppercase text-xs flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  Active Agents
-                </h3>
+          <div className="flex justify-between items-center pb-[14px] border-b border-border-g2">
+            <div className="flex items-baseline gap-2.5">
+              <div className="font-orb text-[18px] font-black text-white tracking-[2px]">
+                MISSION <span className="text-neon">{team?.current_level || 1}</span>
               </div>
-              <div className="flex-1 overflow-y-auto p-0">
-                <table className="w-full text-left text-[10px]">
-                  <thead className="text-text3 bg-bg/50 border-b border-surface2">
-                    <tr>
-                      <th className="font-medium p-3 tracking-widest">TEAM</th>
-                      <th className="font-medium p-3 tracking-widest">LVL</th>
-                      <th className="font-medium p-3 tracking-widest">STAT</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-surface2">
-                    {(!activeAgents || activeAgents.length === 0) ? (
-                      <tr>
-                        <td colSpan={3} className="p-4 text-center text-text3">No agents.</td>
-                      </tr>
-                    ) : (
-                      activeAgents.map((agent: any) => (
-                        <tr key={agent.id} className="hover:bg-surface2/30 transition-colors">
-                          <td className="p-3">
-                            <div className="text-white font-bold">{agent.name}</div>
-                          </td>
-                          <td className="p-3">
-                            <div className="flex flex-col gap-1">
-                              <div className="flex gap-0.5 items-end h-4">
-                                {Array.from({ length: 10 }).map((_, i) => (
-                                  <div 
-                                    key={i} 
-                                    className={`w-1.5 rounded-sm transition-all ${i < agent.level ? 'bg-accent shadow-[0_0_5px_rgba(0,255,136,0.5)]' : 'bg-surface2/50'}`}
-                                    style={{ height: `${Math.max(30, (i + 1) * 10)}%` }}
-                                  />
-                                ))}
-                              </div>
-                              <div className="text-accent text-[8px] font-bold tracking-widest">LVL {agent.level}/10</div>
-                            </div>
-                          </td>
-                          <td className="p-3">
-                            <span className={`px-1.5 py-0.5 rounded text-[8px] tracking-widest uppercase font-bold border 
-                              ${agent.status === 'Active' ? 'border-accent/30 text-accent bg-accent/5' : 
-                                agent.status === 'Stuck' ? 'border-amber/30 text-amber bg-amber/5' : 
-                                'border-red/30 text-red bg-red/5'}`}>
-                              {agent.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <div className="font-mono text-[12px] text-text2">OF {total_levels}</div>
             </div>
-
+            <div className="font-orb text-[9px] tracking-[3px] p-[5px_14px] border border-neon text-neon bg-[rgba(0,255,136,0.06)]">
+              ● ACTIVE
+            </div>
           </div>
 
-          {/* Center Column (Mission Control) */}
-          <div className="lg:col-span-6 flex flex-col gap-6">
-            
-            {/* Mission Control */}
-            <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-lg relative overflow-hidden">
-              <div className="flex justify-between items-center mb-6 border-b border-surface2 pb-4">
-                <h2 className="text-xl font-display font-bold text-white tracking-widest">
-                  MISSION {team?.current_level || 1} <span className="text-text3">OF {total_levels || 10}</span>
-                </h2>
-                <span className="bg-accent/10 text-accent border border-accent/20 px-3 py-1 rounded text-xs font-bold tracking-widest">ACTIVE</span>
-              </div>
-              
-              {team?.current_level === 1 && (
-                <div className="mb-6 bg-accent/5 border border-accent/20 rounded-lg p-5">
-                  <h3 className="text-accent font-bold mb-2 uppercase tracking-widest text-lg">The Game Begins</h3>
-                  <p className="text-text2 leading-relaxed mb-4">Your first target is the TechAlfa public repository. Find the initial breach point.</p>
-                  <a href="https://github.com/techalfatechnician-ngp/CyberHunt.git" target="_blank" className="text-blue underline underline-offset-4 decoration-blue/30 hover:text-white transition-colors break-all">
-                    https://github.com/techalfatechnician-ngp/CyberHunt.git
-                  </a>
-                </div>
-              )}
+          <div className="bg-bg2 border border-border-g2 border-l-4 border-l-neon p-[16px_20px]">
+            <div className="font-orb text-[13px] font-bold text-neon tracking-[3px] mb-2.5">THE GAME BEGINS</div>
+            <div className="font-raj text-[14px] leading-[1.6] text-text font-medium">
+              Your target is the TechAlfa public repository. Find the initial breach point and extract the embedded cipher key or flag. You must submit your proof image.
+            </div>
+            <a href="https://github.com/techalfatechnician-ngp/CyberHunt.git" target="_blank" className="inline-block mt-3 font-mono text-[12px] text-neon no-underline border-b border-[#00ff8844] pb-px tracking-[0.5px] transition-colors hover:border-neon flex items-center">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+              HTTPS://GITHUB.COM/TECHALFATECHNICIAN-NGP/CYBERHUNT.GIT
+            </a>
+          </div>
 
-              <div className="mb-6 flex flex-col items-center bg-surface2/50 rounded-lg p-6 border border-surface2">
-                <span className="text-text2 mb-4 text-xs tracking-widest uppercase font-bold">Encrypted Intel Vault</span>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full">
-                  {hintsConfig.map((hint) => {
-                    const isLocked = elapsedMinutes < hint.unlockMin;
-                    return (
-                      <button 
-                        key={hint.id}
-                        onClick={() => !isLocked && handleHintClick(hint.id)}
-                        disabled={isLocked}
-                        className={`w-full py-3 px-4 rounded font-bold uppercase tracking-widest transition-all border flex flex-col items-center justify-center gap-1
-                          ${isLocked 
-                            ? 'bg-surface border-dashed border-surface2 text-text2 cursor-not-allowed' 
-                            : 'bg-amber/10 text-amber hover:bg-amber hover:text-bg border-amber/30'}`}
-                      >
-                        <span className="text-sm">Hint {hint.id}</span>
-                        {isLocked ? (
-                          <span className="text-[9px] font-mono text-text3/70">Unlocks in {hint.unlockMin - elapsedMinutes}m</span>
-                        ) : (
-                          <span className="text-[9px] font-mono">Ready to Decrypt</span>
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
+          <div className="font-orb text-[9px] tracking-[4px] text-text2 text-center p-[4px_0] mt-2">
+            ─── ENCRYPTED INTEL VAULT ───
+          </div>
 
-              {hintWarning && !activeHint && (
-                <div className="mb-6 bg-amber/10 border border-amber p-4 rounded-lg">
-                  <h4 className="text-amber font-bold mb-2">WARNING: SCORE PENALTY</h4>
-                  <p className="text-text2 text-xs mb-4">Decrypting this hint will permanently reduce your final score. Are you sure you want to proceed?</p>
-                  <div className="flex gap-3">
-                    <button onClick={confirmHint} className="bg-amber text-bg px-4 py-2 rounded text-xs font-bold uppercase">Confirm</button>
-                    <button onClick={() => setHintWarning(false)} className="bg-surface2 text-text2 hover:text-white px-4 py-2 rounded text-xs font-bold uppercase">Cancel</button>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+            {hintsConfig.map((hint) => {
+              const isLocked = elapsedMinutes < hint.unlockMin;
+              return (
+                <div 
+                  key={hint.id}
+                  onClick={() => !isLocked && handleHintClick(hint.id)}
+                  className={`border p-[14px_16px] text-center relative transition-all duration-200
+                    ${isLocked 
+                      ? 'bg-bg2 border-border-g cursor-not-allowed opacity-60 hover:bg-bg3' 
+                      : 'bg-[#ffaa0010] border-amber cursor-pointer hover:bg-[#ffaa0020]'}`}
+                >
+                  {isLocked ? <Lock size={12} className="absolute top-2 right-2 text-text2 opacity-30" /> : <Unlock size={12} className="absolute top-2 right-2 text-amber" />}
+                  <div className={`font-orb text-[11px] font-bold tracking-[3px] mb-1 ${isLocked ? 'text-text2' : 'text-amber'}`}>
+                    HINT {hint.id}
+                  </div>
+                  <div className={`font-mono text-[10px] ${isLocked ? 'text-text2 opacity-50' : 'text-[#ffaa0099]'}`}>
+                    {isLocked ? `UNLOCKS IN ${hint.unlockMin - elapsedMinutes}M` : 'READY TO DECRYPT'}
                   </div>
                 </div>
-              )}
+              );
+            })}
+          </div>
 
-              {activeHint && (
-                <div className="mb-6 bg-accent/10 border border-accent p-6 rounded-lg w-full flex flex-col items-center text-center">
-                  <h4 className="text-accent font-bold mb-4 uppercase tracking-widest text-sm">Decrypted Intel:</h4>
-                  <p className="text-white text-lg mb-6 leading-relaxed">{activeHint}</p>
-                  
-                  {activeHintLink && (
-                    <a 
-                      href={activeHintLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="bg-accent text-bg px-6 py-3 rounded-full font-bold uppercase tracking-widest hover:scale-105 transition-transform flex items-center gap-2 shadow-[0_0_15px_rgba(0,255,136,0.3)]"
-                    >
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                      FOLLOW LEAD
-                    </a>
+          {hintWarning && !activeHint && (
+            <div className="bg-[#ffaa0010] border border-amber p-4 mt-2">
+              <h4 className="font-orb text-[11px] text-amber font-bold mb-2 tracking-[2px]">WARNING: SCORE PENALTY</h4>
+              <p className="text-text2 text-xs mb-4 font-raj">Decrypting this hint will permanently reduce your final score. Are you sure you want to proceed?</p>
+              <div className="flex gap-3">
+                <button onClick={confirmHint} className="bg-amber text-black px-4 py-2 text-[10px] font-orb font-bold tracking-[2px] hover:bg-[#ffbb33]">CONFIRM</button>
+                <button onClick={() => setHintWarning(false)} className="border border-border-g2 text-text2 hover:text-white px-4 py-2 text-[10px] font-orb font-bold tracking-[2px]">CANCEL</button>
+              </div>
+            </div>
+          )}
+
+          {activeHint && (
+            <div className="bg-[rgba(0,255,136,0.1)] border border-neon p-6 w-full flex flex-col items-center text-center mt-2">
+              <h4 className="font-orb text-[11px] text-neon font-bold mb-4 tracking-[3px]">DECRYPTED INTEL:</h4>
+              <p className="text-white text-base mb-6 leading-relaxed font-raj">{activeHint}</p>
+              {activeHintLink && (
+                <a 
+                  href={activeHintLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-neon text-black px-6 py-2.5 font-orb font-bold tracking-[2px] text-[10px] hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-all"
+                >
+                  FOLLOW LEAD
+                </a>
+              )}
+            </div>
+          )}
+
+          <div className="mt-auto pt-4">
+            <div className="font-orb text-[9px] tracking-[4px] text-text2 text-center p-[4px_0] mb-2">
+              ─── TRANSMIT SOLUTION ───
+            </div>
+            <form onSubmit={handleSubmit} className="flex gap-2.5 items-stretch bg-bg2 p-3 border border-border-g2">
+              <input
+                type="text"
+                value={submission}
+                onChange={(e) => setSubmission(e.target.value)}
+                required
+                placeholder="ENTER SECURED FRAGMENT..."
+                className="flex-1 bg-bg3 border border-border-g2 text-neon font-mono text-[14px] p-[10px_16px] outline-none tracking-[1px] placeholder:text-text2 placeholder:opacity-50 focus:border-neon transition-colors uppercase"
+              />
+              <div className="relative flex items-center justify-center border border-dashed border-border-g2 bg-bg3 px-4 hover:border-neon transition-colors group cursor-pointer overflow-hidden min-w-[140px]">
+                <input 
+                  type="file" 
+                  required 
+                  accept="image/png, image/jpeg"
+                  onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                />
+                <div className="flex flex-col items-center justify-center z-0 pointer-events-none">
+                  <span className="font-orb text-[9px] tracking-[2px] text-text2 group-hover:text-white transition-colors">
+                    {proofFile ? proofFile.name.substring(0, 15) + (proofFile.name.length > 15 ? '...' : '') : 'UPLOAD PROOF'}
+                  </span>
+                  <span className="font-mono text-[8px] text-text2 opacity-50 mt-1">{proofFile ? 'READY' : 'JPG / PNG'}</span>
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="bg-neon text-black border-none font-orb text-[10px] font-bold tracking-[2px] p-[0_20px] cursor-pointer transition-colors hover:bg-[#00ffaa] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {submitting ? "TRANSMITTING..." : "SUBMIT"}
+              </button>
+            </form>
+          </div>
+        </div>
+
+        {/* RIGHT: FRAGMENTS */}
+        <div className="bg-bg1 border-l border-border-g2 flex flex-col overflow-hidden">
+          <div className="p-[14px_18px_10px] border-b border-border-g2 flex items-center gap-2 shrink-0">
+            <Puzzle size={14} className="text-neon" />
+            <span className="font-orb text-[9px] tracking-[3px] text-neon uppercase">SECURED FRAGMENTS</span>
+          </div>
+          
+          <div className="p-[10px_18px_6px] flex items-center justify-between shrink-0">
+            <span className="font-orb text-[8px] tracking-[2px] text-text2">VAULT KEYS</span>
+            <span className="font-mono text-[11px] text-neon">{securedFragmentsCount} / 9</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 p-[0_16px_16px] shrink-0">
+            {fragments.map((frag, idx) => {
+              const isSecured = frag !== "";
+              return (
+                <div key={idx} className={`aspect-square bg-bg2 border flex flex-col items-center justify-center relative transition-all duration-200 cursor-default ${isSecured ? 'border-neon bg-[rgba(0,255,136,0.05)]' : 'border-border-g'}`}>
+                  <span className="absolute top-[5px] left-[7px] font-mono text-[8px] text-text2 opacity-60">L{idx + 1}</span>
+                  {!isSecured ? (
+                    <span className="font-mono text-[18px] text-border-g2">?</span>
+                  ) : (
+                    <Unlock size={20} className="text-neon" />
                   )}
                 </div>
-              )}
-            </div>
-
-            {/* Submission Hub */}
-            <div className="bg-surface border border-border/40 rounded-xl p-6 shadow-[0_0_30px_rgba(0,255,136,0.05)] relative">
-              <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-              </div>
-              <h3 className="text-accent font-bold tracking-widest uppercase mb-4 text-xs">Execute Submission</h3>
-              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div>
-                  <input
-                    type="text"
-                    value={submission}
-                    onChange={(e) => setSubmission(e.target.value)}
-                    required
-                    placeholder="ENTER SECURED FRAGMENT..."
-                    className="w-full bg-surface2/50 border border-border/20 rounded-lg px-4 py-3 text-white placeholder-text3 focus:outline-none focus:border-accent transition-colors font-mono text-sm uppercase"
-                  />
-                </div>
-                <div className="flex items-center justify-between border border-dashed border-surface2 rounded-lg p-4 bg-bg/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded bg-surface2 flex items-center justify-center text-text3">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    </div>
-                    <div>
-                      <div className="text-text2 font-bold text-xs uppercase">{proofFile ? proofFile.name : "UPLOAD PROOF"}</div>
-                      <div className="text-text3 text-[10px]">PNG, JPG (Max 5MB)</div>
-                    </div>
-                  </div>
-                  <input 
-                    type="file" 
-                    required 
-                    accept="image/png, image/jpeg"
-                    onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)}
-                    className="text-xs text-text3 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-bold file:bg-surface2 file:text-white hover:file:bg-surface3 cursor-pointer" 
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full bg-accent text-bg font-bold tracking-widest uppercase py-4 rounded-lg mt-2 hover:bg-[#00e67a] hover:shadow-[0_0_20px_rgba(0,255,136,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {submitting ? "UPLOADING TO MISSION CONTROL..." : "SUBMIT INTEL"}
-                </button>
-              </form>
-            </div>
-
+              );
+            })}
           </div>
 
-          {/* Right Column (Fragments) */}
-          <div className="lg:col-span-3 flex flex-col gap-6">
-            <div className="bg-surface border border-surface2 rounded-xl p-6 shadow-lg">
-              <h3 className="text-text2 font-bold tracking-widest uppercase mb-4 text-xs">Secured Fragments</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {fragments.map((frag, idx) => (
-                  <div key={idx} className="relative group">
-                    <div className="absolute -top-1.5 -left-1.5 text-[8px] text-text3 font-bold bg-surface px-1 z-10">L{idx + 1}</div>
-                    <input
-                      type="text"
-                      maxLength={1}
-                      value={frag}
-                      readOnly
-                      placeholder="?"
-                      className="w-full aspect-square bg-bg border border-surface2 rounded-md text-center text-xl font-bold text-white placeholder-text3/30 focus:outline-none transition-all uppercase relative cursor-not-allowed"
-                    />
+          <div className="p-[0_16px_10px] flex-1 overflow-y-auto">
+            <div className="font-mono text-[9px] text-text2 tracking-[2px] mb-2">FRAGMENT STATUS</div>
+            <div className="grid gap-[5px]">
+              {fragments.map((frag, idx) => {
+                const isSecured = frag !== "";
+                return (
+                  <div key={idx} className="flex items-center justify-between py-1 border-b border-[#00ff8811]">
+                    <span className={`font-mono text-[10px] ${isSecured ? 'text-neon' : 'text-text2'}`}>L{idx + 1}</span>
+                    <span className={`font-mono text-[9px] ${isSecured ? 'text-neon' : 'text-text2 opacity-40'}`}>
+                      {isSecured ? '● SECURED' : '○ PENDING'}
+                    </span>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
-
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }

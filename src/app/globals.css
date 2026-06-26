@@ -1,52 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0a0a0f;
-  --color-surface: #0d1117;
-  --color-surface2: #161b22;
-  --color-border: rgba(0, 255, 136, 0.2);
-  --color-border2: rgba(0, 255, 136, 0.4);
-  --color-accent: #00ff88;
-  --color-red: #ff3c3c;
-  --color-amber: #F59E0B;
-  --color-blue: #00d4ff;
-  --color-purple: #8B5CF6;
-  --color-teal: #14B8A6;
-  --color-coral: #F97316;
-  --color-text: #c9d1d9;
-  --color-text2: #8b8d97;
-  --color-text3: #4B5563;
-  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  --font-sans: 'Share Tech Mono', 'Orbitron', var(--font-mono);
-  --font-display: 'Orbitron', 'Share Tech Mono', var(--font-mono);
+  --color-bg0: #080c10;
+  --color-bg1: #0d1318;
+  --color-bg2: #111921;
+  --color-bg3: #16202c;
+  --color-border-g: rgba(0, 255, 136, 0.13);
+  --color-border-g2: rgba(0, 255, 136, 0.27);
+  --color-neon: #00ff88;
+  --color-neon-dim: #00cc6a;
+  --color-amber: #ffaa00;
+  --color-red: #ff3333;
+  --color-blue: #00aaff;
+  --color-text: #c8d8e8;
+  --color-text2: #7a9ab0;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-orb: 'Orbitron', sans-serif;
+  --font-raj: 'Rajdhani', sans-serif;
 }
 
 html { scroll-behavior: smooth; }
 
 body {
-  font-family: var(--font-mono);
-  background: var(--color-bg);
+  font-family: var(--font-raj);
+  background: var(--color-bg0);
   color: var(--color-text);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* CRT Scanlines Overlay */
-body::after {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-  z-index: 2;
-  background-size: 100% 2px, 3px 100%;
-  pointer-events: none;
-  opacity: 0.15;
 }
 
 ::selection {
@@ -57,8 +38,8 @@ body::after {
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-  -webkit-text-fill-color: #E5E7EB;
-  -webkit-box-shadow: 0 0 0px 1000px #111827 inset;
+  -webkit-text-fill-color: #c8d8e8;
+  -webkit-box-shadow: 0 0 0px 1000px #111921 inset;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -67,55 +48,43 @@ input:-webkit-autofill:focus {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--color-bg0);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-border2);
+  background: var(--color-border-g2);
   border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: var(--color-neon);
 }
 
-@keyframes pulse-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@keyframes tick {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+@keyframes scandown {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
 }
 
-@keyframes pulse-red {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 59, 59, 0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(255, 59, 59, 0); }
+.animate-pulse {
+  animation: pulse 2s infinite;
 }
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+.animate-blink {
+  animation: blink 0.5s infinite;
 }
-
-@keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); }
-  40% { transform: translate(-2px, -2px); }
-  60% { transform: translate(2px, 2px); }
-  80% { transform: translate(2px, -2px); }
-  100% { transform: translate(0); }
-}
-
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-.animate-pulse-green {
-  animation: pulse-green 2s ease-in-out infinite;
-}
-
-.animate-pulse-red {
-  animation: pulse-red 1s ease-in-out infinite;
-}
-
-.animate-glitch {
-  animation: glitch 0.3s ease-in-out;
+.animate-scandown {
+  animation: scandown 4s linear infinite;
 }
 
 .code-block {

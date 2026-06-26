@@ -1,0 +1,609 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --neon: #00ff88;
+    --neon-dim: #00cc6a;
+    --neon-glow: #00ff8833;
+    --amber: #ffaa00;
+    --red: #ff3333;
+    --blue: #00aaff;
+    --bg0: #080c10;
+    --bg1: #0d1318;
+    --bg2: #111921;
+    --bg3: #16202c;
+    --border-g: #00ff8822;
+    --border-g2: #00ff8844;
+    --text: #c8d8e8;
+    --text2: #7a9ab0;
+    --mono: 'Share Tech Mono', monospace;
+    --orb: 'Orbitron', sans-serif;
+    --raj: 'Rajdhani', sans-serif;
+  }
+
+  body { background: var(--bg0); color: var(--text); font-family: var(--raj); min-height: 100vh; }
+
+  .shell {
+    display: grid;
+    grid-template-rows: auto auto 1fr;
+    min-height: 100vh;
+    background: var(--bg0);
+    background-image: radial-gradient(ellipse at 50% 0%, #00ff8808 0%, transparent 60%);
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 24px; height: 48px;
+    background: var(--bg1);
+    border-bottom: 1px solid var(--border-g2);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 10px; }
+  .topbar-brand .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon); animation: pulse 2s infinite; }
+  .topbar-brand span { font-family: var(--orb); font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--neon); }
+  .topbar-meta { display: flex; align-items: center; gap: 20px; font-family: var(--mono); font-size: 11px; }
+  .topbar-meta .label { color: var(--text2); }
+  .topbar-meta .val { color: var(--neon); font-weight: 700; letter-spacing: 2px; }
+  .topbar-meta .disconnect {
+    border: 1px solid var(--red); color: var(--red); padding: 3px 12px;
+    font-family: var(--orb); font-size: 10px; letter-spacing: 2px; cursor: pointer;
+    background: transparent; transition: all 0.2s;
+  }
+  .topbar-meta .disconnect:hover { background: var(--red); color: #000; }
+
+  /* ── TIMER HERO ── */
+  .timer-hero {
+    background: var(--bg1);
+    border-bottom: 1px solid var(--border-g2);
+    padding: 20px 24px 18px;
+    display: flex; align-items: center; justify-content: center; gap: 80px;
+    position: relative;
+  }
+  .timer-hero::before {
+    content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 40%; height: 1px; background: var(--neon);
+    box-shadow: 0 0 12px var(--neon);
+  }
+
+  .timer-block { text-align: center; }
+  .timer-digits {
+    font-family: var(--mono); font-size: 72px; font-weight: 700;
+    color: var(--neon); letter-spacing: 4px; line-height: 1;
+    text-shadow: 0 0 20px var(--neon), 0 0 40px #00ff8844;
+  }
+  .timer-digits.warning { color: var(--amber); text-shadow: 0 0 20px var(--amber); }
+  .timer-digits.critical { color: var(--red); text-shadow: 0 0 20px var(--red); animation: blink 0.5s infinite; }
+  .timer-label { font-family: var(--orb); font-size: 9px; letter-spacing: 4px; color: var(--text2); margin-top: 4px; }
+
+  .stat-group { display: flex; gap: 40px; }
+  .stat-item { text-align: center; }
+  .stat-val { font-family: var(--mono); font-size: 32px; font-weight: 700; line-height: 1; }
+  .stat-val.green { color: var(--neon); }
+  .stat-val.amber { color: var(--amber); }
+  .stat-val.red { color: var(--red); }
+  .stat-label { font-family: var(--orb); font-size: 8px; letter-spacing: 3px; color: var(--text2); margin-top: 4px; }
+
+  .timer-divider { width: 1px; height: 60px; background: var(--border-g2); }
+
+  /* ── MAIN 3-COL ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 0;
+    min-height: 0;
+  }
+
+  /* ── LEFT: SCOREBOARD ── */
+  .panel {
+    background: var(--bg1);
+    border-right: 1px solid var(--border-g2);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .panel.right { border-right: none; border-left: 1px solid var(--border-g2); }
+
+  .panel-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border-g2);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .panel-header i { color: var(--neon); font-size: 14px; }
+  .panel-header span {
+    font-family: var(--orb); font-size: 9px; letter-spacing: 3px; color: var(--neon);
+  }
+
+  /* Scoreboard */
+  .score-col-heads {
+    display: grid; grid-template-columns: 1fr 60px 70px;
+    padding: 8px 18px;
+    font-family: var(--orb); font-size: 8px; letter-spacing: 2px; color: var(--text2);
+    border-bottom: 1px solid var(--border-g);
+  }
+  .score-row {
+    display: grid; grid-template-columns: 1fr 60px 70px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border-g);
+    align-items: center;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .score-row:hover { background: var(--bg2); }
+  .score-row.self { background: #00ff8808; }
+  .team-name { font-family: var(--raj); font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+  .team-rank { font-family: var(--mono); font-size: 11px; color: var(--text2); text-align: center; }
+  .team-score { font-family: var(--mono); font-size: 13px; text-align: right; color: var(--neon); }
+
+  .pip-row { display: flex; gap: 3px; margin-top: 3px; }
+  .pip { width: 6px; height: 6px; border-radius: 1px; background: var(--border-g2); }
+  .pip.on { background: var(--neon); }
+  .pip.on.amber { background: var(--amber); }
+  .pip.on.red { background: var(--red); }
+
+  /* rank badge */
+  .rank-badge {
+    font-family: var(--mono); font-size: 10px;
+    width: 22px; height: 22px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .rank-badge.r1 { background: #ffaa0022; color: var(--amber); border: 1px solid #ffaa0044; }
+  .rank-badge.r2 { background: #c0c0c022; color: #c0c0c0; border: 1px solid #c0c0c044; }
+  .rank-badge.r3 { background: #cd7f3222; color: #cd7f32; border: 1px solid #cd7f3244; }
+
+  /* ── CENTER: MISSION ── */
+  .center { background: var(--bg0); padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+
+  .mission-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border-g2);
+  }
+  .mission-title-row { display: flex; align-items: baseline; gap: 10px; }
+  .mission-label { font-family: var(--orb); font-size: 18px; font-weight: 900; color: #fff; letter-spacing: 2px; }
+  .mission-label span { color: var(--neon); }
+  .mission-of { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+  .mission-badge {
+    font-family: var(--orb); font-size: 9px; letter-spacing: 3px;
+    padding: 5px 14px; border: 1px solid var(--neon);
+    color: var(--neon); background: #00ff8810;
+  }
+
+  .briefing-card {
+    background: var(--bg2);
+    border: 1px solid var(--border-g2);
+    border-left: 3px solid var(--neon);
+    padding: 16px 20px;
+  }
+  .briefing-card .bc-title {
+    font-family: var(--orb); font-size: 13px; font-weight: 700;
+    color: var(--neon); letter-spacing: 3px; margin-bottom: 10px;
+  }
+  .briefing-card .bc-body { font-family: var(--raj); font-size: 14px; line-height: 1.6; color: var(--text); font-weight: 500; }
+  .briefing-card .bc-link {
+    display: inline-block; margin-top: 12px;
+    font-family: var(--mono); font-size: 12px; color: var(--neon);
+    text-decoration: none; border-bottom: 1px solid #00ff8844;
+    padding-bottom: 1px; letter-spacing: 0.5px;
+    transition: border-color 0.2s;
+  }
+  .briefing-card .bc-link:hover { border-color: var(--neon); }
+
+  /* Hint vault */
+  .vault-label {
+    font-family: var(--orb); font-size: 9px; letter-spacing: 4px; color: var(--text2);
+    text-align: center; padding: 4px 0;
+  }
+  .hint-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hint-card {
+    background: var(--bg2); border: 1px solid var(--border-g);
+    padding: 14px 16px; cursor: pointer; position: relative;
+    transition: all 0.2s; text-align: center;
+  }
+  .hint-card:hover { background: var(--bg3); border-color: var(--border-g2); }
+  .hint-card.ready {
+    border-color: var(--amber);
+    background: #ffaa0010;
+    cursor: pointer;
+  }
+  .hint-card.ready:hover { background: #ffaa0020; }
+  .hint-card .hc-num {
+    font-family: var(--orb); font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; margin-bottom: 4px;
+  }
+  .hint-card.ready .hc-num { color: var(--amber); }
+  .hint-card:not(.ready) .hc-num { color: var(--text2); }
+  .hint-card .hc-sub {
+    font-family: var(--mono); font-size: 10px;
+  }
+  .hint-card.ready .hc-sub { color: #ffaa0099; }
+  .hint-card:not(.ready) .hc-sub { color: var(--text2); opacity: 0.5; }
+  .hint-card .lock-icon { position: absolute; top: 8px; right: 10px; font-size: 12px; opacity: 0.3; }
+  .hint-card.ready .lock-icon { opacity: 1; color: var(--amber); }
+
+  /* Answer input */
+  .answer-row { display: flex; gap: 10px; align-items: stretch; }
+  .answer-input {
+    flex: 1; background: var(--bg2); border: 1px solid var(--border-g2);
+    color: var(--neon); font-family: var(--mono); font-size: 14px;
+    padding: 10px 16px; outline: none; letter-spacing: 1px;
+    transition: border-color 0.2s;
+  }
+  .answer-input::placeholder { color: var(--text2); opacity: 0.5; }
+  .answer-input:focus { border-color: var(--neon); }
+  .submit-btn {
+    background: var(--neon); color: #000; border: none;
+    font-family: var(--orb); font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; padding: 0 20px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .submit-btn:hover { background: #00ffaa; }
+
+  /* ── RIGHT: FRAGMENTS ── */
+  .fragment-subhead {
+    padding: 10px 18px 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .frag-label { font-family: var(--orb); font-size: 8px; letter-spacing: 2px; color: var(--text2); }
+  .frag-count { font-family: var(--mono); font-size: 11px; color: var(--neon); }
+  .fragment-grid {
+    padding: 0 16px 16px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  }
+  .frag-cell {
+    aspect-ratio: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border-g);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; transition: all 0.2s; cursor: default;
+  }
+  .frag-cell.secured {
+    border-color: var(--neon);
+    background: #00ff8808;
+  }
+  .frag-cell .frag-id {
+    position: absolute; top: 5px; left: 7px;
+    font-family: var(--mono); font-size: 8px; color: var(--text2); opacity: 0.6;
+  }
+  .frag-cell .frag-q {
+    font-family: var(--mono); font-size: 18px; color: var(--border-g2);
+  }
+  .frag-cell.secured .frag-q { display: none; }
+  .frag-cell .frag-icon { font-size: 20px; color: var(--neon); display: none; }
+  .frag-cell.secured .frag-icon { display: block; }
+
+  /* Progress bar */
+  .prog-wrap { padding: 12px 18px; border-top: 1px solid var(--border-g); margin-top: auto; }
+  .prog-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--text2); margin-bottom: 6px; }
+  .prog-bar { height: 3px; background: var(--bg3); }
+  .prog-fill { height: 100%; background: var(--neon); width: 11%; transition: width 1s; }
+
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes tick {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+  }
+
+  .scan-line {
+    position: absolute; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, #00ff8820, transparent);
+    animation: scandown 4s linear infinite; pointer-events: none;
+  }
+  @keyframes scandown {
+    0% { top: 0; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+</style>
+
+<h2 class="sr-only">Operation Vault — mission control dashboard with timer, live scoreboard, mission briefing, and fragment tracker</h2>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="dot"></div>
+      <span>OPERATION VAULT</span>
+    </div>
+    <div class="topbar-meta">
+      <span class="label">AGENT:</span>
+      <span class="val">TEST SQUAD ALPHA</span>
+      <button class="disconnect">DISCONNECT</button>
+    </div>
+  </div>
+
+  <!-- TIMER HERO -->
+  <div class="timer-hero">
+    <div class="stat-group">
+      <div class="stat-item">
+        <div class="stat-val green" id="hints-used">0</div>
+        <div class="stat-label">HINTS USED</div>
+      </div>
+      <div class="timer-divider"></div>
+      <div class="stat-item">
+        <div class="stat-val amber">1</div>
+        <div class="stat-label">AI STRIKES</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val red">/ 3</div>
+        <div class="stat-label">MAX STRIKES</div>
+      </div>
+    </div>
+
+    <div class="timer-divider"></div>
+
+    <div class="timer-block">
+      <div class="timer-digits" id="timer">74:09</div>
+      <div class="timer-label">TIME REMAINING</div>
+    </div>
+
+    <div class="timer-divider"></div>
+
+    <div class="stat-group">
+      <div class="stat-item">
+        <div class="stat-val green">1</div>
+        <div class="stat-label">MISSION</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" style="color:var(--text2)">/ 10</div>
+        <div class="stat-label">TOTAL</div>
+      </div>
+      <div class="timer-divider"></div>
+      <div class="stat-item">
+        <div class="stat-val green">1</div>
+        <div class="stat-label">FRAGS</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" style="color:var(--text2)">/ 9</div>
+        <div class="stat-label">SECURED</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT: LIVE SCOREBOARD -->
+    <div class="panel">
+      <div class="panel-header">
+        <i class="ti ti-device-tv" aria-hidden="true"></i>
+        <span>LIVE SCOREBOARD</span>
+      </div>
+      <div class="score-col-heads">
+        <div>TEAM</div>
+        <div style="text-align:center">RANK</div>
+        <div style="text-align:right">SCORE</div>
+      </div>
+
+      <div class="score-row">
+        <div>
+          <div class="team-name" style="color:#ffaa00">DELTA FORCE</div>
+          <div class="pip-row">
+            <div class="pip on amber"></div><div class="pip on amber"></div><div class="pip on amber"></div>
+            <div class="pip on amber"></div><div class="pip on amber"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge r1">1</div></div>
+        <div class="team-score" style="color:var(--amber)">5 / 10</div>
+      </div>
+
+      <div class="score-row">
+        <div>
+          <div class="team-name">EPSILON ELITE</div>
+          <div class="pip-row">
+            <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge r2">2</div></div>
+        <div class="team-score">4 / 10</div>
+      </div>
+
+      <div class="score-row">
+        <div>
+          <div class="team-name">BETA HACKERS</div>
+          <div class="pip-row">
+            <div class="pip on"></div><div class="pip on"></div><div class="pip on"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge r3">3</div></div>
+        <div class="team-score">3 / 10</div>
+      </div>
+
+      <div class="score-row">
+        <div>
+          <div class="team-name">GAMMA RAY</div>
+          <div class="pip-row">
+            <div class="pip on"></div><div class="pip on"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge">4</div></div>
+        <div class="team-score">2 / 10</div>
+      </div>
+
+      <div class="score-row">
+        <div>
+          <div class="team-name">ZETA ZERO</div>
+          <div class="pip-row">
+            <div class="pip on"></div><div class="pip on"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge">5</div></div>
+        <div class="team-score">2 / 10</div>
+      </div>
+
+      <div class="score-row self">
+        <div>
+          <div class="team-name" style="color:var(--neon)">TEST SQUAD α</div>
+          <div class="pip-row">
+            <div class="pip on"></div>
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+        </div>
+        <div class="team-rank"><div class="rank-badge">6</div></div>
+        <div class="team-score">1 / 10</div>
+      </div>
+
+      <div class="prog-wrap">
+        <div class="prog-label"><span>YOUR PROGRESS</span><span style="color:var(--neon)">11%</span></div>
+        <div class="prog-bar"><div class="prog-fill"></div></div>
+      </div>
+    </div>
+
+    <!-- CENTER: MISSION -->
+    <div class="center">
+      <div class="mission-head">
+        <div class="mission-title-row">
+          <div class="mission-label">MISSION <span>1</span></div>
+          <div class="mission-of">OF 10</div>
+        </div>
+        <div class="mission-badge">● ACTIVE</div>
+      </div>
+
+      <div class="briefing-card">
+        <div class="bc-title">THE GAME BEGINS</div>
+        <div class="bc-body">
+          Your first target is the TechAlfa public repository. Find the initial breach point and extract the embedded cipher key.
+        </div>
+        <a class="bc-link" href="https://github.com/techalfatechnician-ngp/cyberhunt.git" target="_blank">
+          <i class="ti ti-brand-github" aria-hidden="true" style="margin-right:6px;font-size:13px;vertical-align:-1px"></i>
+          HTTPS://GITHUB.COM/TECHALFATECHNICIAN-NGP/CYBERHUNT.GIT
+        </a>
+      </div>
+
+      <div class="vault-label">─── ENCRYPTED INTEL VAULT ───</div>
+
+      <div class="hint-grid">
+        <div class="hint-card ready" onclick="useHint(1)">
+          <i class="ti ti-lock-open lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 1</div>
+          <div class="hc-sub">READY TO DECRYPT</div>
+        </div>
+        <div class="hint-card" style="opacity:0.6">
+          <i class="ti ti-lock lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 2</div>
+          <div class="hc-sub">UNLOCKS IN 5M</div>
+        </div>
+        <div class="hint-card" style="opacity:0.5">
+          <i class="ti ti-lock lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 3</div>
+          <div class="hc-sub">UNLOCKS IN 15M</div>
+        </div>
+        <div class="hint-card" style="opacity:0.4">
+          <i class="ti ti-lock lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 4</div>
+          <div class="hc-sub">UNLOCKS IN 25M</div>
+        </div>
+        <div class="hint-card" style="opacity:0.3">
+          <i class="ti ti-lock lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 5</div>
+          <div class="hc-sub">UNLOCKS IN 35M</div>
+        </div>
+        <div class="hint-card" style="opacity:0.2">
+          <i class="ti ti-lock lock-icon" aria-hidden="true"></i>
+          <div class="hc-num">HINT 6</div>
+          <div class="hc-sub">UNLOCKS IN 45M</div>
+        </div>
+      </div>
+
+      <div class="answer-row">
+        <input class="answer-input" type="text" placeholder="ENTER CIPHER KEY OR FLAG..." id="ans" onkeydown="if(event.key==='Enter')submitAnswer()" />
+        <button class="submit-btn" onclick="submitAnswer()">SUBMIT</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: FRAGMENTS -->
+    <div class="panel right">
+      <div class="panel-header">
+        <i class="ti ti-puzzle" aria-hidden="true"></i>
+        <span>SECURED FRAGMENTS</span>
+      </div>
+      <div class="fragment-subhead">
+        <span class="frag-label">VAULT KEYS</span>
+        <span class="frag-count" id="frag-count">1 / 9</span>
+      </div>
+      <div class="fragment-grid" id="frag-grid">
+        <!-- populated by JS -->
+      </div>
+      <div style="padding:0 16px 10px">
+        <div style="font-family:var(--mono);font-size:9px;color:var(--text2);letter-spacing:2px;margin-bottom:8px">FRAGMENT STATUS</div>
+        <div style="display:grid;gap:5px" id="frag-status"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const frags = [
+  { id: 'L1', secured: true },
+  { id: 'L2', secured: false },
+  { id: 'L3', secured: false },
+  { id: 'L4', secured: false },
+  { id: 'L5', secured: false },
+  { id: 'L6', secured: false },
+  { id: 'L7', secured: false },
+  { id: 'L8', secured: false },
+  { id: 'L9', secured: false },
+];
+
+function renderFrags() {
+  const grid = document.getElementById('frag-grid');
+  const status = document.getElementById('frag-status');
+  grid.innerHTML = '';
+  status.innerHTML = '';
+  let count = 0;
+  frags.forEach((f, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'frag-cell' + (f.secured ? ' secured' : '');
+    cell.innerHTML = `<span class="frag-id">${f.id}</span><span class="frag-q">?</span><i class="ti ti-lock-open frag-icon" aria-hidden="true"></i>`;
+    grid.appendChild(cell);
+    if (f.secured) count++;
+
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid #00ff8811';
+    row.innerHTML = `<span style="font-family:var(--mono);font-size:10px;color:${f.secured?'var(--neon)':'var(--text2)'}">${f.id}</span><span style="font-family:var(--mono);font-size:9px;color:${f.secured?'var(--neon)':'var(--text2);opacity:0.4'}">${f.secured?'● SECURED':'○ PENDING'}</span>`;
+    status.appendChild(row);
+  });
+  document.getElementById('frag-count').textContent = count + ' / 9';
+}
+
+renderFrags();
+
+let seconds = 74 * 60 + 9;
+function tick() {
+  seconds--;
+  if (seconds < 0) { seconds = 0; return; }
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  const el = document.getElementById('timer');
+  el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  el.className = 'timer-digits' + (seconds < 300 ? ' critical' : seconds < 900 ? ' warning' : '');
+}
+setInterval(tick, 1000);
+
+function useHint(n) {
+  document.getElementById('hints-used').textContent = parseInt(document.getElementById('hints-used').textContent) + 1;
+}
+
+function submitAnswer() {
+  const val = document.getElementById('ans').value.trim();
+  if (!val) return;
+  sendPrompt('I want to submit the answer: ' + val + ' — is it correct for Mission 1?');
+}
+</script>

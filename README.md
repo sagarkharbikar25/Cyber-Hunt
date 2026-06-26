@@ -53,3 +53,16 @@ login for user : test@example.com
 pass : TEST-ALPHA
 
 FOR ADMIN : TECHALFA_ADMIN_2026
+
+
+
+Email: test@example.com | ID/Passcode: TEST-ALPHA
+Email: beta@example.com | ID/Passcode: TEST-BETA
+Email: gamma@example.com | ID/Passcode: TEST-GAMMA
+Email: delta@example.com | ID/Passcode: TEST-DELTA
+Email: epsilon@example.com | ID/Passcode: TEST-EPSILON
+Email: zeta@example.com | ID/Passcode: TEST-ZETA
+Email: eta@example.com | ID/Passcode: TEST-ETA
+Email: theta@example.com | ID/Passcode: TEST-THETA
+Email: iota@example.com | ID/Passcode: TEST-IOTA
+Email: kappa@example.com | ID/Passcode: TEST-KAPPA
