@@ -12,6 +12,7 @@ interface DashboardData {
     ai_strikes: number;
     score: number;
     fragments: string[];
+    is_disqualified?: boolean;
     startedAt: number;
   };
   liveFeed: { id: string; time: string; text: string; }[];

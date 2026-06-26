@@ -4,7 +4,7 @@ import { db } from "@/lib/firebase/admin";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthUser(request);
+    const user = await getAuthUser();
     
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
