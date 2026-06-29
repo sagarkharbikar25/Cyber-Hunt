@@ -47,6 +47,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - `/admin/login`: The secret admin portal.
 - `/admin/submissions`: The volunteer control center for verifying proofs and disqualifying teams.
 
+for pdf 
 npm install jspdf jspdf-autotable for pdf
 
 SUPABASE: COMMAND TO INSTALL 
