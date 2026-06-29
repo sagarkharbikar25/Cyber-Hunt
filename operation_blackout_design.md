@@ -125,9 +125,9 @@ This makes even the hint structure deceptive — which is what separates a great
 
 LEVEL 10 = Arch Linux
 
-X , C , U
+ X , C , U
  A , L , N
  R , H, I
 
-KEY = 
+
 

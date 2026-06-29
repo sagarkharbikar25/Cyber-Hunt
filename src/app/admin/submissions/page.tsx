@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/button";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Submission {
   id: string;
@@ -72,6 +74,53 @@ export default function AdminSubmissionsPage() {
     }
   };
 
+  const generatePDF = async () => {
+    try {
+      const res = await fetch("/api/admin/report");
+      const data = await res.json();
+      
+      if (!data.success) {
+        alert("Failed to fetch report data");
+        return;
+      }
+      
+      const teams = data.teams || [];
+      
+      const doc = new jsPDF();
+      
+      doc.setFontSize(20);
+      doc.text("Operation Blackout - Final Results (DUMMY DATA)", 14, 22);
+      
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+      
+      const tableData = teams.map((team: any) => [
+        team.rank,
+        team.team_name,
+        team.college_name,
+        team.fragments,
+        team.hints_used,
+        team.ai_strikes,
+        team.score,
+        team.status
+      ]);
+      
+      autoTable(doc, {
+        startY: 40,
+        head: [['Rank', 'Team Name', 'College', 'Fragments', 'Hints', 'Strikes', 'Final Score', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [0, 255, 136], textColor: [0, 0, 0] }
+      });
+      
+      doc.save("Operation_Blackout_Results.pdf");
+      
+    } catch (err) {
+      console.error("Failed to generate PDF", err);
+      alert("Error generating PDF");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg text-accent font-mono animate-pulse">
@@ -90,11 +139,16 @@ export default function AdminSubmissionsPage() {
           </h1>
           <p className="text-text3 font-mono text-xs">MONITORING ALL INCOMING INTEL UPLOADS</p>
         </div>
-        <div className="text-right">
+        <div className="text-right flex flex-col items-end gap-3">
           <div className="text-white font-bold mb-1 tracking-widest text-sm uppercase">PENDING APPROVALS: {submissions.length}</div>
-          <Link href="/" className="text-text3 hover:text-accent font-mono text-xs border border-surface2 px-4 py-2 hover:border-accent rounded transition-colors uppercase tracking-widest">
-            Return to Base
-          </Link>
+          <div className="flex gap-2">
+            <button onClick={generatePDF} className="text-bg bg-accent hover:bg-accent/80 font-mono text-xs px-4 py-2 rounded transition-colors uppercase tracking-widest font-bold">
+              Download PDF Report
+            </button>
+            <Link href="/" className="text-text3 hover:text-accent font-mono text-xs border border-surface2 px-4 py-2 hover:border-accent rounded transition-colors uppercase tracking-widest">
+              Return to Base
+            </Link>
+          </div>
         </div>
       </header>
 
