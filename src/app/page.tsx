@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -9,6 +9,37 @@ export default function LandingPage() {
   const [form, setForm] = useState({ email: "", team_id: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get("email");
+    const teamIdParam = params.get("team_id");
+    if (emailParam && teamIdParam) {
+      const cleanEmail = decodeURIComponent(emailParam);
+      const cleanTeamId = decodeURIComponent(teamIdParam);
+      setForm({ email: cleanEmail, team_id: cleanTeamId });
+
+      const autoLogin = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: cleanEmail, team_id: cleanTeamId })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || "Login failed");
+          router.push("/rules");
+        } catch (err: any) {
+          setError(err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
+      autoLogin();
+    }
+  }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));

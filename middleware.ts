@@ -28,14 +28,14 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get("cyberhunt_token")?.value;
 
   if (!token) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/", request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   const payload = await verifyToken(token);
   if (!payload) {
-    const response = NextResponse.redirect(new URL("/login", request.url));
+    const response = NextResponse.redirect(new URL("/", request.url));
     response.cookies.delete("cyberhunt_token");
     return response;
   }

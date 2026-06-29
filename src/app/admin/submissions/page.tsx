@@ -59,9 +59,9 @@ export default function AdminSubmissionsPage() {
       if (data.success) {
         if (action === "strike") {
           if (data.disqualified) {
-            alert(`CRITICAL: Team has received their 4th strike and is DISQUALIFIED!`);
+            alert(`CRITICAL: Team has received their 3rd strike and is DISQUALIFIED!`);
           } else {
-            alert(`Strike applied! Team now has ${data.strikes}/4 strikes.`);
+            alert(`Strike applied! Team now has ${data.strikes}/3 strikes.`);
           }
         }
       }

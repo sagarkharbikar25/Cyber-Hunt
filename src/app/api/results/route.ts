@@ -16,7 +16,7 @@ export async function GET() {
       return NextResponse.json({ 
         published: false,
         message: "Results are still being verified."
-      });
+      }, { status: 403 });
     }
 
     const { data: teamsSnapshot } = await supabase
@@ -25,22 +25,27 @@ export async function GET() {
       .eq("is_disqualified", false)
       .order("score", { ascending: false })
       .order("current_level", { ascending: false })
-      .order("last_submission_at", { ascending: true })
-      .limit(3);
+      .order("last_submission_at", { ascending: true });
 
-    const winners = (teamsSnapshot || []).map((data) => {
+    const teams = (teamsSnapshot || []).map((data, idx) => {
       return {
+        rank: idx + 1,
         team_id: data.team_id,
         team_name: data.team_name,
+        levels_solved: Math.max(0, (data.current_level || 1) - 1),
+        total_hints: data.global_hints_used || 0,
         score: data.score || 0,
-        level: data.current_level || 1,
+        solved_at: data.last_submission_at || "",
+        is_winner: idx === 0,
       };
     });
 
+    const winner = teams[0] || null;
+
     return NextResponse.json({
       published: true,
-      winners,
-      disqualified_count: 0 // Optional query
+      teams,
+      winner
     });
   } catch (error) {
     console.error("Results error:", error);

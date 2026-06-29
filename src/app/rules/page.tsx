@@ -46,7 +46,7 @@ export default function RulesPage() {
               <span className="text-accent font-bold mt-0.5">01</span>
               <div>
                 <h3 className="text-white font-bold tracking-widest mb-1">AI Strike System</h3>
-                <p>You may use any tools at your disposal, including AI. However, if our system detects excessive or direct copy-pasting from AI outputs to bypass the hunt, you will receive a strike. <span className="text-red font-bold">Accumulating 4 AI Strikes results in immediate team elimination.</span></p>
+                <p>You may use any tools at your disposal, including AI. However, if our system detects excessive or direct copy-pasting from AI outputs to bypass the hunt, you will receive a strike. <span className="text-red font-bold">Accumulating 3 AI Strikes results in immediate team elimination.</span></p>
               </div>
             </div>
 
