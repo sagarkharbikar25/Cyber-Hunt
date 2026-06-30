@@ -235,41 +235,68 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col overflow-hidden">
       
       {/* TOP BAR */}
-      <div className="flex items-center justify-between px-8 h-[88px] bg-bg1 border-b border-border-g2 shrink-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-5">
-          <div className="w-3.5 h-3.5 rounded-full bg-neon animate-pulse shadow-[0_0_12px_#00FF88]"></div>
+      <div className="relative flex items-center justify-between px-10 h-[80px] bg-gradient-to-r from-bg1 via-bg2 to-bg1 border-b border-neon/20 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(0,255,136,0.05)] backdrop-blur-md bg-opacity-95 overflow-hidden">
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.06] pointer-events-none"></div>
+        {/* Bottom indicator line */}
+        <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-neon/20 to-transparent"></div>
+        
+        {/* LEFT LOGO SECTION */}
+        <div className="flex items-center gap-6 relative z-10">
+          {/* Pulsing beacon wrapped in a telemetry border */}
+          <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
+            <div className="absolute w-4 h-4 rounded-full border border-neon/30 animate-ping"></div>
+            <div className="absolute w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#00FF88] animate-pulse"></div>
+            <div className="absolute -inset-1 border border-neon/10 rounded-sm pointer-events-none"></div>
+          </div>
+          
           <div className="flex flex-col">
-            <span className="font-orb text-[22px] font-black tracking-[5px] text-neon text-glow-green leading-none">OPERATION VAULT</span>
-            <span className="font-mono text-[10px] text-text2 tracking-[2.5px] mt-2 opacity-85">// CLASSIFIED OPERATIONS CENTRE</span>
+            <div className="flex items-center gap-2">
+              <span className="font-orb text-[20px] font-black tracking-[4px] text-white text-glow-white leading-none">OPERATION</span>
+              <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-green leading-none">VAULT</span>
+            </div>
+            <span className="font-mono text-[9px] text-text2/70 tracking-[2px] mt-1.5 flex items-center gap-1.5 leading-none">
+              <span className="text-neon/50">[SYS.LOC: C01]</span> // CLASSIFIED OPERATIONS CENTRE
+            </span>
           </div>
         </div>
         
-        {/* CENTER STAT BAR */}
-        <div className="flex items-center gap-8 font-mono tracking-[1.5px] mx-auto">
-          {/* Stat Block (Moved to Sidebar) */}
+        {/* CENTER STAT BAR - Countdown Timer */}
+        <div className="flex items-center gap-6 relative z-10 mx-auto">
+          <div className="w-[1px] h-10 bg-gradient-to-b from-transparent via-border-g2/20 to-transparent hidden md:block"></div>
           
-          {/* Timer - keep prominent */}
-          <div className="px-10 py-2.5 bg-bg2/80 border border-border-g2/50 rounded shadow-[inset_0_0_12px_rgba(0,255,136,0.1)] relative overflow-hidden group min-w-[180px] flex justify-center">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-neon opacity-50"></div>
-            <span className={`font-orb text-[32px] font-bold tracking-[3px] text-neon text-glow-green ${isCritical ? 'text-red text-glow-red animate-blink' : isWarning ? 'text-amber text-glow-amber' : ''}`}>
-              {timeLeft}
-            </span>
-            <div className="absolute bottom-0 left-0 w-full h-[2px] bg-neon opacity-20"></div>
+          <div className="flex flex-col items-center justify-center">
+            <div className={`px-12 py-1.5 bg-[#05080c] border ${isCritical ? 'border-red/40 shadow-[inset_0_0_15px_rgba(255,77,109,0.15),0_0_10px_rgba(255,77,109,0.1)]' : isWarning ? 'border-amber/40 shadow-[inset_0_0_15px_rgba(255,200,87,0.15),0_0_10px_rgba(255,200,87,0.1)]' : 'border-neon/30 shadow-[inset_0_0_15px_rgba(0,255,136,0.1),0_0_10px_rgba(0,255,136,0.05)]'} rounded-sm relative overflow-hidden group min-w-[200px] flex justify-center`}>
+              {/* Corner accents */}
+              <div className={`absolute top-0 left-0 w-1.5 h-1.5 border-t border-l ${isCritical ? 'border-red' : isWarning ? 'border-amber' : 'border-neon'}`}></div>
+              <div className={`absolute top-0 right-0 w-1.5 h-1.5 border-t border-r ${isCritical ? 'border-red' : isWarning ? 'border-amber' : 'border-neon'}`}></div>
+              <div className={`absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l ${isCritical ? 'border-red' : isWarning ? 'border-amber' : 'border-neon'}`}></div>
+              <div className={`absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r ${isCritical ? 'border-red' : isWarning ? 'border-amber' : 'border-neon'}`}></div>
+
+              <span className={`font-orb text-[30px] font-black tracking-[4px] leading-tight ${isCritical ? 'text-red text-glow-red animate-blink' : isWarning ? 'text-amber text-glow-amber' : 'text-neon text-glow-green'}`}>
+                {timeLeft}
+              </span>
+            </div>
           </div>
           
-          {/* Progress stats moved to sidebar */}
+          <div className="w-[1px] h-10 bg-gradient-to-b from-transparent via-border-g2/20 to-transparent hidden md:block"></div>
         </div>
 
-        <div className="flex items-center gap-6 font-mono text-[12px]">
-          <div className="flex items-center gap-3 mr-4">
-            <span className="text-[11px] text-text2/60 uppercase whitespace-nowrap tracking-[1px]">OPERATIONAL AGENT</span>
-            <span className="text-neon font-bold tracking-[2px] text-glow-green text-[16px] uppercase whitespace-nowrap">{team?.name || "UNKNOWN"}</span>
+        {/* RIGHT AGENT & DISCONNECT SECTION */}
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="flex flex-col items-end gap-1.5 pr-2">
+            <span className="text-[9px] text-text2/50 font-mono tracking-[1.5px] uppercase leading-none">OPERATIONAL AGENT</span>
+            <span className="text-neon font-orb text-[15px] font-bold tracking-[2px] text-glow-green uppercase leading-none">{team?.name || "UNKNOWN"}</span>
           </div>
+
+          <div className="w-[1px] h-8 bg-border-g2/20"></div>
+
           <button 
             onClick={() => router.push("/")}
-            className="border border-red/50 text-red bg-red/5 px-6 py-[10px] font-orb text-[11px] tracking-[2px] uppercase transition-all duration-200 hover:bg-red hover:text-black hover:shadow-[0_0_15px_rgba(255,51,51,0.3)] rounded-[3px]"
+            className="border border-red/40 text-red bg-[#0a0709] px-6 py-2.5 font-orb text-[10px] tracking-[2px] uppercase transition-all duration-300 hover:bg-red/10 hover:text-white hover:border-red hover:shadow-[0_0_15px_rgba(255,77,109,0.3)] hover:scale-[1.02] active:scale-[0.98] rounded-sm relative overflow-hidden group"
           >
-            DISCONNECT
+            <span className="relative z-10">DISCONNECT</span>
+            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-red/0 via-red/5 to-red/0 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
           </button>
         </div>
       </div>
