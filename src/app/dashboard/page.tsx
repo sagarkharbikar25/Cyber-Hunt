@@ -23,14 +23,14 @@ interface DashboardData {
 
 const MISSIONS = [
   { id: 1, title: "THE INITIAL BREACH", desc: "Our intelligence indicates a vulnerability in TechAlfa's foundation. We've intercepted a link to their public repository. Inspect the building blocks closely—developers often leave whispers behind that were never meant to be executed. Find the first fragment hidden in plain sight.", link: "https://github.com/techalfatechnician-ngp/CyberHunt.git" },
-  { id: 2, title: "PHANTOM BRANCH", desc: "A hidden branch contains experimental code. Navigate through the commit history to uncover the hidden message.", link: "https://github.com/techalfatechnician-ngp/CyberHunt.git" },
+  { id: 2, title: "PHANTOM BRANCH", desc: "A hidden branch contains experimental code. Navigate through the commit history to uncover the hidden message.", link: "https://github.com/ayush21-r/cyberhunt-2.git" },
   { id: 3, title: "NETWORK SHADOWS", desc: "Inspect the network payloads. A specific request is transmitting encrypted data in the headers. Intercept it.", link: "#" },
   { id: 4, title: "COOKIE JAR", desc: "The authentication system left a vulnerable trace in your browser cookies. Decode the session token.", link: "#" },
   { id: 5, title: "BASE64 ANOMALY", desc: "We found a strange string in the server logs. It looks like standard Base64, but something is off. Decode it.", link: "#" },
   { id: 6, title: "EXIF GHOST", desc: "Analyze the provided image file. The metadata contains GPS coordinates that point to your next clue.", link: "#" },
-  { id: 7, title: "INVISIBLE INK", desc: "The CSS on the target page hides a crucial element. Use your developer tools to reveal the hidden text.", link: "#" },
-  { id: 8, title: "ENGINEER'S TRIAL", desc: "A fragmented transmission was intercepted. It contains 4 distinct logical trials. The output of each trial is a piece of a web address. Solve them, arrange the pieces correctly, and visit the destination to find your fragment.", link: "#" },
-  { id: 9, title: "RAINBOW BREACH", desc: "A database was leaked containing MD5 hashes. Use rainbow tables to decrypt the admin's password hash.", link: "#" },
+  { id: 7, title: "DEBUG CHALLENGE", desc: "A compromised system log has been extracted into a PDF document. Your task is to analyze the traces and debug the sequence to find the fragment.", link: "/debug_challenge.pdf" },
+  { id: 8, title: "INVISIBLE INK", desc: "The CSS on the target page hides a crucial element. Use your developer tools to reveal the hidden text.", link: "#" },
+  { id: 9, title: "THE GHOST PROTOCOL", desc: "The server knows more than it shows. The page appears blank, but the protocol holds the key. Investigate the metadata of the response.", link: "https://secure-vault-endpoint-39vzm8pau-sagar-kharbikar-s-projects.vercel.app/" },
   { id: 10, title: "THE FINAL DECRYPTION", desc: "You have collected all fragments. Unscramble the letters to form the final Master Key and shut down the rogue AI.", link: "#" },
 ];
 
@@ -38,7 +38,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   const [fragments, setFragments] = useState<string[]>(Array(9).fill(""));
   const [submission, setSubmission] = useState("");
   const [proofFile, setProofFile] = useState<File | null>(null);
@@ -46,7 +46,7 @@ export default function DashboardPage() {
   const [hintWarning, setHintWarning] = useState(false);
   const [activeHint, setActiveHint] = useState<string | null>(null);
   const [activeHintLink, setActiveHintLink] = useState<string | null>(null);
-  
+
   const [selectedMission, setSelectedMission] = useState(1);
 
   const [timeLeft, setTimeLeft] = useState("90:00");
@@ -95,11 +95,11 @@ export default function DashboardPage() {
       const now = Date.now();
       const elapsed = now - data.team.startedAt;
       const remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
-      
+
       const totalSeconds = Math.floor(remaining / 1000);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
-      
+
       setTimeLeft(
         `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
       );
@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
     return () => clearInterval(interval);
   }, [data?.team?.startedAt]);
-  
+
   useEffect(() => {
     setSubmission("");
     setProofFile(null);
@@ -137,7 +137,7 @@ export default function DashboardPage() {
           canvas.height = img.height * scaleSize;
           const ctx = canvas.getContext("2d");
           ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
+
           const base64Proof = canvas.toDataURL("image/jpeg", 0.6);
 
           const formData = new FormData();
@@ -170,7 +170,7 @@ export default function DashboardPage() {
     setSelectedHintId(hintId);
     setHintWarning(true);
   };
-  
+
   const confirmHint = async () => {
     setHintWarning(false);
     try {
@@ -233,14 +233,14 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col overflow-hidden">
-      
+
       {/* TOP BAR */}
       <div className="relative flex items-center justify-between px-10 h-[80px] bg-gradient-to-r from-bg1 via-bg2 to-bg1 border-b border-neon/20 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(0,255,136,0.05)] backdrop-blur-md bg-opacity-95 overflow-hidden">
         {/* Subtle grid background */}
         <div className="absolute inset-0 bg-grid-pattern opacity-[0.06] pointer-events-none"></div>
         {/* Bottom indicator line */}
         <div className="absolute inset-x-0 bottom-0 h-[1px] bg-gradient-to-r from-transparent via-neon/20 to-transparent"></div>
-        
+
         {/* LEFT LOGO SECTION */}
         <div className="flex items-center gap-6 relative z-10">
           {/* Pulsing beacon wrapped in a telemetry border */}
@@ -249,7 +249,7 @@ export default function DashboardPage() {
             <div className="absolute w-2 h-2 rounded-full bg-neon shadow-[0_0_8px_#00FF88] animate-pulse"></div>
             <div className="absolute -inset-1 border border-neon/10 rounded-sm pointer-events-none"></div>
           </div>
-          
+
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span className="font-orb text-[20px] font-black tracking-[4px] text-white text-glow-white leading-none">OPERATION</span>
@@ -260,11 +260,11 @@ export default function DashboardPage() {
             </span>
           </div>
         </div>
-        
+
         {/* CENTER STAT BAR - Countdown Timer */}
         <div className="flex items-center gap-6 relative z-10 mx-auto">
           <div className="w-[1px] h-10 bg-gradient-to-b from-transparent via-border-g2/20 to-transparent hidden md:block"></div>
-          
+
           <div className="flex flex-col items-center justify-center">
             <div className={`px-12 py-1.5 bg-[#05080c] border ${isCritical ? 'border-red/40 shadow-[inset_0_0_15px_rgba(255,77,109,0.15),0_0_10px_rgba(255,77,109,0.1)]' : isWarning ? 'border-amber/40 shadow-[inset_0_0_15px_rgba(255,200,87,0.15),0_0_10px_rgba(255,200,87,0.1)]' : 'border-neon/30 shadow-[inset_0_0_15px_rgba(0,255,136,0.1),0_0_10px_rgba(0,255,136,0.05)]'} rounded-sm relative overflow-hidden group min-w-[200px] flex justify-center`}>
               {/* Corner accents */}
@@ -278,7 +278,7 @@ export default function DashboardPage() {
               </span>
             </div>
           </div>
-          
+
           <div className="w-[1px] h-10 bg-gradient-to-b from-transparent via-border-g2/20 to-transparent hidden md:block"></div>
         </div>
 
@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
           <div className="w-[1px] h-8 bg-border-g2/20"></div>
 
-          <button 
+          <button
             onClick={() => router.push("/")}
             className="border border-red/40 text-red bg-[#0a0709] px-6 py-2.5 font-orb text-[10px] tracking-[2px] uppercase transition-all duration-300 hover:bg-red/10 hover:text-white hover:border-red hover:shadow-[0_0_15px_rgba(255,77,109,0.3)] hover:scale-[1.02] active:scale-[0.98] rounded-sm relative overflow-hidden group"
           >
@@ -300,7 +300,7 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
-      
+
       {/* STRIKES BAR */}
       <div className="bg-bg0 border-b border-border-g2 h-8 flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
@@ -318,7 +318,7 @@ export default function DashboardPage() {
 
       {/* MAIN 3-COL GRID */}
       <div className="grid grid-cols-[260px_1fr_260px] min-h-0 flex-1 overflow-hidden">
-        
+
         {/* LEFT COLUMN */}
         <div className="bg-bg1 border-r border-border-g2 flex flex-col overflow-hidden">
           {/* MISSION SELECT */}
@@ -328,13 +328,13 @@ export default function DashboardPage() {
               <span className="font-orb text-[10px] font-bold tracking-[3px] text-white uppercase">MISSION SELECT</span>
             </div>
           </div>
-          
+
           <div className="p-[16px_18px] grid grid-cols-2 gap-3 border-b border-border-g2 shrink-0 bg-bg0">
             {MISSIONS.map((m) => {
               const isActive = m.id === selectedMission;
               const isLocked = m.id === 10 && isMission10Locked;
               const isSolved = m.id < 10 && fragments[m.id - 1] !== "";
-              
+
               let boxStyle = "border-border-g2 text-text2 hover:border-neon hover:text-white cursor-pointer bg-bg2";
               let numberColor = "text-text2";
               let extraIcon = null;
@@ -353,7 +353,7 @@ export default function DashboardPage() {
               }
 
               return (
-                <div 
+                <div
                   key={m.id}
                   onClick={() => {
                     if (isLocked) {
@@ -379,9 +379,9 @@ export default function DashboardPage() {
               <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Hints Used</span>
               <span className="font-orb text-[20px] text-white font-bold leading-none">{team?.hints_used || 0}</span>
             </div>
-            
+
             <div className="w-[1px] h-10 bg-border-g2 opacity-80"></div>
-            
+
             <div className="flex flex-col items-center justify-center">
               <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">AI Strikes</span>
               <span className={`font-orb text-[20px] font-bold leading-none ${team?.ai_strikes ? 'text-red text-glow-red' : 'text-white'}`}>{team?.ai_strikes || 0}<span className="text-[12px] text-text2/50">/3</span></span>
@@ -394,22 +394,22 @@ export default function DashboardPage() {
               <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Active Sector</span>
               <span className="font-orb text-[20px] text-white font-bold leading-none">{selectedMission}<span className="text-[12px] text-text2/50">/10</span></span>
             </div>
-            
+
             <div className="w-[1px] h-10 bg-border-g2 opacity-80"></div>
-            
+
             <div className="flex flex-col items-center justify-center">
               <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Keys Secured</span>
               <span className="font-orb text-[20px] text-neon font-bold text-glow-green leading-none">{securedFragmentsCount}<span className="text-[12px] opacity-50">/9</span></span>
             </div>
           </div>
-          
+
           <div className="mt-auto"></div>
         </div>
 
         {/* CENTER COLUMN: MISSION CONTROL */}
         <div className="bg-bg0 p-6 overflow-y-auto relative">
           <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.03)_1px,transparent_1px)] bg-[length:100%_4px] pointer-events-none opacity-50"></div>
-          
+
           <div className="relative z-10 flex flex-col gap-6">
             <div className="flex justify-between items-center pb-[14px] border-b border-border-g2">
               <div className="flex items-baseline gap-3">
@@ -430,8 +430,13 @@ export default function DashboardPage() {
                 {currentMissionObj.desc}
               </div>
               <div className="mt-4">
-                <a href={currentMissionObj.link} target="_blank" className="inline-flex items-center gap-2 font-mono text-[13px] text-[#00d4ff] no-underline border-b border-[#00d4ff44] pb-1 tracking-[1px] transition-colors hover:border-[#00d4ff] hover:text-[#00ffff]">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                <a
+                  href={currentMissionObj.link}
+                  target="_blank"
+                  {...(currentMissionObj.link.startsWith('/') ? { download: true } : {})}
+                  className="inline-flex items-center gap-2 font-mono text-[13px] text-[#00d4ff] no-underline border-b border-[#00d4ff44] pb-1 tracking-[1px] transition-colors hover:border-[#00d4ff] hover:text-[#00ffff]"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
                   {currentMissionObj.link.toUpperCase()}
                 </a>
               </div>
@@ -448,12 +453,12 @@ export default function DashboardPage() {
                 const isLocked = elapsedMinutes < hint.unlockMin;
                 const isFree = hint.cost === "Free";
                 return (
-                  <div 
+                  <div
                     key={hint.id}
                     onClick={() => !isLocked && handleHintClick(hint.id)}
                     className={`border p-[16px_12px] text-center relative transition-all duration-200 flex flex-col items-center justify-center min-h-[100px]
-                      ${isLocked 
-                        ? 'bg-bg2 border-border-g cursor-not-allowed opacity-50' 
+                      ${isLocked
+                        ? 'bg-bg2 border-border-g cursor-not-allowed opacity-50'
                         : isFree ? 'bg-[#00d4ff10] border-[#00d4ff] cursor-pointer hover:bg-[#00d4ff20]' : 'bg-[#ffaa0010] border-amber cursor-pointer hover:bg-[#ffaa0020]'}`}
                   >
                     {isLocked ? <Lock size={14} className="absolute top-2 right-2 text-text2 opacity-30" /> : <Unlock size={14} className={`absolute top-2 right-2 ${isFree ? 'text-[#00d4ff]' : 'text-amber'}`} />}
@@ -488,9 +493,9 @@ export default function DashboardPage() {
                 <h4 className="font-orb text-[11px] text-neon font-bold mb-4 tracking-[3px]">DECRYPTED INTEL:</h4>
                 <p className="text-white text-[15px] mb-6 leading-relaxed font-raj">{activeHint}</p>
                 {activeHintLink && (
-                  <a 
-                    href={activeHintLink} 
-                    target="_blank" 
+                  <a
+                    href={activeHintLink}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="bg-neon text-black px-6 py-2.5 font-orb font-bold tracking-[2px] text-[10px] hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.3)] transition-all"
                   >
@@ -506,7 +511,7 @@ export default function DashboardPage() {
                 <div className="absolute top-1/2 left-0 right-0 h-px bg-border-g2 -z-10"></div>
                 <span className="bg-bg0 px-4">— TRANSMIT SOLUTION —</span>
               </div>
-              
+
               {isCurrentMissionSolved ? (
                 <div className="bg-[rgba(0,255,136,0.05)] border border-[rgba(0,255,136,0.3)] p-4 text-center">
                   <div className="font-orb text-[12px] text-neon font-bold tracking-[3px] mb-1">✅ MISSION SOLVED</div>
@@ -525,12 +530,12 @@ export default function DashboardPage() {
                       className="flex-1 bg-bg3 border border-border-g2 text-neon font-mono text-[16px] font-bold p-[12px_16px] outline-none tracking-[2px] placeholder:text-text2 placeholder:opacity-50 focus:border-neon transition-colors uppercase"
                     />
                     <div className="relative flex items-center justify-center border border-dashed border-border-g2 bg-bg3 px-5 hover:border-neon transition-colors group cursor-pointer overflow-hidden min-w-[160px]">
-                      <input 
-                        type="file" 
-                        required 
+                      <input
+                        type="file"
+                        required
                         accept="image/png, image/jpeg"
                         onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)}
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10" 
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
                       />
                       <div className="flex flex-col items-center justify-center z-0 pointer-events-none">
                         <span className="font-orb text-[10px] font-bold tracking-[2px] text-text2 group-hover:text-white transition-colors">
@@ -563,7 +568,7 @@ export default function DashboardPage() {
             <Puzzle size={14} className="text-neon" />
             <span className="font-orb text-[10px] font-bold tracking-[3px] text-white uppercase">SECURED FRAGMENTS</span>
           </div>
-          
+
           <div className="p-[16px_18px_10px] flex items-center justify-between shrink-0">
             <span className="font-orb text-[9px] font-bold tracking-[2px] text-text2">VAULT KEYS</span>
             <span className="font-mono text-[12px] font-bold text-neon">{securedFragmentsCount} / 9</span>
@@ -590,7 +595,7 @@ export default function DashboardPage() {
             <Tv size={14} className="text-neon" />
             <span className="font-orb text-[10px] font-bold tracking-[3px] text-white uppercase">LIVE NET STATUS</span>
           </div>
-          
+
           <div className="flex-1 overflow-y-auto bg-bg0">
             {!activeAgents || activeAgents.length === 0 ? (
               <div className="p-4 text-center text-text2 text-xs font-mono tracking-widest">NO SIGNALS DETECTED</div>
@@ -602,10 +607,10 @@ export default function DashboardPage() {
                   <div key={agent.id} className={`p-[10px_14px] border-b border-border-g flex items-center justify-between hover:bg-bg2 transition-colors cursor-pointer ${isSelf ? 'bg-[rgba(0,255,136,0.05)] border-l-2 border-l-neon' : ''}`}>
                     <div className="flex items-center gap-3">
                       <div className={`font-mono text-[10px] w-5 h-5 rounded-[2px] flex items-center justify-center font-bold
-                        ${i === 0 ? 'bg-[#ffaa0022] text-amber border border-[#ffaa0044]' : 
-                          i === 1 ? 'bg-[#c0c0c022] text-[#c0c0c0] border border-[#c0c0c044]' : 
-                          i === 2 ? 'bg-[#cd7f3222] text-[#cd7f32] border border-[#cd7f3244]' : 
-                          'bg-bg3 text-text2'}`}>
+                        ${i === 0 ? 'bg-[#ffaa0022] text-amber border border-[#ffaa0044]' :
+                          i === 1 ? 'bg-[#c0c0c022] text-[#c0c0c0] border border-[#c0c0c044]' :
+                            i === 2 ? 'bg-[#cd7f3222] text-[#cd7f32] border border-[#cd7f3244]' :
+                              'bg-bg3 text-text2'}`}>
                         {(i + 1).toString().padStart(2, '0')}
                       </div>
                       <div className="overflow-hidden">
@@ -614,8 +619,8 @@ export default function DashboardPage() {
                         </div>
                         <div className="flex gap-[2px] mt-[3px]">
                           {pips.map((_, idx) => (
-                            <div 
-                              key={idx} 
+                            <div
+                              key={idx}
                               className={`w-[5px] h-[5px] rounded-sm ${idx < agent.level ? (i === 0 ? 'bg-amber' : 'bg-neon') : 'bg-border-g2'}`}
                             />
                           ))}
@@ -635,7 +640,7 @@ export default function DashboardPage() {
           <div className="p-[14px_18px] shrink-0 bg-bg1">
             <div className="font-orb text-[9px] font-bold tracking-[3px] text-text2 mb-3">DECODED WORD</div>
             <div className="flex justify-between gap-[4px]">
-              {Array.from({length: 9}).map((_, i) => {
+              {Array.from({ length: 9 }).map((_, i) => {
                 const letter = fragments[i];
                 const isRevealed = letter !== "";
                 return (

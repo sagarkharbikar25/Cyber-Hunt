@@ -75,7 +75,7 @@ source code -1
 commit-3 
 dummy website console error  - 4
 zip file -2
-insta bio link tree - 5
+insta story  - 5
 privacy policiy - 6 main website;
 coding - 7
 leak database - 8
@@ -125,11 +125,14 @@ This makes even the hint structure deceptive — which is what separates a great
 
 LEVEL 10 = Arch Linux
 
- X , C , U
- A , L , N
+ X , A , U
+ C , L , N
  R , H, I
 
  
 
+2 hints
 
-
+4 min 4 min = 8 min
+4, 5, 5 5 min hint time 
+,7,8 , 9 6 min diff 
