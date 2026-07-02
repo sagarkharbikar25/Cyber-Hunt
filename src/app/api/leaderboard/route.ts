@@ -29,7 +29,6 @@ export async function GET() {
         rank: idx + 1,
         team_id: data.team_id,
         team_name: data.team_name,
-        college_name: data.college_name || "N/A",
         score: data.score || 0,
         current_level: data.current_level || 1,
         levels_solved: Math.max(0, (data.current_level || 1) - 1),

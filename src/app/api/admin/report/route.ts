@@ -13,7 +13,6 @@ export async function GET() {
     const teams = (teamsSnapshot || []).map((data, idx) => ({
       rank: idx + 1,
       team_name: data.team_name,
-      college_name: data.college_name || "N/A",
       fragments: Math.max(0, (data.current_level || 1) - 1),
       hints_used: data.global_hints_used || 0,
       ai_strikes: data.ai_strikes || 0,

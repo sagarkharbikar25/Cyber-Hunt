@@ -19,6 +19,8 @@ CREATE TABLE teams (
     fragments TEXT[] DEFAULT ARRAY['','','','','','','','',''],
     last_submission_at TIMESTAMP WITH TIME ZONE,
     started_at TIMESTAMP WITH TIME ZONE,
+    level10_started_at TIMESTAMP WITH TIME ZONE,
+    level_hints JSONB DEFAULT '{}'::jsonb,
     is_disqualified BOOLEAN DEFAULT FALSE
 );
 

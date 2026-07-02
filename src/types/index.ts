@@ -3,11 +3,16 @@ export interface Team {
   team_name: string;
   leader_name: string;
   leader_email: string;
-  college_name: string;
   member_count: number;
   members_json: { name: string; email: string }[];
   registered_at: string;
+  started_at?: string;
+  level10_started_at?: string;
+  level_hints?: Record<string, number>;
   is_disqualified: boolean;
+  score?: number;
+  global_hints_used?: number;
+  fragments?: string[];
 }
 
 export interface Level {

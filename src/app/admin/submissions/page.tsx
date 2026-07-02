@@ -89,7 +89,7 @@ export default function AdminSubmissionsPage() {
       const doc = new jsPDF();
       
       doc.setFontSize(20);
-      doc.text("Operation Blackout - Final Results (DUMMY DATA)", 14, 22);
+      doc.text("Operation Blackout - Final Results", 14, 22);
       
       doc.setFontSize(10);
       doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
@@ -97,7 +97,6 @@ export default function AdminSubmissionsPage() {
       const tableData = teams.map((team: any) => [
         team.rank,
         team.team_name,
-        team.college_name,
         team.fragments,
         team.hints_used,
         team.ai_strikes,
@@ -107,7 +106,7 @@ export default function AdminSubmissionsPage() {
       
       autoTable(doc, {
         startY: 40,
-        head: [['Rank', 'Team Name', 'College', 'Fragments', 'Hints', 'Strikes', 'Final Score', 'Status']],
+        head: [['Rank', 'Team Name', 'Fragments', 'Hints', 'Strikes', 'Final Score', 'Status']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: [0, 255, 136], textColor: [0, 0, 0] }

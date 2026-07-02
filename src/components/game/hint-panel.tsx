@@ -10,20 +10,29 @@ interface Hint {
 interface HintPanelProps {
   hints: Hint[];
   hintsUsed: number[];
-  timeOnLevelS: number;
+  levelId: number;
   onUseHint: (hintNum: number) => void;
 }
 
 export default function HintPanel({
   hints,
   hintsUsed,
-  timeOnLevelS,
+  levelId,
   onUseHint,
 }: HintPanelProps) {
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  const unlockTimes = [300, 600, 900];
-  const penalties = [0, 10, 20, 30];
+  const getTimePenalty = (lvl: number) => {
+    if (lvl <= 3) return 4;
+    if (lvl <= 6) return 5;
+    return 6;
+  };
+
+  const getPointPenaltyStr = (num: number) => {
+    return num === 1 ? "-20%" : "-30%";
+  };
+
+  const timePenalty = getTimePenalty(levelId);
 
   return (
     <div className="bg-surface border border-border rounded-lg overflow-hidden">
@@ -39,7 +48,7 @@ export default function HintPanel({
           </svg>
           <span className="text-sm font-medium text-text2">Hints</span>
           <span className="text-xs text-text3">
-            ({hintsUsed.length}/3 used)
+            ({hintsUsed.length}/2 used)
           </span>
         </div>
         <svg
@@ -57,11 +66,9 @@ export default function HintPanel({
 
       {expanded !== null && (
         <div className="border-t border-border p-4 space-y-3">
-          {[1, 2, 3].map((num) => {
-            const isUnlocked = timeOnLevelS >= unlockTimes[num - 1];
+          {[1, 2].map((num) => {
             const isUsed = hintsUsed.includes(num);
             const hint = hints.find((h) => h.num === num);
-            const timeLeft = Math.max(0, unlockTimes[num - 1] - timeOnLevelS);
 
             return (
               <div
@@ -69,9 +76,7 @@ export default function HintPanel({
                 className={`p-3 rounded-lg border transition-all ${
                   isUsed
                     ? "bg-accent/5 border-accent/20"
-                    : isUnlocked
-                    ? "bg-surface2 border-border hover:border-amber/30"
-                    : "bg-surface2 border-border opacity-50"
+                    : "bg-surface2 border-border hover:border-amber/30"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
@@ -83,31 +88,22 @@ export default function HintPanel({
                       </span>
                     )}
                   </span>
-                  {!isUnlocked && !isUsed && (
-                    <span className="text-[10px] text-text3 font-mono">
-                      {Math.floor(timeLeft / 60)}m {timeLeft % 60}s
-                    </span>
-                  )}
-                  {isUnlocked && !isUsed && (
+                  {!isUsed && (
                     <span className="text-[10px] text-amber">
-                      -{penalties[num]} pts
+                      -{timePenalty}m & {getPointPenaltyStr(num)} pts
                     </span>
                   )}
                 </div>
 
                 {isUsed && hint ? (
                   <p className="text-xs text-text2 italic">{hint.text}</p>
-                ) : isUnlocked && !isUsed ? (
+                ) : (
                   <button
                     onClick={() => onUseHint(num)}
                     className="text-xs text-amber hover:text-amber/80 font-medium cursor-pointer"
                   >
-                    Click to reveal (-{penalties[num]} pts)
+                    Click to reveal (-{timePenalty}m time penalty)
                   </button>
-                ) : (
-                  <p className="text-xs text-text3">
-                    Unlocks in {Math.floor(timeLeft / 60)}m {timeLeft % 60}s
-                  </p>
                 )}
               </div>
             );
