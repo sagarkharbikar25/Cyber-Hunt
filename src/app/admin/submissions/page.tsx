@@ -74,6 +74,28 @@ export default function AdminSubmissionsPage() {
     }
   };
 
+  const handleResetAll = async () => {
+    if (!confirm("CRITICAL WARNING: Are you absolutely sure you want to RESET ALL TEAMS? This will wipe all progress, scores, hints, and timers for every team, but keep their login credentials intact.")) return;
+    
+    try {
+      const res = await fetch("/api/admin/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "reset_all" })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Successfully reset ${data.count} teams back to a fresh state!`);
+        fetchSubmissions();
+      } else {
+        alert("Failed to reset teams.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error resetting teams.");
+    }
+  };
+
   const generatePDF = async () => {
     try {
       const res = await fetch("/api/admin/report");
@@ -141,6 +163,9 @@ export default function AdminSubmissionsPage() {
         <div className="text-right flex flex-col items-end gap-3">
           <div className="text-white font-bold mb-1 tracking-widest text-sm uppercase">PENDING APPROVALS: {submissions.length}</div>
           <div className="flex gap-2">
+            <button onClick={handleResetAll} className="text-white bg-red/20 hover:bg-red/40 border border-red/50 font-mono text-xs px-4 py-2 rounded transition-colors uppercase tracking-widest font-bold">
+              Reset All Teams
+            </button>
             <button onClick={generatePDF} className="text-bg bg-accent hover:bg-accent/80 font-mono text-xs px-4 py-2 rounded transition-colors uppercase tracking-widest font-bold">
               Download PDF Report
             </button>

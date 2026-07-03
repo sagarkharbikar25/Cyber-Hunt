@@ -27,48 +27,69 @@ export async function POST(request: NextRequest) {
       const { data: team } = await supabase.from("teams").select("*").eq("team_id", user.team_id).single();
       if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
       
-      const { data: levelDoc } = await supabase.from("levels").select("*").eq("level_id", lvl).single();
-      
-      if (!levelDoc) return NextResponse.json({ error: "Level not found" }, { status: 404 });
-      
-      // Determine time penalty (in minutes)
-      let timePenaltyMins = 0;
-      if (lvl >= 1 && lvl <= 3) timePenaltyMins = 4;
-      else if (lvl >= 4 && lvl <= 6) timePenaltyMins = 5;
-      else if (lvl >= 7 && lvl <= 9) timePenaltyMins = 6;
-      
-      // Shift started_at backwards to deduct time
-      let newStartedAt = team.started_at;
-      if (timePenaltyMins > 0 && team.started_at) {
-        const startedDate = new Date(team.started_at);
-        startedDate.setMinutes(startedDate.getMinutes() - timePenaltyMins);
-        newStartedAt = startedDate.toISOString();
-      }
+      const HINTS: Record<string, Record<string, string>> = {
+        "1": { 
+          "1": "The secret isn't buried in the past; it lives in the present. You must systematically inspect every single file in the provided GitHub repository.", 
+          "2": "Developers often leave comments or hardcoded secrets behind. Open the files and read the source code line by line to find the hidden fragment." 
+        },
+        "2": { 
+          "1": "Sometimes you must reuse the exact same credentials to pass a completely different gate. Your operational identity here is the same as your identity there.", 
+          "2": "Infiltrate the dashboard and secure the PDF document. But do not trust the extension; disguise is the best defense. Force extract or unzip the file to reveal its true contents." 
+        },
+        "3": { 
+          "1": "The present state of the repository reveals nothing. But code has memory. Where do we look to see what came before?", 
+          "2": "A footprint remains long after the foot has moved. Track the chronological steps of the creator. A specific commit holds the fragment you seek." 
+        },
+        "4": { 
+          "1": "Return to the scene of your previous infiltration. The surface layer of that website is a distraction; you must look deeper.", 
+          "2": "When things break behind the scenes, the browser quietly bleeds red. Use your diagnostic tools to inspect what the machine is secretly complaining about." 
+        },
+        "5": { 
+          "1": "Organizations don't hide in the shadows; they broadcast their daily activities to the world. Seek out the official social channel of the architects (TechAlfa).", 
+          "2": "Evidence that vanishes after 24 hours is live right now. You must watch their temporary visual broadcasts very carefully—the secret is hidden among the noise." 
+        },
+        "6": { 
+          "1": "The deepest secrets are hidden in plain sight on the official TechAlfa website's most boring page. Read every single line of the legal jargon; the answer lies just below a button.", 
+          "2": "Sometimes, words are written in the exact same color as their surroundings. You must select everything on the screen to force the invisible text into the light." 
+        },
+        "7": { 
+          "1": "Compute the four trials systematically. When their solutions are stitched together sequentially, they will form a pathway to a professional network.", 
+          "2": "Once you reach the destination, look back at the very beginning of this journey. Find the professional announcement for this exact operation; the secret is buried in its text." 
+        },
+        "8": { 
+          "1": "The scrambled text is a one-way mathematical transformation. It cannot be reversed, but it can be matched.", 
+          "2": "Isolate the target. You do not need to do the math yourself—visit https://crackstation.net/ to restore its true form." 
+        },
+        "9": { 
+          "1": "The secret won't appear unless you are actively watching. Open the Network tab and refresh the page to catch the file in transit.", 
+          "2": "Browsers remember too much. To see the ghost, you must stop it from remembering. Mark 'Disable cache' in the Network tab and refresh again." 
+        }
+      };
+
+      const hintText = HINTS[lvl.toString()]?.[hint_num.toString()] || "Hint not found.";
 
       // Track hints per level
       const levelHints = team.level_hints || {};
       const currentHintsForLevel = levelHints[lvl.toString()] || 0;
       let globalHints = team.global_hints_used || 0;
+      
       // Only increment if they haven't already taken this hint number
       if (hint_num > currentHintsForLevel) {
         levelHints[lvl.toString()] = hint_num;
         globalHints += 1;
       }
       
-      const hintData = (hint_num === 2 ? levelDoc.hint_2 : levelDoc.hint_1) || "No hint available for this level.";
-      
       await supabase.from("teams").update({
-        started_at: newStartedAt,
         level_hints: levelHints,
         global_hints_used: globalHints
       }).eq("team_id", user.team_id);
 
       // Log activity
       await supabase.from("activity_logs").insert({
-        message: `${team.team_name} decrypted Hint ${hint_num} for Level ${lvl} (-${timePenaltyMins}m penalty)`
+        message: `${team.team_name} decrypted Hint ${hint_num} for Level ${lvl} (-${hint_num === 1 ? '20' : '30'}% score penalty)`
       });
 
-      return NextResponse.json({ success: true, hint: hintData });
+      return NextResponse.json({ success: true, hint: hintText });
     }
 
     if (action === "submit") {

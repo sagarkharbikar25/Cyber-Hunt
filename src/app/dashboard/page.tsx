@@ -26,16 +26,16 @@ interface DashboardData {
 }
 
 const MISSIONS = [
-  { id: 1, title: "THE INITIAL BREACH", desc: "Our intelligence indicates a vulnerability in TechAlfa's foundation. We've intercepted a link to their public repository. Inspect the building blocks closely—developers often leave whispers behind that were never meant to be executed. Find the first fragment hidden in plain sight.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 2, title: "PHANTOM BRANCH", desc: "A hidden branch contains experimental code. Navigate through the commit history to uncover the hidden message.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 3, title: "NETWORK SHADOWS", desc: "Inspect the network payloads. A specific request is transmitting encrypted data in the headers. Intercept it.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 4, title: "COOKIE JAR", desc: "The authentication system left a vulnerable trace in your browser cookies. Decode the session token.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 5, title: "BASE64 ANOMALY", desc: "We found a strange string in the server logs. It looks like standard Base64, but something is off. Decode it.", link: "#" },
-  { id: 6, title: "EXIF GHOST", desc: "Analyze the provided image file. The metadata contains GPS coordinates that point to your next clue.", link: "https://techalfa-website-ivory.vercel.app/" },
-  { id: 7, title: "DEBUG CHALLENGE", desc: "A compromised system log has been extracted into a PDF document. Your task is to analyze the traces and debug the sequence to find the fragment.", link: "/debug_challenge.pdf" },
-  { id: 8, title: "THE DATA BREACH", desc: "A database export has been leaked. Find the compromised password hash for 'agent_alpha' and crack it using a rainbow table (MD5 decryption).", link: "/database_leak.txt" },
-  { id: 9, title: "THE GHOST PROTOCOL", desc: "The server knows more than it shows. The page appears blank, but the protocol holds the key. Investigate the metadata of the response.", link: "https://secure-vault-endpoint.vercel.app/" },
-  { id: 10, title: "THE FINAL DECRYPTION", desc: "You have collected all fragments. Unscramble the letters to form the final Master Key and shut down the rogue AI.", link: "#" },
+  { id: 1, title: "THE INITIAL BREACH", desc: "Every story begins with what is written. Every breach begins with what is ignored. The application appears flawless. But developers have a habit of leaving secrets behind. Read what the machine refuses to read.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
+  { id: 2, title: "THE FORGOTTEN COMMIT", desc: "The best detectives never ask where the evidence is. They ask where it disappeared. Every mistake leaves a timeline. Time never truly forgets.", link: "https://cyberhunt-2.vercel.app/login" },
+  { id: 3, title: "DUMMY LOGIN", desc: "Some doors open with stolen credentials. This one opens with your own. Your identity is your clearance.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
+  { id: 4, title: "BROWSER CONSOLE", desc: "The screen tells one story. The browser tells another. Engineers listen where ordinary users never look.", link: "https://cyberhunt-2.vercel.app/login" },
+  { id: 5, title: "INSTAGRAM / LINKTREE", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "#" },
+  { id: 6, title: "PRIVACY POLICY", desc: "Millions accept it. Almost nobody reads it. The safest place to hide something is where nobody chooses to look.", link: "https://techalfa-website-ivory.vercel.app/" },
+  { id: 7, title: "ENGINEER'S TRIAL", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
+  { id: 8, title: "THE DATA BREACH", desc: "The password still exists. It simply no longer looks like one. Restore its original identity.", link: "/database_leak.txt" },
+  { id: 9, title: "GHOST PROTOCOL", desc: "Everyone searched the page. Nobody questioned the delivery. The secret never lived inside the message. It travelled with it.", link: "https://secure-vault-endpoint.vercel.app/" },
+  { id: 10, title: "FINAL DECRYPTION", desc: "Nine fragments. Nine pieces of evidence. None reveal the truth alone. Arrange them correctly. The Master Key has always been in your hands.", link: "#" },
 ];
 
 export default function DashboardPage() {
@@ -54,7 +54,7 @@ export default function DashboardPage() {
 
   const [selectedMission, setSelectedMission] = useState(1);
 
-  const [timeLeft, setTimeLeft] = useState("120:00");
+  const [timeLeft, setTimeLeft] = useState("90:00");
   const [isCritical, setIsCritical] = useState(false);
   const [isWarning, setIsWarning] = useState(false);
   const [elapsedMinutes, setElapsedMinutes] = useState(0);
@@ -107,9 +107,9 @@ export default function DashboardPage() {
         elapsed = data.team.level10_started_at ? (now - new Date(data.team.level10_started_at).getTime()) : 0;
         remaining = data.team.level10_started_at ? Math.max(0, 15 * 60 * 1000 - elapsed) : 15 * 60 * 1000;
       } else {
-        // 120-minute global countdown
+        // 90-minute global countdown
         elapsed = now - data.team.startedAt;
-        remaining = Math.max(0, 120 * 60 * 1000 - elapsed);
+        remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
       }
 
       const totalSeconds = Math.floor(remaining / 1000);
@@ -257,30 +257,25 @@ export default function DashboardPage() {
 
   let hintsConfig: any[] = [];
   if (selectedMission < 10) {
-    let timePenalty = 4;
     let unlockMin1 = 4;
     let unlockMin2 = 8;
 
-    if (selectedMission >= 1 && selectedMission <= 3) {
-      timePenalty = 4;
-      unlockMin1 = 4 + ((selectedMission - 1) * 8);
-      unlockMin2 = 8 + ((selectedMission - 1) * 8);
-    } else if (selectedMission >= 4 && selectedMission <= 6) {
-      timePenalty = 5;
-      unlockMin1 = 24 + 5 + ((selectedMission - 4) * 10);
-      unlockMin2 = 24 + 10 + ((selectedMission - 4) * 10);
-    } else if (selectedMission >= 7 && selectedMission <= 9) {
-      timePenalty = 6;
-      unlockMin1 = 54 + 6 + ((selectedMission - 7) * 12);
-      unlockMin2 = 54 + 12 + ((selectedMission - 7) * 12);
-    }
+    if (selectedMission === 1) { unlockMin1 = 4; unlockMin2 = 8; }
+    else if (selectedMission === 2) { unlockMin1 = 12; unlockMin2 = 16; }
+    else if (selectedMission === 3) { unlockMin1 = 20; unlockMin2 = 24; }
+    else if (selectedMission === 4) { unlockMin1 = 29; unlockMin2 = 34; }
+    else if (selectedMission === 5) { unlockMin1 = 39; unlockMin2 = 44; }
+    else if (selectedMission === 6) { unlockMin1 = 49; unlockMin2 = 54; }
+    else if (selectedMission === 7) { unlockMin1 = 60; unlockMin2 = 66; }
+    else if (selectedMission === 8) { unlockMin1 = 72; unlockMin2 = 78; }
+    else if (selectedMission === 9) { unlockMin1 = 84; unlockMin2 = 90; }
 
     const levelHintsMap = team?.level_hints || {};
     const hintsUsedForThisLevel = levelHintsMap[selectedMission.toString()] || 0;
 
     hintsConfig = [
-      { id: 1, cost: `-${timePenalty}M / -20% PTS`, used: hintsUsedForThisLevel >= 1, unlockMin: unlockMin1 },
-      { id: 2, cost: `-${timePenalty}M / -30% PTS`, used: hintsUsedForThisLevel >= 2, unlockMin: unlockMin2 },
+      { id: 1, used: hintsUsedForThisLevel >= 1, unlockMin: unlockMin1 },
+      { id: 2, used: hintsUsedForThisLevel >= 2, unlockMin: unlockMin2 },
     ];
   }
 
@@ -527,6 +522,8 @@ export default function DashboardPage() {
                 {hintsConfig.map((hint) => {
                   const isUsed = hint.used;
                   const isLocked = !isUsed && elapsedMinutes < hint.unlockMin;
+                  const remainingMin = Math.max(0, hint.unlockMin - elapsedMinutes);
+                  
                   return (
                     <div
                       key={hint.id}
@@ -541,11 +538,11 @@ export default function DashboardPage() {
                         HINT {hint.id}
                       </div>
                       <div className={`font-mono text-[10px] mb-3 ${isUsed || isLocked ? 'text-text2' : 'text-text opacity-80'}`}>
-                        {isUsed ? 'DECRYPTED' : isLocked ? `UNLOCKS IN ${hint.unlockMin - elapsedMinutes}M` : 'Click to decrypt...'}
+                        {isUsed ? 'DECRYPTED' : isLocked ? `UNLOCKS IN ${remainingMin} MIN` : 'Click to decrypt...'}
                       </div>
                       <div className={`font-mono text-[9px] font-bold tracking-[2px] p-[2px_8px] border rounded-sm
                         ${isUsed || isLocked ? 'border-border-g2 text-text2' : 'border-amber text-amber'}`}>
-                        {hint.cost}
+                        SCORE PENALTY
                       </div>
                     </div>
                   );
