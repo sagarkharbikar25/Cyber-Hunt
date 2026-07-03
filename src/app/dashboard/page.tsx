@@ -321,7 +321,7 @@ export default function DashboardPage() {
 
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="font-orb text-[20px] font-black tracking-[4px] text-white text-glow-white leading-none">OPERATION</span>
+              <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-neon leading-none">OPERATION</span>
               <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-green leading-none">VAULT</span>
             </div>
             <span className="font-mono text-[9px] text-text2/70 tracking-[2px] mt-1.5 flex items-center gap-1.5 leading-none">
