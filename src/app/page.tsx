@@ -89,7 +89,7 @@ export default function LandingPage() {
           </div>
           
           <h1 className="font-display flex flex-col gap-1 mb-6">
-            <span className="text-6xl md:text-7xl font-black text-accent text-glow uppercase leading-none">
+            <span className="text-6xl md:text-7xl font-black text-neon text-glow-green uppercase leading-none">
               Operation
             </span>
             <span className="text-5xl md:text-6xl font-bold text-white text-glow-white uppercase leading-none">

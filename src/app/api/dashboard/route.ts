@@ -78,6 +78,13 @@ export async function GET(request: NextRequest) {
       globalCache.lastFetch = now;
     }
 
+    const { data: teamSubmissions } = await supabase
+      .from("submissions")
+      .select("level_id")
+      .eq("team_id", user.team_id);
+
+    const submitted_levels = (teamSubmissions || []).map(s => s.level_id);
+
     return NextResponse.json({
       team: {
         id: teamData.team_id,
@@ -92,6 +99,7 @@ export async function GET(request: NextRequest) {
         level10_started_at: teamData.level10_started_at || null,
         level_hints: teamData.level_hints || {},
         level10_attempts: teamData.level10_attempts || 0,
+        submitted_levels: submitted_levels,
       },
       liveFeed: globalCache.liveFeed,
       activeAgents: globalCache.activeAgents,

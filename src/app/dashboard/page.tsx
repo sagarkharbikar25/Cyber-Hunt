@@ -19,6 +19,7 @@ interface DashboardData {
     level10_started_at?: string | null;
     level_hints?: Record<string, number>;
     level10_attempts?: number;
+    submitted_levels?: number[];
   };
   liveFeed: { id: string; time: string; text: string; }[];
   activeAgents: { id: string; name: string; level: number; status: string; }[];
@@ -321,7 +322,7 @@ export default function DashboardPage() {
 
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-neon leading-none">OPERATION</span>
+              <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-green leading-none">OPERATION</span>
               <span className="font-orb text-[20px] font-black tracking-[4px] text-neon text-glow-green leading-none">VAULT</span>
             </div>
             <span className="font-mono text-[9px] text-text2/70 tracking-[2px] mt-1.5 flex items-center gap-1.5 leading-none">
@@ -589,6 +590,11 @@ export default function DashboardPage() {
                 <div className="bg-[rgba(0,255,136,0.05)] border border-[rgba(0,255,136,0.3)] p-4 text-center">
                   <div className="font-orb text-[12px] text-neon font-bold tracking-[3px] mb-1">✅ MISSION SOLVED</div>
                   <div className="font-mono text-[10px] text-text2 tracking-[1px]">Fragment has been successfully secured for this sector.</div>
+                </div>
+              ) : team?.submitted_levels?.includes(selectedMission) && selectedMission !== 10 ? (
+                <div className="bg-red/5 border border-red/30 p-4 text-center">
+                  <div className="font-orb text-[12px] text-red font-bold tracking-[3px] mb-1">🔒 MISSION LOCKED</div>
+                  <div className="font-mono text-[10px] text-text2 tracking-[1px]">You have already exhausted your single attempt for this mission.</div>
                 </div>
               ) : (
                 <>
