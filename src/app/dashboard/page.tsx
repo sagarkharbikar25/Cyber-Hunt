@@ -31,7 +31,7 @@ const MISSIONS = [
   { id: 2, title: "THE FORGOTTEN COMMIT", desc: "The best detectives never ask where the evidence is. They ask where it disappeared. Every mistake leaves a timeline. Time never truly forgets.", link: "https://cyberhunt-2.vercel.app/login" },
   { id: 3, title: "DUMMY LOGIN", desc: "Some doors open with stolen credentials. This one opens with your own. Your identity is your clearance.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
   { id: 4, title: "BROWSER CONSOLE", desc: "The screen tells one story. The browser tells another. Engineers listen where ordinary users never look.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 5, title: "INSTAGRAM / LINKTREE", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "#" },
+  { id: 5, title: "INSTAGRAM / LINKTREE", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "https://www.instagram.com/techalfa_/" },
   { id: 6, title: "PRIVACY POLICY", desc: "Millions accept it. Almost nobody reads it. The safest place to hide something is where nobody chooses to look.", link: "https://techalfa-website-ivory.vercel.app/" },
   { id: 7, title: "ENGINEER'S TRIAL", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
   { id: 8, title: "THE DATA BREACH", desc: "The password still exists. It simply no longer looks like one. Restore its original identity.", link: "/database_leak.txt" },
@@ -89,13 +89,42 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    // Try to load cached timer from localStorage immediately to prevent 90:00 flash
+    const cachedStartedAt = localStorage.getItem('cyberhunt_started_at');
+    const cachedLevel10 = localStorage.getItem('cyberhunt_level10_started_at');
+    
+    if (cachedStartedAt && !data?.team?.startedAt) {
+      const now = Date.now();
+      let elapsed;
+      let remaining;
+      
+      if (selectedMission === 10) {
+        elapsed = cachedLevel10 ? (now - parseInt(cachedLevel10)) : 0;
+        remaining = cachedLevel10 ? Math.max(0, 15 * 60 * 1000 - elapsed) : 15 * 60 * 1000;
+      } else {
+        elapsed = now - parseInt(cachedStartedAt);
+        remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
+      }
+      
+      const totalSeconds = Math.floor(remaining / 1000);
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      setTimeLeft(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+    }
+
     fetchDashboardData();
     const interval = setInterval(fetchDashboardData, 60000);
     return () => clearInterval(interval);
-  }, []);
+  }, [selectedMission, data?.team?.startedAt]);
 
   useEffect(() => {
     if (!data?.team?.startedAt) return;
+    
+    // Save to localStorage to prevent flashing on next refresh
+    localStorage.setItem('cyberhunt_started_at', data.team.startedAt.toString());
+    if (data.team.level10_started_at) {
+      localStorage.setItem('cyberhunt_level10_started_at', new Date(data.team.level10_started_at).getTime().toString());
+    }
 
     const interval = setInterval(() => {
       const now = Date.now();
