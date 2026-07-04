@@ -27,16 +27,16 @@ interface DashboardData {
 }
 
 const MISSIONS = [
-  { id: 1, title: "THE INITIAL BREACH", desc: "Every story begins with what is written. Every breach begins with what is ignored. The application appears flawless. But developers have a habit of leaving secrets behind. Read what the machine refuses to read.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 2, title: "THE FORGOTTEN COMMIT", desc: "The best detectives never ask where the evidence is. They ask where it disappeared. Every mistake leaves a timeline. Time never truly forgets.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 3, title: "DUMMY LOGIN", desc: "Some doors open with stolen credentials. This one opens with your own. Your identity is your clearance.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 4, title: "BROWSER CONSOLE", desc: "The screen tells one story. The browser tells another. Engineers listen where ordinary users never look.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 5, title: "INSTAGRAM / LINKTREE", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "https://www.instagram.com/techalfa_/" },
-  { id: 6, title: "PRIVACY POLICY", desc: "Millions accept it. Almost nobody reads it. The safest place to hide something is where nobody chooses to look.", link: "https://techalfa-website-ivory.vercel.app/" },
-  { id: 7, title: "ENGINEER'S TRIAL", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
-  { id: 8, title: "THE DATA BREACH", desc: "The password still exists. It simply no longer looks like one. Restore its original identity.", link: "/database_leak.txt" },
-  { id: 9, title: "GHOST PROTOCOL", desc: "Everyone searched the page. Nobody questioned the delivery. The secret never lived inside the message. It travelled with it.", link: "https://secure-vault-endpoint.vercel.app/" },
-  { id: 10, title: "FINAL DECRYPTION", desc: "Nine fragments. Nine pieces of evidence. None reveal the truth alone. Arrange them correctly. The Master Key has always been in your hands.", link: "#" },
+  { id: 1, title: "ZERO HOUR", desc: "Every story begins with what is written. Every breach begins with what is ignored. The application appears flawless. But developers have a habit of leaving secrets behind. Read what the machine refuses to read.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
+  { id: 2, title: "BURIED HISTORY", desc: "The best detectives never ask where the evidence is. They ask where it disappeared. Every mistake leaves a timeline. Time never truly forgets.", link: "https://cyberhunt-2.vercel.app/login" },
+  { id: 3, title: "FALSE FRONT", desc: "Some doors open with stolen credentials. This one opens with your own. Your identity is your clearance.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
+  { id: 4, title: "HIDDEN LAYER", desc: "The screen tells one story. The browser tells another. Engineers listen where ordinary users never look.", link: "https://cyberhunt-2.vercel.app/login" },
+  { id: 5, title: "THE SIGNAL LEAK", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "https://www.instagram.com/techalfa_/" },
+  { id: 6, title: "FINE PRINT", desc: "Millions accept it. Almost nobody reads it. The safest place to hide something is where nobody chooses to look.", link: "https://techalfa-website-ivory.vercel.app/" },
+  { id: 7, title: "THE GAUNTLET", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
+  { id: 8, title: "CRACKED VAULT", desc: "The password still exists. It simply no longer looks like one. Restore its original identity.", link: "/database_leak.txt" },
+  { id: 9, title: "NO TRACE", desc: "Everyone searched the page. Nobody questioned the delivery. The secret never lived inside the message. It travelled with it.", link: "https://secure-vault-endpoint.vercel.app/" },
+  { id: 10, title: "LAST CIPHER", desc: "Nine fragments. Nine pieces of evidence. None reveal the truth alone. Arrange them correctly. The Master Key has always been in your hands.", link: "#" },
 ];
 
 export default function DashboardPage() {
@@ -94,12 +94,12 @@ export default function DashboardPage() {
     // Try to load cached timer from localStorage immediately to prevent 90:00 flash
     const cachedStartedAt = localStorage.getItem('cyberhunt_started_at');
     const cachedLevel10 = localStorage.getItem('cyberhunt_level10_started_at');
-    
+
     if (cachedStartedAt && !data?.team?.startedAt) {
       const now = Date.now();
       let elapsed;
       let remaining;
-      
+
       if (selectedMission === 10) {
         elapsed = cachedLevel10 ? (now - parseInt(cachedLevel10)) : 0;
         remaining = cachedLevel10 ? Math.max(0, 15 * 60 * 1000 - elapsed) : 15 * 60 * 1000;
@@ -107,7 +107,7 @@ export default function DashboardPage() {
         elapsed = now - parseInt(cachedStartedAt);
         remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
       }
-      
+
       const totalSeconds = Math.floor(remaining / 1000);
       const minutes = Math.floor(totalSeconds / 60);
       const seconds = totalSeconds % 60;
@@ -121,7 +121,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!data?.team?.startedAt) return;
-    
+
     // Save to localStorage to prevent flashing on next refresh
     localStorage.setItem('cyberhunt_started_at', data.team.startedAt.toString());
     if (data.team.level10_started_at) {
@@ -559,7 +559,7 @@ export default function DashboardPage() {
                   const isSubmitted = team?.submitted_levels?.includes(selectedMission) || (selectedMission < 10 && !!fragments[selectedMission - 1]);
                   const isLocked = (!isUsed && elapsedMinutes < hint.unlockMin) || isSubmitted;
                   const remainingMin = Math.max(0, hint.unlockMin - elapsedMinutes);
-                  
+
                   return (
                     <div
                       key={hint.id}
@@ -845,7 +845,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Checkbox Acknowledgment */}
-            <div 
+            <div
               onClick={() => setAcceptedRules(!acceptedRules)}
               className="bg-bg2/40 p-4 rounded border border-border-g2/10 mb-6 flex items-start gap-3 cursor-pointer hover:border-neon/40 transition-colors select-none"
             >
@@ -876,8 +876,8 @@ export default function DashboardPage() {
                   setSelectedMission(10);
                 }}
                 className={`py-3 font-orb text-[10px] font-bold tracking-[2px] uppercase rounded-sm transition-all
-                  ${acceptedRules 
-                    ? 'bg-neon text-black hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.3)] cursor-pointer' 
+                  ${acceptedRules
+                    ? 'bg-neon text-black hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.3)] cursor-pointer'
                     : 'bg-bg2 text-text3 cursor-not-allowed border border-border-g2/10'
                   }`}
               >
@@ -933,10 +933,10 @@ export default function DashboardPage() {
 
             {/* Inner Layout Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              
+
               {/* Left Column - Hero Cyber Core Lock */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center text-center pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-r border-border-g2/20 lg:pr-8">
-                
+
                 {/* Rotating Tech Core Capsule */}
                 <motion.div
                   initial={{ rotate: -180, scale: 0.8, opacity: 0 }}
@@ -974,7 +974,7 @@ export default function DashboardPage() {
 
               {/* Right Column - Mission Stats and Checklist */}
               <div className="lg:col-span-7 flex flex-col text-left justify-center">
-                
+
                 {/* Header */}
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
@@ -999,7 +999,7 @@ export default function DashboardPage() {
                   <div className="absolute top-2.5 right-3 text-[8px] text-neon/40 tracking-[1.5px] select-none">
                     SECURE_SYS_LOG // STATUS_OK
                   </div>
-                  
+
                   <div className="border-b border-border-g2/15 pb-2 mb-3.5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse"></span>
                     <span className="text-[10px] text-text2 tracking-[2px] uppercase font-bold">CLASSIFIED TERMINAL DECRYPTION LOG</span>

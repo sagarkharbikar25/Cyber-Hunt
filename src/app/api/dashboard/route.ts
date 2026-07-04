@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
         .from("teams")
         .select("*")
         .order("score", { ascending: false })
-        .limit(50);
+        .limit(200);
         
       globalCache.activeAgents = (teamsSnapshot || []).map(data => {
         const lastSub = data.last_submission_at;

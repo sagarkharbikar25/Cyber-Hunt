@@ -5,15 +5,9 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function checkSchema() {
-  const { data, error } = await supabase.from('teams').select('*').limit(1);
-  if (error) {
-    console.error("Error:", error);
-  } else if (data.length > 0) {
-    console.log("Columns:", Object.keys(data[0]));
-  } else {
-    console.log("No rows found to infer schema.");
-  }
+async function checkTeams() {
+  const { data, error } = await supabase.from('teams').select('team_id, leader_email').eq('team_id', 'TH-CH-001').single();
+  console.log("TH-CH-001 team in DB:", JSON.stringify(data, null, 2));
 }
 
-checkSchema();
+checkTeams();
