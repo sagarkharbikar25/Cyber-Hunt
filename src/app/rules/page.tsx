@@ -70,7 +70,19 @@ export default function RulesPage() {
               <span className="text-amber font-bold mt-0.5">04</span>
               <div>
                 <h3 className="text-amber font-bold tracking-widest mb-1">Hint Penalty Policy</h3>
-                <p>If your team is stuck, you may request a hint from the Mission Control dashboard. However, revealing a hint will <span className="text-amber font-bold">permanently reduce your final score.</span> Use them wisely.</p>
+                <p>
+                  If your team gets stuck, you may request hints from the Mission Control Dashboard.
+                  <br />
+                  <br />
+                  • Hint 1 deducts 20% from your final score.
+                  <br />
+                  • Hint 2 deducts 30% from your final score.
+                  <br />
+                  • If you use both Hint 1 and Hint 2, a total of 50% will be deducted from your final score.
+                  <br />
+                  <br />
+                  Hints are optional but cannot be undone. Use them wisely.
+                </p>
               </div>
             </div>
 
@@ -78,7 +90,7 @@ export default function RulesPage() {
               <span className="text-accent font-bold mt-0.5">05</span>
               <div>
                 <h3 className="text-white font-bold tracking-widest mb-1">Official Communications</h3>
-                <p>Keep the official TechAlfa website handy for potential deep-dives: <Link href="https://techalfa.com" target="_blank" className="text-blue hover:text-white transition-colors underline decoration-blue/30 underline-offset-4">techalfa.com</Link></p>
+                <p>Keep the official TechAlfa website handy for potential deep-dives: <Link href="https://techalfa-website-ivory.vercel.app/" target="_blank" className="text-blue hover:text-white transition-colors underline decoration-blue/30 underline-offset-4">techalfa-website-ivory.vercel.app</Link></p>
               </div>
             </div>
           </div>

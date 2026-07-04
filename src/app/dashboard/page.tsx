@@ -523,7 +523,7 @@ export default function DashboardPage() {
                   const isUsed = hint.used;
                   const isLocked = !isUsed && elapsedMinutes < hint.unlockMin;
                   const remainingMin = Math.max(0, hint.unlockMin - elapsedMinutes);
-                  
+
                   return (
                     <div
                       key={hint.id}
@@ -681,7 +681,7 @@ export default function DashboardPage() {
             <span className="font-orb text-[10px] font-bold tracking-[3px] text-white uppercase">LIVE NET STATUS</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto bg-bg0">
+          <div className="flex-1 overflow-y-auto overflow-x-hidden bg-bg0 max-h-[40vh]">
             {!activeAgents || activeAgents.length === 0 ? (
               <div className="p-4 text-center text-text2 text-xs font-mono tracking-widest">NO SIGNALS DETECTED</div>
             ) : (
