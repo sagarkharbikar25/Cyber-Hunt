@@ -29,15 +29,21 @@ export async function GET(request: NextRequest) {
     // Initialize game timer on first dashboard load
     if (!teamData.started_at) {
       const now = new Date().toISOString();
-      await supabase.from("teams").update({ started_at: now }).eq("team_id", user.team_id);
+      const { error: updateError } = await supabase.from("teams").update({ started_at: now }).eq("team_id", user.team_id);
+      if (updateError) {
+        console.error("FAILED TO UPDATE STARTED_AT:", updateError);
+      } else {
+        console.log("SUCCESSFULLY UPDATED STARTED_AT TO:", now);
+      }
       teamData.started_at = now;
     }
 
     const startTime = new Date(teamData.started_at).getTime();
+    console.log("SENDING STARTED_AT TO CLIENT:", startTime, "for team:", user.team_id);
     
-    const now = Date.now();
+    const nowMs = Date.now();
     // Cache for 30 seconds to drastically reduce DB reads
-    if (now - globalCache.lastFetch > 30000) {
+    if (nowMs - globalCache.lastFetch > 30000) {
       // Fetch active agents (other teams)
       const { data: teamsSnapshot } = await supabase
         .from("teams")
