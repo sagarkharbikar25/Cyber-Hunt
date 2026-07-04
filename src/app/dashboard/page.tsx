@@ -434,7 +434,7 @@ export default function DashboardPage() {
             {MISSIONS.map((m) => {
               const isActive = m.id === selectedMission;
               const isLocked = m.id === 10 && isMission10Locked;
-              const isSolved = m.id < 10 && fragments[m.id - 1] !== "";
+              const isSolved = m.id < 10 && !!fragments[m.id - 1];
 
               let boxStyle = "border-border-g2 text-text2 hover:border-neon hover:text-white cursor-pointer bg-bg2";
               let numberColor = "text-text2";
