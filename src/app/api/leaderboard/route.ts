@@ -24,7 +24,7 @@ export async function GET() {
       return timeA - timeB; // Ascending time
     });
 
-    const teams = allTeams.slice(0, 10).map((data, idx) => {
+    const teams = allTeams.map((data, idx) => {
       return {
         rank: idx + 1,
         team_id: data.team_id,
