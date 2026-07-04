@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Tv, Puzzle, Lock, Unlock, Crosshair, CheckCircle2, AlertTriangle, Trophy } from "lucide-react";
+import { Tv, Puzzle, Lock, Unlock, Crosshair, CheckCircle2, AlertTriangle, Trophy, ShieldCheck, Check } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface DashboardData {
@@ -52,6 +52,8 @@ export default function DashboardPage() {
   const [activeHint, setActiveHint] = useState<string | null>(null);
   const [activeHintLink, setActiveHintLink] = useState<string | null>(null);
   const [showVictory, setShowVictory] = useState<boolean>(false);
+  const [showLevel10Rules, setShowLevel10Rules] = useState<boolean>(false);
+  const [acceptedRules, setAcceptedRules] = useState<boolean>(false);
 
   const [selectedMission, setSelectedMission] = useState(1);
 
@@ -459,7 +461,11 @@ export default function DashboardPage() {
                       alert("⚠️ FINAL MISSION LOCKED. Secure all 9 fragments first.");
                       return;
                     }
-                    setSelectedMission(m.id);
+                    if (m.id === 10) {
+                      setShowLevel10Rules(true);
+                    } else {
+                      setSelectedMission(m.id);
+                    }
                   }}
                   className={`relative aspect-[2/1] border flex items-center justify-center transition-all ${boxStyle}`}
                 >
@@ -780,62 +786,304 @@ export default function DashboardPage() {
 
       </div>
 
+      {showLevel10Rules && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">
+          {/* Animated Background Grids & Scanlines */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-[0.06] pointer-events-none" style={{ animation: "gridMove 30s linear infinite" }} />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.015)_1px,transparent_1px)] bg-[length:100%_3px] pointer-events-none opacity-30" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,136,0.08)_0%,transparent_80%)]" />
+
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, filter: "blur(8px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            className="relative z-10 w-full max-w-xl bg-[#060b13]/95 border border-neon/30 p-6 md:p-8 rounded-xl shadow-[0_0_50px_rgba(0,255,136,0.15)] overflow-hidden font-mono"
+          >
+            {/* Tactical Corner Accents */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-neon/50"></div>
+            <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-neon/50"></div>
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-neon/50"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-neon/50"></div>
+
+            {/* Warning Header */}
+            <div className="flex items-center gap-3 border-b border-border-g2/20 pb-4 mb-6">
+              <AlertTriangle className="w-8 h-8 text-amber animate-pulse shrink-0" />
+              <div>
+                <h3 className="font-orb text-sm md:text-base font-black text-white tracking-[2px] uppercase">
+                  FINAL SECTOR ACCESS PROTOCOL
+                </h3>
+                <span className="text-[9px] text-neon/60 tracking-[1.5px] uppercase">
+                  // OPT_BLACKOUT: STANDING RULES
+                </span>
+              </div>
+            </div>
+
+            {/* Rules Checklist */}
+            <div className="space-y-4 text-xs md:text-sm text-text2 leading-relaxed mb-6 font-raj">
+              <div className="flex gap-3">
+                <span className="text-neon font-mono font-bold text-xs">01</span>
+                <div>
+                  <h4 className="text-white font-orb text-xs font-bold tracking-[1.5px] uppercase mb-1">// STRICT 15-MINUTE TIMEFRAME</h4>
+                  <p className="font-raj text-text2 text-xs md:text-[13px] leading-relaxed">You have exactly 15 minutes to solve the final challenge. The countdown commences immediately upon initialization and cannot be paused.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <span className="text-neon font-mono font-bold text-xs">02</span>
+                <div>
+                  <h4 className="text-white font-orb text-xs font-bold tracking-[1px] uppercase mb-1">// MAXIMUM 2 ATTEMPTS</h4>
+                  <p className="font-raj text-text2 text-xs md:text-[13px] leading-relaxed">A strict maximum of 2 authentication attempts is permitted. Failing both attempts will permanently lock the vault, resulting in mission failure.</p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <span className="text-neon font-mono font-bold text-xs">03</span>
+                <div>
+                  <h4 className="text-white font-orb text-xs font-bold tracking-[1px] uppercase mb-1">// VELOCITY-BASED CRITERIA</h4>
+                  <p className="font-raj text-text2 text-xs md:text-[13px] leading-relaxed">In case of a tie (multiple teams successfully decrypting Level 10), final rankings will be evaluated based on the speed of completion (shortest elapsed time wins).</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Checkbox Acknowledgment */}
+            <div 
+              onClick={() => setAcceptedRules(!acceptedRules)}
+              className="bg-bg2/40 p-4 rounded border border-border-g2/10 mb-6 flex items-start gap-3 cursor-pointer hover:border-neon/40 transition-colors select-none"
+            >
+              <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${acceptedRules ? 'bg-neon border-neon text-black' : 'border-text3 bg-transparent'}`}>
+                {acceptedRules && <Check size={10} className="stroke-[3px]" />}
+              </div>
+              <p className="text-white text-[10px] font-mono tracking-[1px] uppercase leading-snug">
+                I ACKNOWLEDGE THE STANDING ENGAGEMENT RULES AND AM READY TO ACCESS SESS_10.
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={() => {
+                  setShowLevel10Rules(false);
+                  setAcceptedRules(false);
+                }}
+                className="py-3 border border-border-g2 text-text2 hover:text-white text-[10px] font-orb font-bold tracking-[2px] uppercase rounded-sm transition-colors cursor-pointer"
+              >
+                ABORT DEPLOYMENT
+              </button>
+              <button
+                disabled={!acceptedRules}
+                onClick={() => {
+                  setShowLevel10Rules(false);
+                  setAcceptedRules(false);
+                  setSelectedMission(10);
+                }}
+                className={`py-3 font-orb text-[10px] font-bold tracking-[2px] uppercase rounded-sm transition-all
+                  ${acceptedRules 
+                    ? 'bg-neon text-black hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.3)] cursor-pointer' 
+                    : 'bg-bg2 text-text3 cursor-not-allowed border border-border-g2/10'
+                  }`}
+              >
+                INITIALIZE SYSTEM
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
       {showVictory && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#03060a] p-4 md:p-8 overflow-y-auto"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,136,0.15)_0%,transparent_70%)]" />
-          <motion.div
-            initial={{ scale: 0.5, y: 50, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            transition={{ type: "spring", bounce: 0.5, duration: 1 }}
-            className="relative z-10 flex flex-col items-center text-center p-8 border border-neon/30 bg-bg0/80 rounded-2xl shadow-[0_0_50px_rgba(0,255,136,0.2)] max-w-2xl w-full mx-4"
-          >
+          {/* Animated Background Grids & Scanlines */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-[0.06] pointer-events-none" style={{ animation: "gridMove 30s linear infinite" }} />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,136,0.015)_1px,transparent_1px)] bg-[length:100%_3px] pointer-events-none opacity-30" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,255,136,0.08)_0%,transparent_80%)]" />
+
+          {/* Floating Telemetry Code Particles */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden select-none opacity-20">
             <motion.div
-              animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
-              transition={{ delay: 1, duration: 1, repeat: Infinity, repeatDelay: 3 }}
+              initial={{ y: "100vh", opacity: 0 }}
+              animate={{ y: "-10vh", opacity: [0, 0.4, 0.4, 0] }}
+              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              className="absolute left-[10%] text-[10px] font-mono text-neon tracking-[2px]"
             >
-              <Trophy size={100} className="text-[#ffd700] mb-8 drop-shadow-[0_0_20px_rgba(255,215,0,0.5)]" />
+              SYS_SECURE_AUTH // KEY_VALIDATED // PORT_8080_CLOSED
             </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-4xl md:text-5xl font-orb font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#ffd700] to-[#ffaa00] mb-4 tracking-[4px]"
+            <motion.div
+              initial={{ y: "100vh", opacity: 0 }}
+              animate={{ y: "-10vh", opacity: [0, 0.3, 0.3, 0] }}
+              transition={{ duration: 22, repeat: Infinity, ease: "linear", delay: 4 }}
+              className="absolute right-[15%] text-[10px] font-mono text-neon tracking-[2px]"
             >
-              CONGRATULATIONS
-            </motion.h1>
+              LOG_LEVEL_10_DECRYPTED // VAULT_LOCK_RESTORED // ACCESS_OK
+            </motion.div>
+          </div>
 
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 }}
-              className="text-2xl md:text-3xl font-mono font-bold text-neon mb-8 tracking-[2px]"
-            >
-              MASTER KEY ACCEPTED
-            </motion.h2>
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0, filter: "blur(12px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.0, ease: "easeOut" }}
+            className="relative z-10 w-full max-w-5xl bg-[#060b13]/90 border border-neon/20 backdrop-blur-xl rounded-xl shadow-[0_0_80px_rgba(0,255,136,0.12)] p-6 md:p-10 lg:p-12 overflow-hidden"
+          >
+            {/* Tactical Corner Frame Accents */}
+            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-neon/70"></div>
+            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-neon/70"></div>
+            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-neon/70"></div>
+            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-neon/70"></div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="text-text2 font-raj text-lg max-w-lg mb-8 leading-relaxed"
-            >
-              You have successfully decrypted the final sequence and shut down the rogue AI. Mission Control commends your exceptional performance.
-            </motion.p>
+            {/* Inner Layout Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              
+              {/* Left Column - Hero Cyber Core Lock */}
+              <div className="lg:col-span-5 flex flex-col items-center justify-center text-center pb-6 lg:pb-0 border-b lg:border-b-0 lg:border-r border-border-g2/20 lg:pr-8">
+                
+                {/* Rotating Tech Core Capsule */}
+                <motion.div
+                  initial={{ rotate: -180, scale: 0.8, opacity: 0 }}
+                  animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 40, delay: 0.2 }}
+                  className="relative w-44 h-44 md:w-56 md:h-56 flex items-center justify-center mb-6"
+                >
+                  {/* Outer spinning dash ring */}
+                  <div className="absolute inset-0 rounded-full border border-dashed border-neon/40 animate-[spin_50s_linear_infinite]" />
+                  {/* Inner reversing double ring */}
+                  <div className="absolute inset-3 rounded-full border border-double border-neon/20 animate-[spin_30s_linear_infinite_reverse]" />
+                  {/* Core ring */}
+                  <div className="absolute inset-8 rounded-full border border-neon/15" />
+                  {/* Inner capsule shield */}
+                  <div className="absolute w-28 h-28 md:w-36 md:h-36 rounded-full bg-[#03060a]/90 border border-neon/30 flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,255,136,0.2)]">
+                    <ShieldCheck className="w-14 h-14 md:w-16 md:h-16 text-neon drop-shadow-[0_0_15px_rgba(0,255,136,0.6)] animate-pulse" />
+                  </div>
+                </motion.div>
 
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 2 }}
-              onClick={() => setShowVictory(false)}
-              className="bg-neon text-black font-orb font-bold tracking-[3px] px-8 py-3 rounded hover:bg-[#00ffaa] hover:shadow-[0_0_20px_rgba(0,255,136,0.5)] transition-all"
-            >
-              RETURN TO DASHBOARD
-            </motion.button>
+                {/* Secure Status Badges */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="space-y-2"
+                >
+                  <div className="font-mono text-[9px] text-neon tracking-[4px] uppercase font-bold">// SYSTEM CODE AUTHENTICATED //</div>
+                  <div className="font-orb text-lg md:text-xl font-black text-white tracking-[4px] uppercase text-glow-white">ACCESS GRANTED</div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-neon/10 border border-neon/30 rounded-sm text-[9px] font-mono text-neon tracking-[2px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse" />
+                    VAULT CONTROL RESTORED
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* Right Column - Mission Stats and Checklist */}
+              <div className="lg:col-span-7 flex flex-col text-left justify-center">
+                
+                {/* Header */}
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="border-b border-border-g2/20 pb-4 mb-5"
+                >
+                  <span className="font-mono text-[9px] text-neon tracking-[3px] uppercase font-bold">// MISSION ACCOMPLISHED</span>
+                  <h2 className="font-orb text-2xl md:text-3xl font-black text-white tracking-[2px] mt-1 text-glow-white">
+                    OPERATION VAULT SECURED
+                  </h2>
+                </motion.div>
+
+                {/* Classified Terminal Mission Report */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 }}
+                  className="bg-[#03060a]/95 border border-border-g2/30 p-5 rounded-md mb-5 relative overflow-hidden font-mono"
+                >
+                  {/* Top telemetry scan label */}
+                  <div className="absolute top-2.5 right-3 text-[8px] text-neon/40 tracking-[1.5px] select-none">
+                    SECURE_SYS_LOG // STATUS_OK
+                  </div>
+                  
+                  <div className="border-b border-border-g2/15 pb-2 mb-3.5 flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-neon animate-pulse"></span>
+                    <span className="text-[10px] text-text2 tracking-[2px] uppercase font-bold">CLASSIFIED TERMINAL DECRYPTION LOG</span>
+                  </div>
+
+                  {/* Metric Grid */}
+                  <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-[10px] md:text-[11px] border-b border-border-g2/10 pb-3 mb-3.5">
+                    <div>
+                      <span className="text-text2/40 tracking-[1px] uppercase block mb-0.5">MISSION ID</span>
+                      <span className="text-white font-bold">CYBERHUNT-OPT-BLACKOUT</span>
+                    </div>
+                    <div>
+                      <span className="text-text2/40 tracking-[1px] uppercase block mb-0.5">TEAM AGENT</span>
+                      <span className="text-neon font-bold uppercase">{team?.name || "UNKNOWN"}</span>
+                    </div>
+                    <div>
+                      <span className="text-text2/40 tracking-[1px] uppercase block mb-0.5">VAULT SCORE</span>
+                      <span className="text-white font-bold">{team?.score || 0} PTS</span>
+                    </div>
+                    <div>
+                      <span className="text-text2/40 tracking-[1px] uppercase block mb-0.5">TIME REMAINING</span>
+                      <span className="text-amber font-bold">{timeLeft}</span>
+                    </div>
+                  </div>
+
+                  {/* Log Outputs */}
+                  <div className="space-y-1.5 text-[10px] md:text-[11px] text-text2/80 leading-relaxed">
+                    <p className="flex items-center gap-2">
+                      <span className="text-neon">[OK]</span> Restore compromised encryption network.
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="text-neon">[OK]</span> Authenticate Master Decryption Key.
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="text-neon">[OK]</span> Terminate rogue AI security protocol.
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="text-neon">[OK]</span> Mission Control: ALL CLASSIFIED OBJECTIVES ARCHIVED.
+                    </p>
+                  </div>
+                </motion.div>
+
+                {/* Objectives Checklist Grid (Reward Section) */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.8 }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-6 text-[10px] font-mono"
+                >
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-bg2/40 border border-border-g/20 rounded-sm">
+                    <Check size={12} className="text-neon shrink-0" />
+                    <span className="text-white/80 tracking-[1px] uppercase">All Objectives Completed</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-bg2/40 border border-border-g/20 rounded-sm">
+                    <Check size={12} className="text-neon shrink-0" />
+                    <span className="text-white/80 tracking-[1px] uppercase">Master Key Authenticated</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-bg2/40 border border-border-g/20 rounded-sm">
+                    <Check size={12} className="text-neon shrink-0" />
+                    <span className="text-white/80 tracking-[1px] uppercase">Vault Secured</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 py-2 bg-bg2/40 border border-border-g/20 rounded-sm">
+                    <Check size={12} className="text-neon shrink-0" />
+                    <span className="text-white/80 tracking-[1px] uppercase">Rogue AI Neutralized</span>
+                  </div>
+                </motion.div>
+
+                {/* Action button */}
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.0 }}
+                  onClick={() => setShowVictory(false)}
+                  className="relative w-full py-4 bg-neon text-black font-orb text-xs font-bold tracking-[3px] uppercase overflow-hidden group rounded-sm shadow-[0_0_20px_rgba(0,255,136,0.1)] transition-all duration-300 hover:bg-[#00ffaa] hover:shadow-[0_0_35px_rgba(0,255,136,0.4)] hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    RETURN TO DASHBOARD CONTROL
+                  </span>
+                  {/* Premium shimmer sheen effect */}
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/15 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
+                </motion.button>
+              </div>
+
+            </div>
           </motion.div>
         </motion.div>
       )}
