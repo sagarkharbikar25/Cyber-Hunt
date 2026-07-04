@@ -550,7 +550,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 gap-4">
                 {hintsConfig.map((hint) => {
                   const isUsed = hint.used;
-                  const isSubmitted = team?.submitted_levels?.includes(selectedMission) || (selectedMission < 10 && fragments[selectedMission - 1] !== "");
+                  const isSubmitted = team?.submitted_levels?.includes(selectedMission) || (selectedMission < 10 && !!fragments[selectedMission - 1]);
                   const isLocked = (!isUsed && elapsedMinutes < hint.unlockMin) || isSubmitted;
                   const remainingMin = Math.max(0, hint.unlockMin - elapsedMinutes);
                   

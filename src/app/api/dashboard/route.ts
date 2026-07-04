@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      globalCache.lastFetch = now;
+      globalCache.lastFetch = nowMs;
     }
 
     const { data: teamSubmissions } = await supabase
