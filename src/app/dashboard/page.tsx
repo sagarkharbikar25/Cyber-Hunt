@@ -511,7 +511,6 @@ export default function DashboardPage() {
                 </a>
               </div>
             </div>
-
             {/* ENCRYPTED INTEL VAULT */}
             <div className="font-orb text-[10px] font-bold tracking-[6px] text-text2 text-center p-[8px_0] mt-2 relative">
               <div className="absolute top-1/2 left-0 right-0 h-px bg-border-g2 -z-10"></div>
@@ -522,9 +521,10 @@ export default function DashboardPage() {
               <div className="grid grid-cols-2 gap-4">
                 {hintsConfig.map((hint) => {
                   const isUsed = hint.used;
-                  const isLocked = !isUsed && elapsedMinutes < hint.unlockMin;
+                  const isSubmitted = team?.submitted_levels?.includes(selectedMission) || (selectedMission < 10 && fragments[selectedMission - 1] !== "");
+                  const isLocked = (!isUsed && elapsedMinutes < hint.unlockMin) || isSubmitted;
                   const remainingMin = Math.max(0, hint.unlockMin - elapsedMinutes);
-
+                  
                   return (
                     <div
                       key={hint.id}
@@ -539,7 +539,7 @@ export default function DashboardPage() {
                         HINT {hint.id}
                       </div>
                       <div className={`font-mono text-[10px] mb-3 ${isUsed || isLocked ? 'text-text2' : 'text-text opacity-80'}`}>
-                        {isUsed ? 'DECRYPTED' : isLocked ? `UNLOCKS IN ${remainingMin} MIN` : 'Click to decrypt...'}
+                        {isUsed ? 'DECRYPTED' : isSubmitted ? 'MISSION CLOSED' : isLocked ? `UNLOCKS IN ${remainingMin} MIN` : 'Click to decrypt...'}
                       </div>
                       <div className={`font-mono text-[9px] font-bold tracking-[2px] p-[2px_8px] border rounded-sm
                         ${isUsed || isLocked ? 'border-border-g2 text-text2' : 'border-amber text-amber'}`}>
