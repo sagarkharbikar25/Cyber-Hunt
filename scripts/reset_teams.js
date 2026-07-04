@@ -46,8 +46,8 @@ async function resetTeams() {
   console.log(`Successfully reset ${resetCount} teams back to a fresh state!`);
 
   console.log("Wiping all submissions and activity logs...");
-  await supabase.from('submissions').delete().neq('id', 'dummy');
-  await supabase.from('activity_logs').delete().neq('id', 'dummy');
+  await supabase.from('submissions').delete().neq('team_id', 'dummy_team');
+  await supabase.from('activity_logs').delete().neq('team_id', 'dummy_team');
   console.log("Database is completely clean!");
 }
 

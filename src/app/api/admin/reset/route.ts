@@ -40,8 +40,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Optional: Delete all submissions and logs
-    await supabase.from('submissions').delete().neq('id', 'dummy');
-    await supabase.from('activity_logs').delete().neq('id', 'dummy');
+    await supabase.from('submissions').delete().neq('team_id', 'dummy_team');
+    await supabase.from('activity_logs').delete().neq('team_id', 'dummy_team');
 
     return NextResponse.json({ success: true, count: resetCount });
   } catch (error) {
