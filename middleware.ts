@@ -4,7 +4,49 @@ import { verifyToken } from "@/lib/jwt";
 const PROTECTED_PATHS = ["/dashboard", "/leaderboard", "/submit", "/results"];
 const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
 
+const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
+
+function applyRateLimit(ip: string): boolean {
+  const WINDOW_MS = 10000; // 10 seconds
+  const MAX_REQUESTS = 30; // Max 30 requests per 10 seconds
+
+  // Prevent memory leaks in Edge runtime
+  if (rateLimitMap.size > 10000) {
+    rateLimitMap.clear();
+  }
+
+  const now = Date.now();
+  const windowData = rateLimitMap.get(ip);
+
+  if (!windowData || now - windowData.timestamp > WINDOW_MS) {
+    rateLimitMap.set(ip, { count: 1, timestamp: now });
+    return true;
+  }
+
+  windowData.count++;
+  if (windowData.count > MAX_REQUESTS) {
+    return false; // Rate limited
+  }
+
+  return true;
+}
+
 export async function middleware(request: NextRequest) {
+  // 1. RATE LIMITING
+  const ip = request.ip || request.headers.get("x-forwarded-for") || "unknown-ip";
+  const isAllowed = applyRateLimit(ip);
+
+  if (!isAllowed) {
+    return new NextResponse(
+      JSON.stringify({ error: "Too Many Requests" }),
+      {
+        status: 429,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  // 2. AUTHENTICATION & ROUTING
   const { pathname } = request.nextUrl;
 
   const isAdminPath = pathname.startsWith("/admin") && pathname !== "/admin/login";
@@ -44,5 +86,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/play/:path*", "/leaderboard/:path*", "/submit/:path*", "/results/:path*", "/admin/:path*"],
+  matcher: [
+    // Apply middleware to all paths except static files and images
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
+  ],
 };
