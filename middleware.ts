@@ -8,7 +8,7 @@ const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 
 function applyRateLimit(ip: string): boolean {
   const WINDOW_MS = 10000; // 10 seconds
-  const MAX_REQUESTS = 30; // Max 30 requests per 10 seconds
+  const MAX_REQUESTS = 10; // Max 10 requests per 10 seconds (Strict Refresh Limit)
 
   // Prevent memory leaks in Edge runtime
   if (rateLimitMap.size > 10000) {
