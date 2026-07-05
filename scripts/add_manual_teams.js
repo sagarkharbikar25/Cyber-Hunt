@@ -9,7 +9,7 @@ async function addTeams() {
   const teamsToInsert = [
     {
       team_id: 'TA-CH-087',
-      team_name: 'Team TA-CH-087',
+      team_name: 'Arhanta & Team',
       leader_email: 'lonarearhanta@gmail.com',
       fragments: ["", "", "", "", "", "", "", "", ""],
       score: 0,
@@ -21,7 +21,7 @@ async function addTeams() {
     },
     {
       team_id: 'TA-CH-088',
-      team_name: 'Team TA-CH-088',
+      team_name: 'Parth & Team',
       leader_email: 'parthtembhare05@gmail.com',
       fragments: ["", "", "", "", "", "", "", "", ""],
       score: 0,
@@ -30,12 +30,25 @@ async function addTeams() {
       global_hints_used: 0,
       level_hints: {},
       is_disqualified: false
+    },
+    {
+      team_id: 'TA-CH-089',
+      team_name: 'MahaJan & Team',
+      leader_email: 'mahajanmaheshwari08@gmail.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
     }
+
   ];
 
   console.log("Inserting new teams...");
   const { error } = await supabase.from('teams').insert(teamsToInsert);
-  
+
   if (error) {
     console.error("Failed to insert teams:", error);
   } else {
