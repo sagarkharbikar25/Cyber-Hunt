@@ -4,7 +4,7 @@ import { verifyToken } from "@/lib/jwt";
 const PROTECTED_PATHS = ["/dashboard", "/leaderboard", "/submit", "/results"];
 const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
 
-  // 2. AUTHENTICATION & ROUTING
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAdminPath = pathname.startsWith("/admin") && pathname !== "/admin/login";
@@ -44,8 +44,5 @@ const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
 }
 
 export const config = {
-  matcher: [
-    // Apply middleware to all paths except static files and images
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"
-  ],
+  matcher: ["/dashboard/:path*", "/play/:path*", "/leaderboard/:path*", "/submit/:path*", "/results/:path*", "/admin/:path*"],
 };
