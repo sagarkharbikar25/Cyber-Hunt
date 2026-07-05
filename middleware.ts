@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
+// v3 - final clean build
 
 const PROTECTED_PATHS = ["/dashboard", "/leaderboard", "/submit", "/results"];
 const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
