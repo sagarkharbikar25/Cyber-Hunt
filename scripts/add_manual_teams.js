@@ -46,13 +46,13 @@ async function addTeams() {
 
   ];
 
-  console.log("Inserting new teams...");
-  const { error } = await supabase.from('teams').insert(teamsToInsert);
-
+  console.log("Inserting/Updating new teams...");
+  const { error } = await supabase.from('teams').upsert(teamsToInsert);
+  
   if (error) {
-    console.error("Failed to insert teams:", error);
+    console.error("Failed to insert/update teams:", error);
   } else {
-    console.log("Successfully inserted TA-CH-087 and TA-CH-088!");
+    console.log("Successfully inserted/updated TA-CH-087, TA-CH-088, and TA-CH-089!");
   }
 }
 
