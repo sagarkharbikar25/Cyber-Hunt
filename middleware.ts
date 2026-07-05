@@ -4,29 +4,6 @@ import { verifyToken } from "@/lib/jwt";
 const PROTECTED_PATHS = ["/dashboard", "/leaderboard", "/submit", "/results"];
 const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
 
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-
-function applyRateLimit(ip: string): boolean {
-  // CRITICAL FIX: Disabled rate limiting because all 300 students in the same room 
-  // share the SAME Wi-Fi IP address! The rate limiter was blocking the entire school!
-  return true;
-}
-
-export async function middleware(request: NextRequest) {
-  // 1. RATE LIMITING
-  const ip = request.ip || request.headers.get("x-forwarded-for") || "unknown-ip";
-  const isAllowed = applyRateLimit(ip);
-
-  if (!isAllowed) {
-    return new NextResponse(
-      JSON.stringify({ error: "Too Many Requests" }),
-      {
-        status: 429,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-  }
-
   // 2. AUTHENTICATION & ROUTING
   const { pathname } = request.nextUrl;
 
