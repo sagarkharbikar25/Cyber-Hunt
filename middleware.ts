@@ -15,6 +15,11 @@ function applyRateLimit(ip: string): boolean {
     rateLimitMap.clear();
   }
 
+  // Bypass rate limiting for localhost/unknown IPs to allow local testing
+  if (ip === "unknown-ip" || ip === "127.0.0.1" || ip === "::1") {
+    return true;
+  }
+
   const now = Date.now();
   const windowData = rateLimitMap.get(ip);
 
