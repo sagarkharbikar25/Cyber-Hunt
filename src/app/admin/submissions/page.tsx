@@ -22,6 +22,8 @@ interface Submission {
 export default function AdminSubmissionsPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [extraMinInput, setExtraMinInput] = useState(40);
+  const [grantingTime, setGrantingTime] = useState(false);
 
   useEffect(() => {
     fetchSubmissions();
@@ -71,6 +73,31 @@ export default function AdminSubmissionsPage() {
     } catch (err) {
       console.error(err);
       fetchSubmissions(); // revert optimistic update
+    }
+  };
+
+  const handleGrantExtraTime = async (teamId?: string) => {
+    const label = teamId ? "this team" : `ALL teams`;
+    if (!confirm(`Grant +${extraMinInput} minutes of extra time to ${label}? This cannot be undone.`)) return;
+
+    setGrantingTime(true);
+    try {
+      const res = await fetch("/api/admin/extra-time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ minutes: extraMinInput, ...(teamId ? { team_id: teamId } : {}) })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${data.message}`);
+      } else {
+        alert(`❌ Failed: ${data.error}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error granting extra time.");
+    } finally {
+      setGrantingTime(false);
     }
   };
 
@@ -162,6 +189,26 @@ export default function AdminSubmissionsPage() {
         </div>
         <div className="text-right flex flex-col items-end gap-3">
           <div className="text-white font-bold mb-1 tracking-widest text-sm uppercase">PENDING APPROVALS: {submissions.length}</div>
+          {/* ⏱️ EXTRA TIME CONTROLS */}
+          <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/40 rounded-lg px-3 py-2">
+            <span className="text-yellow-400 font-mono text-xs uppercase tracking-widest font-bold">⏱ Extra Time:</span>
+            <input
+              type="number"
+              min={1}
+              max={120}
+              value={extraMinInput}
+              onChange={e => setExtraMinInput(Number(e.target.value))}
+              className="w-14 text-center bg-black/40 border border-yellow-500/40 text-yellow-300 font-mono text-sm rounded px-1 py-1"
+            />
+            <span className="text-yellow-400 font-mono text-xs">min</span>
+            <button
+              onClick={() => handleGrantExtraTime()}
+              disabled={grantingTime}
+              className="text-black bg-yellow-400 hover:bg-yellow-300 disabled:opacity-50 font-mono text-xs px-3 py-1.5 rounded transition-colors uppercase tracking-widest font-bold"
+            >
+              {grantingTime ? "GRANTING..." : "+ ALL TEAMS"}
+            </button>
+          </div>
           <div className="flex gap-2">
             <button onClick={handleResetAll} className="text-white bg-red/20 hover:bg-red/40 border border-red/50 font-mono text-xs px-4 py-2 rounded transition-colors uppercase tracking-widest font-bold">
               Reset All Teams

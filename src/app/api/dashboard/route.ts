@@ -106,6 +106,7 @@ export async function GET(request: NextRequest) {
         level_hints: teamData.level_hints || {},
         level10_attempts: teamData.level10_attempts || 0,
         submitted_levels: submitted_levels,
+        extra_minutes: teamData.extra_minutes || 0,
       },
       liveFeed: globalCache.liveFeed,
       activeAgents: globalCache.activeAgents,

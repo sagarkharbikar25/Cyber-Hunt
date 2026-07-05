@@ -20,6 +20,7 @@ interface DashboardData {
     level_hints?: Record<string, number>;
     level10_attempts?: number;
     submitted_levels?: number[];
+    extra_minutes?: number;
   };
   liveFeed: { id: string; time: string; text: string; }[];
   activeAgents: { id: string; name: string; level: number; status: string; }[];
@@ -99,13 +100,14 @@ export default function DashboardPage() {
       const now = Date.now();
       let elapsed;
       let remaining;
+      const extraMs = (data?.team?.extra_minutes || 0) * 60 * 1000;
 
       if (selectedMission === 10) {
         elapsed = cachedLevel10 ? (now - parseInt(cachedLevel10)) : 0;
         remaining = cachedLevel10 ? Math.max(0, 15 * 60 * 1000 - elapsed) : 15 * 60 * 1000;
       } else {
         elapsed = now - parseInt(cachedStartedAt);
-        remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
+        remaining = Math.max(0, (90 * 60 * 1000 + extraMs) - elapsed);
       }
 
       const totalSeconds = Math.floor(remaining / 1000);
@@ -133,15 +135,16 @@ export default function DashboardPage() {
 
       let elapsed;
       let remaining;
+      const extraMs = (data.team.extra_minutes || 0) * 60 * 1000;
 
       if (selectedMission === 10) {
         // 15-minute countdown for Level 10
         elapsed = data.team.level10_started_at ? (now - new Date(data.team.level10_started_at).getTime()) : 0;
         remaining = data.team.level10_started_at ? Math.max(0, 15 * 60 * 1000 - elapsed) : 15 * 60 * 1000;
       } else {
-        // 90-minute global countdown
+        // 90 min + any extra time granted by admin
         elapsed = now - data.team.startedAt;
-        remaining = Math.max(0, 90 * 60 * 1000 - elapsed);
+        remaining = Math.max(0, (90 * 60 * 1000 + extraMs) - elapsed);
       }
 
       const totalSeconds = Math.floor(remaining / 1000);
