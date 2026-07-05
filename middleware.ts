@@ -7,32 +7,8 @@ const PLAY_PATH_PATTERN = /^\/play\/\d+$/;
 const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
 
 function applyRateLimit(ip: string): boolean {
-  const WINDOW_MS = 10000; // 10 seconds
-  const MAX_REQUESTS = 10; // Max 10 requests per 10 seconds (Strict Refresh Limit)
-
-  // Prevent memory leaks in Edge runtime
-  if (rateLimitMap.size > 10000) {
-    rateLimitMap.clear();
-  }
-
-  // Bypass rate limiting for localhost/unknown IPs to allow local testing
-  if (ip === "unknown-ip" || ip === "127.0.0.1" || ip === "::1") {
-    return true;
-  }
-
-  const now = Date.now();
-  const windowData = rateLimitMap.get(ip);
-
-  if (!windowData || now - windowData.timestamp > WINDOW_MS) {
-    rateLimitMap.set(ip, { count: 1, timestamp: now });
-    return true;
-  }
-
-  windowData.count++;
-  if (windowData.count > MAX_REQUESTS) {
-    return false; // Rate limited
-  }
-
+  // CRITICAL FIX: Disabled rate limiting because all 300 students in the same room 
+  // share the SAME Wi-Fi IP address! The rate limiter was blocking the entire school!
   return true;
 }
 
