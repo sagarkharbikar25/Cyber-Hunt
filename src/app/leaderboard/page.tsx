@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
   useEffect(() => {
     fetchLeaderboard();
     fetchMe();
-    const interval = setInterval(fetchLeaderboard, 30000);
+    const interval = setInterval(fetchLeaderboard, 120000); // Every 2 minutes to reduce DB load
     return () => clearInterval(interval);
   }, [fetchLeaderboard, fetchMe]);
 

@@ -25,7 +25,7 @@ export default function AdminSubmissionsPage() {
 
   useEffect(() => {
     fetchSubmissions();
-    const interval = setInterval(fetchSubmissions, 10000); // refresh every 10s
+    const interval = setInterval(fetchSubmissions, 30000); // refresh every 30s
     return () => clearInterval(interval);
   }, []);
 

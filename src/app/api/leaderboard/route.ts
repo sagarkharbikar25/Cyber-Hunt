@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 
-export const dynamic = "force-dynamic";
+// Cache the leaderboard response for 60 seconds on Vercel's edge
+// This massively reduces Supabase load - 300 users hitting it = only 1 DB query per minute!
+export const revalidate = 60;
 
 export async function GET() {
   try {

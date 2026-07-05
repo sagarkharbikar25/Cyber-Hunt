@@ -115,7 +115,7 @@ export default function DashboardPage() {
     }
 
     fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 60000);
+    const interval = setInterval(fetchDashboardData, 180000); // Every 3 minutes to reduce DB load
     return () => clearInterval(interval);
   }, [selectedMission, data?.team?.startedAt]);
 
