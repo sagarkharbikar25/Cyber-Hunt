@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  distDir: "../../../../next-builds/cyberhunt",
+  // Only use custom distDir locally, skip in CI / Vercel to avoid permission errors
+  ...(process.env.CI || process.env.VERCEL ? {} : { distDir: "../../../../next-builds/cyberhunt" }),
   outputFileTracingRoot: path.join(__dirname),
   experimental: {
     serverActions: {
