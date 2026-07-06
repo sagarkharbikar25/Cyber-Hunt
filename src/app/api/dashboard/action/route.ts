@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getAuthUser } from "@/lib/auth";
+import { submitRatelimit, hintRatelimit, checkRateLimit } from "@/lib/rate-limit";
 
 
 export async function POST(request: NextRequest) {
@@ -11,6 +12,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const action = formData.get("action");
 
+    // ── save_fragments ─────────────────────────────────────────────────────
     if (action === "save_fragments") {
       const fragmentsStr = formData.get("fragments") as string;
       const fragments = JSON.parse(fragmentsStr);
@@ -18,7 +20,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    // ── hint ───────────────────────────────────────────────────────────────
     if (action === "hint") {
+      // Rate-limit hints per team_id: prevents spam-clicking during the event
+      const hintLimited = await checkRateLimit(hintRatelimit, `hint:${user.team_id}`);
+      if (hintLimited) {
+        console.warn(`[hint] rate-limited team_id=${user.team_id}`);
+        return hintLimited;
+      }
+
       const level_id = formData.get("level_id") || "1";
       const hint_num_str = formData.get("hint_num") || "1";
       const hint_num = parseInt(hint_num_str.toString(), 10);
@@ -89,45 +99,57 @@ export async function POST(request: NextRequest) {
         message: `${team.team_name} decrypted Hint ${hint_num} for Level ${lvl} (-${hint_num === 1 ? '20' : '30'}% score penalty)`
       });
 
+      console.log(`[hint] team_id=${user.team_id} level=${lvl} hint=${hint_num} total_hints=${globalHints}`);
       return NextResponse.json({ success: true, hint: hintText });
     }
 
+    // ── submit ─────────────────────────────────────────────────────────────
     if (action === "submit") {
-      const answer = formData.get("answer") as string;
-      const proofBase64 = formData.get("proofBase64") as string;
-      const level_id_str = formData.get("level_id") as string;
-      const level_id = parseInt(level_id_str, 10) || 1;
-
-      if (!answer || !proofBase64) return NextResponse.json({ error: "Answer and proof are required" }, { status: 400 });
-
-      const { data: teamData } = await supabase.from("teams").select("*").eq("team_id", user.team_id).single();
-      if (!teamData) return NextResponse.json({ error: "Team not found" }, { status: 404 });
-
-      if (level_id === 10) {
-        const attempts = teamData.level10_attempts || 0;
-        if (attempts >= 2) {
-          return NextResponse.json({ error: "MAXIMUM ATTEMPTS REACHED. MISSION LOCKED." }, { status: 403 });
-        }
-        if (answer.toUpperCase().trim() !== "ARCHLINUX") {
-          await supabase.from("teams").update({ level10_attempts: attempts + 1 }).eq("team_id", user.team_id);
-          const remaining = 2 - (attempts + 1);
-          if (remaining <= 0) {
-            return NextResponse.json({ error: "INCORRECT KEY. Maximum attempts reached. Mission locked." }, { status: 403 });
-          } else {
-            return NextResponse.json({ error: `INCORRECT KEY. You have ${remaining} chance(s) remaining.` }, { status: 400 });
-          }
-        }
+      // Rate-limit submissions per team_id: stops retry-storms during slowdowns
+      const submitLimited = await checkRateLimit(submitRatelimit, `submit:${user.team_id}`);
+      if (submitLimited) {
+        console.warn(`[submit] rate-limited team_id=${user.team_id}`);
+        return submitLimited;
       }
 
-      // Store the submission for Admin review
-      await supabase.from("submissions").insert({
-        team_id: user.team_id,
-        team_name: teamData.team_name,
-        level_id: level_id,
-        answer: answer.toUpperCase().trim(),
-        proof_url: proofBase64,
-        status: "pending"
-      });
+       const answer = formData.get("answer") as string;
+       const proofUrl = formData.get("proofUrl") as string;
+       const level_id_str = formData.get("level_id") as string;
+       const level_id = parseInt(level_id_str, 10) || 1;
+ 
+       if (!answer || !proofUrl) {
+         return NextResponse.json({ error: "Answer and proof are required" }, { status: 400 });
+       }
+ 
+       const { data: teamData } = await supabase.from("teams").select("*").eq("team_id", user.team_id).single();
+       if (!teamData) return NextResponse.json({ error: "Team not found" }, { status: 404 });
+ 
+       if (level_id === 10) {
+         const attempts = teamData.level10_attempts || 0;
+         if (attempts >= 2) {
+           return NextResponse.json({ error: "MAXIMUM ATTEMPTS REACHED. MISSION LOCKED." }, { status: 403 });
+         }
+         if (answer.toUpperCase().trim() !== "ARCHLINUX") {
+           await supabase.from("teams").update({ level10_attempts: attempts + 1 }).eq("team_id", user.team_id);
+           const remaining = 2 - (attempts + 1);
+           console.warn(`[submit] wrong level-10 answer team_id=${user.team_id} attempts=${attempts + 1}`);
+           if (remaining <= 0) {
+             return NextResponse.json({ error: "INCORRECT KEY. Maximum attempts reached. Mission locked." }, { status: 403 });
+           } else {
+             return NextResponse.json({ error: `INCORRECT KEY. You have ${remaining} chance(s) remaining.` }, { status: 400 });
+           }
+         }
+       }
+ 
+       // Store the submission for Admin review
+       await supabase.from("submissions").insert({
+         team_id: user.team_id,
+         team_name: teamData.team_name,
+         level_id: level_id,
+         answer: answer.toUpperCase().trim(),
+         proof_url: proofUrl,
+         status: "pending"
+       });
 
       // INSTANT ADVANCEMENT: User unlocks fragment immediately
       const POINTS_MAP = [100, 150, 220, 320, 450, 600, 800, 1050, 1350, 2000];
@@ -137,7 +159,7 @@ export async function POST(request: NextRequest) {
       const hintsUsed = teamData.level_hints?.[level_id.toString()] || 0;
       let multiplier = 1.0;
       if (hintsUsed === 1) multiplier = 0.8; // -20%
-      else if (hintsUsed >= 2) multiplier = 0.5; // -50% (-20% then -30%)
+      else if (hintsUsed >= 2) multiplier = 0.5; // -50%
 
       const scoreInc = Math.floor(basePoints * multiplier);
       const newScore = (teamData.score || 0) + scoreInc;
@@ -147,11 +169,9 @@ export async function POST(request: NextRequest) {
 
       if (levelIndex >= 0 && levelIndex < 9) {
         fragments[levelIndex] = answer.substring(0, 1).toUpperCase();
-      } else if (levelIndex === 9) {
-        // Level 10 submission (final word)
       }
 
-      const updatePayload: any = {
+      const updatePayload: Record<string, unknown> = {
         score: newScore,
         last_submission_at: new Date().toISOString(),
         fragments,
@@ -168,13 +188,17 @@ export async function POST(request: NextRequest) {
         message: `${teamData.team_name} uploaded Intel for Level ${level_id}.`
       });
 
+      console.log(
+        `[submit] success team_id=${user.team_id} level=${level_id} ` +
+        `score_delta=+${scoreInc} new_score=${newScore}`
+      );
       return NextResponse.json({ success: true, message: `Submission for Level ${level_id} sent!` });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
 
   } catch (error) {
-    console.error("Dashboard action error:", error);
+    console.error("[dashboard/action] internal error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

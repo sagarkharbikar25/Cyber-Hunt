@@ -21,7 +21,9 @@ CREATE TABLE teams (
     started_at TIMESTAMP WITH TIME ZONE,
     level10_started_at TIMESTAMP WITH TIME ZONE,
     level_hints JSONB DEFAULT '{}'::jsonb,
-    is_disqualified BOOLEAN DEFAULT FALSE
+    is_disqualified BOOLEAN DEFAULT FALSE,
+    extra_minutes INTEGER DEFAULT 0,
+    level10_attempts INTEGER DEFAULT 0
 );
 
 -- 2. Create submissions table
@@ -48,7 +50,8 @@ CREATE TABLE event_settings (
     id TEXT PRIMARY KEY,
     start_time TIMESTAMP WITH TIME ZONE,
     end_time TIMESTAMP WITH TIME ZONE,
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    results_published BOOLEAN DEFAULT FALSE
 );
 
 -- 5. Create activity_logs table

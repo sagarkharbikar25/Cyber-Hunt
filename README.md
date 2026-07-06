@@ -4,26 +4,28 @@ Welcome to the CyberHunt platform for **Operation Blackout**, built by TechAlfa.
 
 ## Setup Instructions
 
-This platform requires a connection to a **Firebase** backend (Firestore and Cloud Storage) to function.
+This platform uses **Supabase** as the backend (PostgreSQL database + auth).
 
 ### 1. Environment Variables
-You must create a `.env.local` file in the root of the project to connect to Firebase.
+Create a `.env.local` file in the root of the project with the following keys.
 Do **NOT** commit this file to version control.
 
-Create `.env.local` and add the following keys:
-
 ```env
-# Firebase Client Configuration
-NEXT_PUBLIC_FIREBASE_API_KEY="YOUR_API_KEY"
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="YOUR_DOMAIN.firebaseapp.com"
-NEXT_PUBLIC_FIREBASE_PROJECT_ID="YOUR_PROJECT_ID"
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="YOUR_PROJECT.firebasestorage.app"
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="YOUR_SENDER_ID"
-NEXT_PUBLIC_FIREBASE_APP_ID="YOUR_APP_ID"
+# Supabase (public — safe for client)
+NEXT_PUBLIC_SUPABASE_URL="YOUR_SUPABASE_PROJECT_URL"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY"
 
-# Firebase Admin Configuration (For Backend Operations)
-FIREBASE_CLIENT_EMAIL="firebase-adminsdk-xxxxx@YOUR_PROJECT.iam.gserviceaccount.com"
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_LONG_KEY\n-----END PRIVATE KEY-----\n"
+# Supabase (server-only — NEVER expose to client)
+SUPABASE_SERVICE_ROLE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY"
+
+# JWT signing secret (generate with: openssl rand -base64 32)
+NEXTAUTH_SECRET="your-random-secret-at-least-32-chars"
+
+# Resend API key for email
+RESEND_API_KEY="your_resend_api_key"
+
+# Admin login secret
+ADMIN_SECRET="your_admin_secret"
 ```
 
 ### 2. Installation
@@ -38,7 +40,7 @@ Once dependencies are installed and your `.env.local` is configured, start the s
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3001) with your browser to see the result.
 
 ## Architecture & Routes
 - `/`: The main landing and login page.

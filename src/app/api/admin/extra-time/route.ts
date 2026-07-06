@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { jwtVerify } from "jose";
+
+const secret = new TextEncoder().encode(
+  process.env.NEXTAUTH_SECRET || "insecure-fallback-change-in-production"
+);
+
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  const token = request.cookies.get("cyberhunt_admin_token")?.value;
+  if (!token) return false;
+
+  // Support both the new signed JWT AND the old plaintext "VERIFIED" cookie
+  // so existing admin sessions don't break after the upgrade.
+  // Remove the "VERIFIED" fallback after the next event.
+  if (token === "VERIFIED") return true; // legacy fallback
+
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return (payload as Record<string, unknown>).role === "admin";
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: NextRequest) {
+  if (!(await verifyAdmin(request))) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { minutes, team_id } = await request.json();
 
@@ -30,6 +56,7 @@ export async function POST(request: NextRequest) {
         message: `Mission Control granted +${minutes} min extra time to ${team.team_name}.`
       });
 
+      console.log(`[extra-time] +${minutes}min granted to team_id=${team_id}`);
       return NextResponse.json({ success: true, message: `+${minutes} min granted to ${team.team_name}` });
 
     } else {
@@ -42,20 +69,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Failed to fetch teams" }, { status: 500 });
       }
 
-      // Update each team's extra_minutes by adding the new amount
-      const updates = teams.map(team =>
-        supabase
-          .from("teams")
-          .update({ extra_minutes: (team.extra_minutes || 0) + minutes })
-          .eq("team_id", team.team_id)
+      await Promise.all(
+        teams.map((team) =>
+          supabase
+            .from("teams")
+            .update({ extra_minutes: (team.extra_minutes || 0) + minutes })
+            .eq("team_id", team.team_id)
+        )
       );
-
-      await Promise.all(updates);
 
       await supabase.from("activity_logs").insert({
         message: `⏱️ Mission Control granted +${minutes} min extra time to ALL ${teams.length} teams due to downtime.`
       });
 
+      console.log(`[extra-time] +${minutes}min granted to all ${teams.length} teams`);
       return NextResponse.json({
         success: true,
         message: `+${minutes} min granted to all ${teams.length} teams`
@@ -63,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error("Extra time error:", error);
+    console.error("[extra-time] error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
