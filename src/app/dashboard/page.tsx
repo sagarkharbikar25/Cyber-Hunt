@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tv, Puzzle, Lock, Unlock, Crosshair, CheckCircle2, AlertTriangle, Trophy, ShieldCheck, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import MissionBriefing from "@/components/game/mission-briefing";
+import SubmissionControl from "@/components/game/submission-control";
+import AgentScoreboard from "@/components/game/agent-scoreboard";
 
 interface DashboardData {
   team: {
@@ -178,16 +181,31 @@ export default function DashboardPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!submission) return;
-    if (selectedMission !== 10 && !proofFile) return;
+    if (selectedMission !== 10) {
+      if (!proofFile) return;
+
+      // 1. Client-side validations
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+      if (proofFile.size > MAX_SIZE) {
+        alert("❌ UPLOAD LIMIT EXCEEDED: File is too large. Maximum allowed size is 5MB.");
+        return;
+      }
+
+      const fileType = proofFile.type;
+      if (fileType !== "image/png" && fileType !== "image/jpeg" && fileType !== "image/jpg") {
+        alert("❌ FILE TYPE REJECTED: Only JPG, JPEG, and PNG images are allowed. PDFs are not accepted.");
+        return;
+      }
+    }
 
     setSubmitting(true);
 
     try {
-      const submitData = async (base64Proof: string) => {
+      const submitData = async (proofUrl: string) => {
         const formData = new FormData();
         formData.append("action", "submit");
         formData.append("answer", submission);
-        formData.append("proofBase64", base64Proof);
+        formData.append("proofUrl", proofUrl);
         formData.append("level_id", selectedMission.toString());
 
         const res = await fetch("/api/dashboard/action", { method: "POST", body: formData });
@@ -239,8 +257,42 @@ export default function DashboardPage() {
             const ctx = canvas.getContext("2d");
             ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            const base64Proof = canvas.toDataURL("image/jpeg", 0.6);
-            await submitData(base64Proof);
+            // Compress to JPEG with 70% quality and extract as raw blob
+            canvas.toBlob(async (blob) => {
+              if (!blob) {
+                alert("❌ Error processing image.");
+                setSubmitting(false);
+                return;
+              }
+
+              const compressedFile = new File([blob], "proof.jpg", { type: "image/jpeg" });
+              const uploadFormData = new FormData();
+              uploadFormData.append("file", compressedFile);
+              uploadFormData.append("level_id", selectedMission.toString());
+
+              try {
+                // Upload file to the storage route
+                const uploadRes = await fetch("/api/upload/proof", {
+                  method: "POST",
+                  body: uploadFormData
+                });
+
+                const uploadJson = await uploadRes.json();
+                if (!uploadJson.success) {
+                  alert("❌ UPLOAD ERROR: " + uploadJson.error);
+                  setSubmitting(false);
+                  return;
+                }
+
+                // Solution submits using the returned public URL CDN link
+                await submitData(uploadJson.publicUrl);
+
+              } catch (uploadErr) {
+                console.error(uploadErr);
+                alert("❌ UPLOAD CRITICAL FAILURE: Failed to connect to upload server.");
+                setSubmitting(false);
+              }
+            }, "image/jpeg", 0.7);
           };
         };
       }
@@ -532,23 +584,12 @@ export default function DashboardPage() {
             </div>
 
             {/* MISSION DESCRIPTION BOX */}
-            <div className="bg-bg2 border border-border-g2 border-l-4 border-l-neon p-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-              <div className="font-orb text-[16px] font-bold text-neon tracking-[3px] mb-4 uppercase">{currentMissionObj.title}</div>
-              <div className="font-raj text-[16px] leading-[1.7] text-text font-medium mb-6">
-                {currentMissionObj.desc}
-              </div>
-              <div className="mt-4">
-                <a
-                  href={currentMissionObj.link}
-                  target="_blank"
-                  {...(currentMissionObj.link.startsWith('/') ? { download: true } : {})}
-                  className="inline-flex items-center gap-2 font-mono text-[13px] text-[#00d4ff] no-underline border-b border-[#00d4ff44] pb-1 tracking-[1px] transition-colors hover:border-[#00d4ff] hover:text-[#00ffff]"
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
-                  {currentMissionObj.link.toUpperCase()}
-                </a>
-              </div>
-            </div>
+            <MissionBriefing
+              missionId={selectedMission}
+              title={currentMissionObj.title}
+              desc={currentMissionObj.desc}
+              link={currentMissionObj.link}
+            />
             {/* ENCRYPTED INTEL VAULT */}
             <div className="font-orb text-[10px] font-bold tracking-[6px] text-text2 text-center p-[8px_0] mt-2 relative">
               <div className="absolute top-1/2 left-0 right-0 h-px bg-border-g2 -z-10"></div>
@@ -618,76 +659,19 @@ export default function DashboardPage() {
             )}
 
             {/* TRANSMIT SOLUTION */}
-            <div className="mt-2 pt-2">
-              <div className="font-orb text-[10px] font-bold tracking-[6px] text-text2 text-center p-[8px_0] mb-4 relative">
-                <div className="absolute top-1/2 left-0 right-0 h-px bg-border-g2 -z-10"></div>
-                <span className="bg-bg0 px-4">— TRANSMIT SOLUTION —</span>
-              </div>
-
-              {isCurrentMissionSolved ? (
-                <div className="bg-[rgba(0,255,136,0.05)] border border-[rgba(0,255,136,0.3)] p-4 text-center">
-                  <div className="font-orb text-[12px] text-neon font-bold tracking-[3px] mb-1">✅ MISSION SOLVED</div>
-                  <div className="font-mono text-[10px] text-text2 tracking-[1px]">Fragment has been successfully secured for this sector.</div>
-                </div>
-              ) : team?.submitted_levels?.includes(selectedMission) && selectedMission !== 10 ? (
-                <div className="bg-red/5 border border-red/30 p-4 text-center">
-                  <div className="font-orb text-[12px] text-red font-bold tracking-[3px] mb-1">🔒 MISSION LOCKED</div>
-                  <div className="font-mono text-[10px] text-text2 tracking-[1px]">You have already exhausted your single attempt for this mission.</div>
-                </div>
-              ) : (
-                <>
-                  {selectedMission === 10 && (
-                    <div className={`font-mono text-[10px] mb-4 text-center p-2 rounded-sm tracking-widest ${(team?.level10_attempts || 0) >= 2 ? 'bg-red/20 text-red border border-red/30' : 'bg-amber/10 text-amber border border-amber/30'
-                      }`}>
-                      {(team?.level10_attempts || 0) >= 2
-                        ? '❌ MAXIMUM ATTEMPTS REACHED. MISSION LOCKED.'
-                        : `⚠️ WARNING: ${2 - (team?.level10_attempts || 0)} CHANCE(S) REMAINING`}
-                    </div>
-                  )}
-                  <form onSubmit={handleSubmit} className="flex gap-3 items-stretch bg-bg2 p-4 border border-border-g2 shadow-lg">
-                    <input
-                      type="text"
-                      value={submission}
-                      onChange={(e) => setSubmission(e.target.value)}
-                      required
-                      maxLength={selectedMission === 10 ? 20 : 1}
-                      placeholder={selectedMission === 10 ? "ENTER MASTER KEY..." : "ENTER SECURED FRAGMENT (1 LETTER)..."}
-                      className="flex-1 bg-bg3 border border-border-g2 text-neon font-mono text-[16px] font-bold p-[12px_16px] outline-none tracking-[2px] placeholder:text-text2 placeholder:opacity-50 focus:border-neon transition-colors uppercase"
-                      disabled={submitting || (selectedMission === 10 && (team?.level10_attempts || 0) >= 2)}
-                    />
-                    {selectedMission !== 10 && (
-                      <div className="relative flex items-center justify-center border border-dashed border-border-g2 bg-bg3 px-5 hover:border-neon transition-colors group cursor-pointer overflow-hidden min-w-[160px]">
-                        <input
-                          type="file"
-                          required
-                          accept="image/png, image/jpeg"
-                          onChange={(e) => setProofFile(e.target.files ? e.target.files[0] : null)}
-                          className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                          disabled={submitting}
-                        />
-                        <div className="flex flex-col items-center justify-center z-0 pointer-events-none">
-                          <span className="font-orb text-[10px] font-bold tracking-[2px] text-text2 group-hover:text-white transition-colors">
-                            {proofFile ? proofFile.name.substring(0, 15) + (proofFile.name.length > 15 ? '...' : '') : 'UPLOAD PROOF'}
-                          </span>
-                          <span className="font-mono text-[9px] text-text2 opacity-60 mt-1">{proofFile ? 'READY' : 'JPG / PNG'}</span>
-                        </div>
-                      </div>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={submitting || timeLeft === "00:00" || (selectedMission === 10 && (team?.level10_attempts || 0) >= 2)}
-                      className="bg-neon text-black border-none font-orb text-[12px] font-bold tracking-[3px] p-[0_24px] cursor-pointer transition-colors hover:bg-[#00ffaa] hover:shadow-[0_0_15px_rgba(0,255,136,0.4)] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                    >
-                      {submitting ? "TRANSMITTING..." : "SUBMIT"}
-                    </button>
-                  </form>
-                  <div className="mt-3 flex items-center justify-center gap-1.5 text-amber">
-                    <AlertTriangle size={12} />
-                    <span className="font-mono text-[10px] tracking-[1px] uppercase">1 submission per mission — choose carefully</span>
-                  </div>
-                </>
-              )}
-            </div>
+            <SubmissionControl
+              selectedMission={selectedMission}
+              submission={submission}
+              setSubmission={setSubmission}
+              proofFile={proofFile}
+              setProofFile={setProofFile}
+              submitting={submitting}
+              timeLeft={timeLeft}
+              isCurrentMissionSolved={isCurrentMissionSolved}
+              hasAttempted={!!team?.submitted_levels?.includes(selectedMission)}
+              level10Attempts={team?.level10_attempts || 0}
+              onSubmit={handleSubmit}
+            />
           </div>
         </div>
 
@@ -725,45 +709,10 @@ export default function DashboardPage() {
             <span className="font-orb text-[10px] font-bold tracking-[3px] text-white uppercase">LIVE NET STATUS</span>
           </div>
 
-          <div className="flex-1 overflow-y-auto overflow-x-hidden bg-bg0 max-h-[40vh]">
-            {!activeAgents || activeAgents.length === 0 ? (
-              <div className="p-4 text-center text-text2 text-xs font-mono tracking-widest">NO SIGNALS DETECTED</div>
-            ) : (
-              activeAgents.map((agent: any, i: number) => {
-                const isSelf = agent.id === team.id;
-                const pips = Array.from({ length: 10 });
-                return (
-                  <div key={agent.id} className={`p-[10px_14px] border-b border-border-g flex items-center justify-between hover:bg-bg2 transition-colors cursor-pointer ${isSelf ? 'bg-[rgba(0,255,136,0.05)] border-l-2 border-l-neon' : ''}`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`font-mono text-[10px] w-5 h-5 rounded-[2px] flex items-center justify-center font-bold
-                        ${i === 0 ? 'bg-[#ffaa0022] text-amber border border-[#ffaa0044]' :
-                          i === 1 ? 'bg-[#c0c0c022] text-[#c0c0c0] border border-[#c0c0c044]' :
-                            i === 2 ? 'bg-[#cd7f3222] text-[#cd7f32] border border-[#cd7f3244]' :
-                              'bg-bg3 text-text2'}`}>
-                        {(i + 1).toString().padStart(2, '0')}
-                      </div>
-                      <div className="overflow-hidden">
-                        <div className={`font-raj text-[13px] font-bold tracking-[1px] truncate max-w-[120px] ${isSelf ? 'text-neon' : i === 0 ? 'text-amber' : 'text-text'}`}>
-                          {agent.name}
-                        </div>
-                        <div className="flex gap-[2px] mt-[3px]">
-                          {pips.map((_, idx) => (
-                            <div
-                              key={idx}
-                              className={`w-[5px] h-[5px] rounded-sm ${idx < agent.level ? (i === 0 ? 'bg-amber' : 'bg-neon') : 'bg-border-g2'}`}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                    <div className={`font-mono text-[11px] font-bold ${isSelf || i === 0 ? 'text-amber' : 'text-neon'}`}>
-                      {agent.level}/10
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
+          <AgentScoreboard
+            activeAgents={activeAgents}
+            currentTeamId={team?.id || ""}
+          />
 
           {/* DECODED WORD */}
           <div className="p-[14px_18px] shrink-0 bg-bg1">

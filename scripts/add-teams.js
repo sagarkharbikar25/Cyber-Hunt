@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env' });
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,8 +42,19 @@ async function addTeams() {
       global_hints_used: 0,
       level_hints: {},
       is_disqualified: false
+    },
+    {
+      team_id: 'TEST-ALPHA',
+      team_name: 'Test Squad Alpha',
+      leader_email: 'test@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
     }
-
   ];
 
   console.log("Inserting/Updating new teams...");

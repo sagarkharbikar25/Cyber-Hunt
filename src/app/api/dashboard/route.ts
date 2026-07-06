@@ -1,95 +1,130 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
 import { getAuthUser } from "@/lib/auth";
+import { redis, TTL, CK } from "@/lib/redis";
 
-// In-memory cache to prevent Firebase quota exhaustion (50k reads/day limit)
-let globalCache = {
-  activeAgents: [] as any[],
-  liveFeed: [] as any[],
-  lastFetch: 0
-};
+// ─── types ─────────────────────────────────────────────────────────────────
+interface AgentRow { id: string; name: string; level: number; status: string }
+interface FeedRow  { id: string; time: string; text: string }
 
+// ─── Redis-backed shared data fetcher ──────────────────────────────────────
+// This replaces the old in-memory globalCache which died on every cold start.
+// Now 300 concurrent users share a single cached copy in Upstash Redis.
+async function getSharedData(): Promise<{ agents: AgentRow[]; feed: FeedRow[] }> {
+
+  // Try Redis first
+  if (redis) {
+    try {
+      const [cachedAgents, cachedFeed] = await Promise.all([
+        redis.get<AgentRow[]>(CK.dashboardAgents),
+        redis.get<FeedRow[]>(CK.dashboardFeed),
+      ]);
+
+      if (cachedAgents && cachedFeed) {
+        return { agents: cachedAgents, feed: cachedFeed };
+      }
+    } catch (err) {
+      console.error("[dashboard] Redis read error:", err);
+    }
+  }
+
+  // Cache miss — query DB once and write to Redis
+  const [{ data: teamsSnapshot }, { data: feedSnapshot }] = await Promise.all([
+    supabase
+      .from("teams")
+      .select("team_id, team_name, current_level, is_disqualified, last_submission_at")
+      .order("score", { ascending: false })
+      .limit(200),
+    supabase
+      .from("activity_logs")
+      .select("id, message, timestamp")
+      .order("timestamp", { ascending: false })
+      .limit(10),
+  ]);
+
+  const agents: AgentRow[] = (teamsSnapshot ?? []).map((d) => {
+    const subTime = d.last_submission_at
+      ? new Date(d.last_submission_at).getTime()
+      : Date.now();
+    return {
+      id: d.team_id,
+      name: d.team_name,
+      level: d.current_level || 1,
+      status: d.is_disqualified
+        ? "Disqualified"
+        : Date.now() - subTime > 2 * 60 * 60 * 1000
+        ? "Stuck"
+        : "Active",
+    };
+  });
+
+  const feed: FeedRow[] = (feedSnapshot ?? []).map((d) => {
+    const date = new Date(d.timestamp ?? Date.now());
+    return {
+      id: d.id,
+      time: `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`,
+      text: d.message,
+    };
+  });
+
+  // Write to Redis with TTL (fire-and-forget — don't block the response)
+  if (redis) {
+    await Promise.all([
+      redis.set(CK.dashboardAgents, agents, { ex: TTL.DASHBOARD_SHARED }),
+      redis.set(CK.dashboardFeed, feed,   { ex: TTL.DASHBOARD_SHARED }),
+    ]).catch((err) => console.error("[dashboard] redis write error:", err));
+  }
+
+  return { agents, feed };
+}
+
+// ─── Route handler ──────────────────────────────────────────────────────────
 export async function GET(request: NextRequest) {
   try {
     const user = await getAuthUser();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Team-specific data (always fresh — it's a single-row read, very fast)
     const { data: team, error } = await supabase
       .from("teams")
       .select("*")
       .eq("team_id", user.team_id)
       .single();
-    
+
     if (error || !team) {
+      console.error(`[dashboard] team not found: team_id=${user.team_id}`, error);
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
 
     let teamData = team;
 
-    // Initialize game timer on first dashboard load
+    // Initialize timer on first load
     if (!teamData.started_at) {
       const now = new Date().toISOString();
-      const { error: updateError } = await supabase.from("teams").update({ started_at: now }).eq("team_id", user.team_id);
+      const { error: updateError } = await supabase
+        .from("teams")
+        .update({ started_at: now })
+        .eq("team_id", user.team_id);
       if (updateError) {
-        console.error("FAILED TO UPDATE STARTED_AT:", updateError);
+        console.error(`[dashboard] failed to set started_at for team_id=${user.team_id}:`, updateError);
       } else {
-        console.log("SUCCESSFULLY UPDATED STARTED_AT TO:", now);
+        console.log(`[dashboard] initialized timer for team_id=${user.team_id}`);
       }
       teamData.started_at = now;
     }
 
     const startTime = new Date(teamData.started_at).getTime();
-    console.log("SENDING STARTED_AT TO CLIENT:", startTime, "for team:", user.team_id);
-    
-    const nowMs = Date.now();
-    // Cache for 30 seconds to drastically reduce DB reads
-    if (nowMs - globalCache.lastFetch > 30000) {
-      // Fetch active agents (other teams)
-      const { data: teamsSnapshot } = await supabase
-        .from("teams")
-        .select("*")
-        .order("score", { ascending: false })
-        .limit(200);
-        
-      globalCache.activeAgents = (teamsSnapshot || []).map(data => {
-        const lastSub = data.last_submission_at;
-        const subTime = lastSub ? new Date(lastSub).getTime() : Date.now();
-        
-        return {
-          id: data.team_id,
-          name: data.team_name,
-          level: data.current_level || 1,
-          status: data.is_disqualified ? "Disqualified" : (Date.now() - subTime > 1000 * 60 * 60 * 2) ? "Stuck" : "Active"
-        };
-      });
 
-      // Fetch Live Network Feed
-      const { data: feedSnapshot } = await supabase
-        .from("activity_logs")
-        .select("*")
-        .order("timestamp", { ascending: false })
-        .limit(10);
-        
-      globalCache.liveFeed = (feedSnapshot || []).map(data => {
-        const ts = data.timestamp;
-        const date = new Date(ts || Date.now());
-        const timeString = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
-        return {
-          id: data.id,
-          time: timeString,
-          text: data.message
-        };
-      });
+    // Shared data from Redis cache (agents + feed)
+    const { agents, feed } = await getSharedData();
 
-      globalCache.lastFetch = nowMs;
-    }
-
+    // Team's own submissions (small query, always fresh)
     const { data: teamSubmissions } = await supabase
       .from("submissions")
       .select("level_id")
       .eq("team_id", user.team_id);
 
-    const submitted_levels = (teamSubmissions || []).map(s => s.level_id);
+    const submitted_levels = (teamSubmissions ?? []).map((s) => s.level_id);
 
     return NextResponse.json({
       team: {
@@ -105,15 +140,18 @@ export async function GET(request: NextRequest) {
         level10_started_at: teamData.level10_started_at || null,
         level_hints: teamData.level_hints || {},
         level10_attempts: teamData.level10_attempts || 0,
-        submitted_levels: submitted_levels,
+        submitted_levels,
         extra_minutes: teamData.extra_minutes || 0,
       },
-      liveFeed: globalCache.liveFeed,
-      activeAgents: globalCache.activeAgents,
-      total_levels: 10
+      liveFeed: feed,
+      activeAgents: agents,
+      total_levels: 10,
     });
-  } catch (error: any) {
-    console.error("Dashboard API error:", error);
-    return NextResponse.json({ error: error.message || "Internal server error", stack: error.stack }, { status: 500 });
+  } catch (error) {
+    console.error("[dashboard] internal error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  distDir: "../../../../next-builds/cyberhunt",
+  outputFileTracingRoot: path.join(__dirname),
   experimental: {
     serverActions: {
       bodySizeLimit: "5mb",
@@ -17,3 +20,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

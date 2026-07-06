@@ -233,8 +233,14 @@ export default function AdminSubmissionsPage() {
                 <div className="text-text3 font-mono text-[10px] mt-1">
                   LVL {sub.level_id} &middot; {new Date(sub.submitted_at).toLocaleTimeString()}
                 </div>
-                <div className="text-accent/80 font-mono text-[10px] mt-1 uppercase tracking-wider">
-                  Hints Used: {sub.hints_used}
+                <div className="text-accent/80 font-mono text-[10px] mt-1 uppercase tracking-wider flex items-center gap-2">
+                  <span>Hints Used: {sub.hints_used}</span>
+                  <button
+                    onClick={() => handleGrantExtraTime(sub.team_id)}
+                    className="text-[9px] font-mono text-yellow-400 border border-yellow-500/30 hover:border-yellow-400 bg-yellow-500/5 px-1.5 py-0.5 rounded transition-all uppercase tracking-wider font-bold cursor-pointer"
+                  >
+                    +{extraMinInput}m
+                  </button>
                 </div>
               </div>
               <div className="flex gap-1" title={`${sub.ai_strikes}/3 AI Submissions`}>

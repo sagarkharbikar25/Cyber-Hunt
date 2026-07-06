@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: '.env' });
 const { createClient } = require('@supabase/supabase-js');
 const xlsx = require('xlsx');
 
@@ -8,7 +8,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function importTeams() {
   console.log("Reading Excel file...");
-  const workbook = xlsx.readFile('Cyber Hunt.xlsx');
+  const workbook = xlsx.readFile('resources/Cyber_Hunt.xlsx');
   const sheetName = workbook.SheetNames[0];
   const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
   

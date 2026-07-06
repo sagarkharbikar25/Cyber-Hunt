@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
           started_at: null,
           level10_attempts: 0,
           level10_started_at: null,
-          last_submission_at: null
+          last_submission_at: null,
+          extra_minutes: 0
         })
         .eq('team_id', team.team_id);
 
