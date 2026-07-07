@@ -54,6 +54,114 @@ async function addTeams() {
       global_hints_used: 0,
       level_hints: {},
       is_disqualified: false
+    },
+    {
+      team_id: 'TEST-BETA',
+      team_name: 'Test Squad Beta',
+      leader_email: 'beta@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-GAMMA',
+      team_name: 'Test Squad Gamma',
+      leader_email: 'gamma@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-DELTA',
+      team_name: 'Test Squad Delta',
+      leader_email: 'delta@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-EPSILON',
+      team_name: 'Test Squad Epsilon',
+      leader_email: 'epsilon@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-ZETA',
+      team_name: 'Test Squad Zeta',
+      leader_email: 'zeta@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-ETA',
+      team_name: 'Test Squad Eta',
+      leader_email: 'eta@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-THETA',
+      team_name: 'Test Squad Theta',
+      leader_email: 'theta@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-IOTA',
+      team_name: 'Test Squad Iota',
+      leader_email: 'iota@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    },
+    {
+      team_id: 'TEST-KAPPA',
+      team_name: 'Test Squad Kappa',
+      leader_email: 'kappa@example.com',
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
     }
   ];
 
