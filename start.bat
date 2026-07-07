@@ -15,14 +15,15 @@ echo                --- SECURE DEPLOYMENT SYSTEM ---
 echo =========================================================================
 echo.
 
-:: Check for .env.local
-if not exist ".env.local" goto no_env
-goto check_node
+:: Check for .env or .env.local
+if exist ".env.local" goto check_node
+if exist ".env" goto check_node
+goto no_env
 
 :no_env
-echo [WARNING] .env.local file is missing!
-echo Firebase configuration is required for Cyber Hunt to function.
-echo Please create .env.local based on .env.example before launching.
+echo [WARNING] Environment configuration (.env or .env.local) is missing!
+echo Configuration is required for Cyber Hunt to function.
+echo Please create a .env file before launching.
 echo.
 pause
 

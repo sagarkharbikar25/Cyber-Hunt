@@ -34,8 +34,8 @@ export async function GET() {
     // Cache miss — query DB
     const { data: teamsSnapshot, error } = await supabase
       .from("teams")
-      .select("team_id, team_name, score, current_level, global_hints_used, is_disqualified, last_submission_at")
-      // Select only the columns we need — avoids fetching proof_url/fragments blobs
+      .select("team_id, team_name, score, current_level, global_hints_used, is_disqualified, last_submission_at, fragments")
+      // Select only the columns we need — avoids fetching proof_url
       .eq("is_disqualified", false);
 
     if (error) {
@@ -54,13 +54,13 @@ export async function GET() {
       return tA - tB;
     });
 
-    const leaderboard: LeaderboardRow[] = allTeams.map((d, idx) => ({
+    const leaderboard: LeaderboardRow[] = allTeams.map((d: any, idx) => ({
       rank: idx + 1,
       team_id: d.team_id,
       team_name: d.team_name,
       score: d.score || 0,
       current_level: d.current_level || 1,
-      levels_solved: Math.max(0, (d.current_level || 1) - 1),
+      levels_solved: (d.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
       hints_used: d.global_hints_used || 0,
     }));
 

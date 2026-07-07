@@ -10,9 +10,14 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
   console.warn("Missing Supabase environment variables. Database operations will fail.");
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseServiceRoleKey || "", {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
+export const supabase = createClient(
+  supabaseUrl || "https://placeholder-for-build.supabase.co",
+  supabaseServiceRoleKey || "placeholder-key",
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
   }
-});
+);
+

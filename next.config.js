@@ -1,10 +1,29 @@
+const path = require("path");
+
 /**
- * Minimal Next config (JS) to ensure TypeScript build errors are ignored
- * during server builds. This is a temporary workaround to get the app
- * deployed; remove/update when TypeScript issues are fixed.
+ * Consolidate Next config (JS) to ensure all features work correctly
+ * while avoiding configuration conflicts and allowing deployment on servers
+ * without typescript development dependencies.
  */
-module.exports = {
+const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  outputFileTracingRoot: path.join(__dirname),
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "5mb",
+    },
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+      },
+    ],
+  },
 };
+
+module.exports = nextConfig;
+
