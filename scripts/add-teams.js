@@ -165,6 +165,23 @@ async function addTeams() {
     }
   ];
 
+  // Generate 40 additional test users dynamically
+  for (let i = 1; i <= 40; i++) {
+    const padId = i.toString().padStart(2, '0');
+    teamsToInsert.push({
+      team_id: `TEST-USER-${padId}`,
+      team_name: `Test Squad ${padId}`,
+      leader_email: `testuser${i}@example.com`,
+      fragments: ["", "", "", "", "", "", "", "", ""],
+      score: 0,
+      current_level: 1,
+      ai_strikes: 0,
+      global_hints_used: 0,
+      level_hints: {},
+      is_disqualified: false
+    });
+  }
+
   console.log("Inserting/Updating new teams...");
   const { error } = await supabase.from('teams').upsert(teamsToInsert);
   
