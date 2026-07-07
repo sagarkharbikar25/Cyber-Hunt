@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthUser } from "@/lib/auth";
 import { uploadToStorage } from "@/lib/storage";
+import { submitRatelimit, checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,10 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // 1.a Rate limit submissions per team to avoid DB/IO overload
+    const limited = await checkRateLimit(submitRatelimit, `submit:${user.team_id}`);
+    if (limited) return limited;
 
     // 2. Parse request form-data
     const formData = await request.formData();

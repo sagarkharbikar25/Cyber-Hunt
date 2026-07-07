@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
 import "./globals.css";
 
-export const metadata: Metadata = {
+// Avoid importing Next internal metadata types on build servers where
+// type resolution can fail. Export untyped metadata so `next build`
+// doesn't pull in internal type declarations.
+export const metadata = {
   title: "Operation Vault | CyberHunt",
   description: "A cybersecurity CTF event by TechAlfa. 10 levels. 90 minutes. Can you crack the code?",
   icons: { icon: "/favicon.ico" },
