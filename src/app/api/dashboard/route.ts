@@ -49,7 +49,7 @@ async function getSharedData(): Promise<{ agents: AgentRow[]; feed: FeedRow[] }>
     return {
       id: d.team_id,
       name: d.team_name,
-      level: d.current_level || 1,
+      level: d.current_level > 10 ? 10 : (d.current_level || 1),
       status: d.is_disqualified
         ? "Disqualified"
         : Date.now() - subTime > 2 * 60 * 60 * 1000

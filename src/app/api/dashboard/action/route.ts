@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
         score: newScore,
         last_submission_at: new Date().toISOString(),
         fragments,
-        current_level: Math.max(teamData.current_level || 1, level_id < 10 ? level_id + 1 : 10)
+        current_level: Math.max(teamData.current_level || 1, level_id + 1)
       };
 
       if (level_id === 9) {

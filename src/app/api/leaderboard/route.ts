@@ -60,7 +60,7 @@ export async function GET() {
       team_name: d.team_name,
       score: d.score || 0,
       current_level: d.current_level || 1,
-      levels_solved: (d.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
+      levels_solved: d.current_level > 10 ? 10 : (d.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
       hints_used: d.global_hints_used || 0,
     }));
 

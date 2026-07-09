@@ -85,7 +85,17 @@ export default function DashboardPage() {
         if (loading) {
           // Auto-select lowest unsolved mission
           const firstUnsolved = json.team.fragments.findIndex((f: string) => f === "") + 1;
-          setSelectedMission(firstUnsolved > 0 && firstUnsolved <= 9 ? firstUnsolved : 10);
+          const targetMission = firstUnsolved > 0 && firstUnsolved <= 9 ? firstUnsolved : 10;
+          setSelectedMission(targetMission);
+
+          // If Level 10 has already been solved, show Victory modal on load
+          if (json.team.submitted_levels?.includes(10)) {
+            setShowVictory(true);
+          }
+          // Otherwise, if auto-selected to Level 10 on load and not solved yet, show warning modal
+          else if (targetMission === 10) {
+            setShowLevel10Rules(true);
+          }
         }
       }
       if (loading) setLoading(false);
@@ -223,7 +233,11 @@ export default function DashboardPage() {
 
             // Jump to the next unsolved mission automatically!
             const firstUnsolved = newFragments.findIndex(f => f === "") + 1;
-            setSelectedMission(firstUnsolved > 0 && firstUnsolved <= 9 ? firstUnsolved : 10);
+            const nextMission = firstUnsolved > 0 && firstUnsolved <= 9 ? firstUnsolved : 10;
+            setSelectedMission(nextMission);
+            if (nextMission === 10) {
+              setShowLevel10Rules(true);
+            }
           } else {
             // Mission 10 victory!
             setShowVictory(true);
@@ -385,7 +399,7 @@ export default function DashboardPage() {
   }
 
   const currentMissionObj = MISSIONS.find(m => m.id === selectedMission) || MISSIONS[0];
-  const isCurrentMissionSolved = selectedMission < 10 ? fragments[selectedMission - 1] !== "" : false;
+  const isCurrentMissionSolved = selectedMission < 10 ? fragments[selectedMission - 1] !== "" : (team?.submitted_levels?.includes(10) || false);
 
   return (
     <div className="min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col overflow-hidden">
@@ -517,7 +531,12 @@ export default function DashboardPage() {
                       return;
                     }
                     if (m.id === 10) {
-                      setShowLevel10Rules(true);
+                      const isLvl10Solved = team?.submitted_levels?.includes(10);
+                      if (!isLvl10Solved) {
+                        setShowLevel10Rules(true);
+                      } else {
+                        setSelectedMission(10);
+                      }
                     } else {
                       setSelectedMission(m.id);
                     }
@@ -815,6 +834,7 @@ export default function DashboardPage() {
                 onClick={() => {
                   setShowLevel10Rules(false);
                   setAcceptedRules(false);
+                  setSelectedMission(9);
                 }}
                 className="py-3 border border-border-g2 text-text2 hover:text-white text-[10px] font-orb font-bold tracking-[2px] uppercase rounded-sm transition-colors cursor-pointer"
               >

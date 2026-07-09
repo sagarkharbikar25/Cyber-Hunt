@@ -32,7 +32,7 @@ export async function GET() {
         rank: idx + 1,
         team_id: data.team_id,
         team_name: data.team_name,
-        levels_solved: (data.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
+        levels_solved: data.current_level > 10 ? 10 : (data.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
         total_hints: data.global_hints_used || 0,
         score: data.score || 0,
         solved_at: data.last_submission_at || "",
