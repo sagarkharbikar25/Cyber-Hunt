@@ -112,10 +112,13 @@ export async function POST(request: NextRequest) {
         return submitLimited;
       }
 
-       const answer = formData.get("answer") as string;
-       const proofUrl = formData.get("proofUrl") as string;
+       const rawAnswer = formData.get("answer") as string;
+       const rawProofUrl = formData.get("proofUrl") as string;
        const level_id_str = formData.get("level_id") as string;
        const level_id = parseInt(level_id_str, 10) || 1;
+ 
+       const answer = (rawAnswer || "").trim();
+       const proofUrl = (rawProofUrl || "").trim();
  
        if (!answer || !proofUrl) {
          return NextResponse.json({ error: "Answer and proof are required" }, { status: 400 });

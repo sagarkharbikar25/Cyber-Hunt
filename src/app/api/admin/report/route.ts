@@ -13,7 +13,7 @@ export async function GET() {
     const teams = (teamsSnapshot || []).map((data, idx) => ({
       rank: idx + 1,
       team_name: data.team_name,
-      fragments: (data.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
+      fragments: data.current_level > 10 ? 10 : (data.fragments || []).filter((f: any) => typeof f === "string" && f.trim() !== "").length,
       hints_used: data.global_hints_used || 0,
       ai_strikes: data.ai_strikes || 0,
       score: data.score || 0, // DUMMY SCORE FOR NOW
