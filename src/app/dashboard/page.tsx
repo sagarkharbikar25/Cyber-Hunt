@@ -37,11 +37,13 @@ const MISSIONS = [
   { id: 4, title: "Beyond the Spotlight", desc: "Not every page exists to attract attention. Some exist because they must. Find the hidden fragment.", link: "https://cyberhunt-2.vercel.app/login" },
   { id: 5, title: "THE GAUNTLET", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
   { id: 6, title: "Beyond the Code", desc: "Not every secret is committed to the codebase. Some are preserved as achievements. Recover the hidden fragment.", link: "https://github.com/kharbikarsagar17-pixel/testrepo.git" },
-  { id: 7,
-  title: "THE FORGOTTEN KEY",
-  desc: "I speak without words. I change without shifting. Four silent guardians decide my fate. Find the rule they obey, and I shall reveal my secret.",
-  link: "https://github.com/ayush21-r/core-utils.git",
-  encrypted: "QOSKAY" },
+  {
+    id: 7,
+    title: "THE FORGOTTEN KEY",
+    desc: "I speak without words. I change without shifting. Four silent guardians decide my fate. Find the rule they obey, and I shall reveal my secret.\n\nEncrypted Payload: \nQOSKAY",
+    link: "https://github.com/ayush21-r/core-utils.git",
+    encrypted: "QOSKAY"
+  },
   { id: 8, title: "Sweet Secrets", desc: "Some visitors leave empty-handed. Others know that every visit leaves something behind. Recover the next fragment.", link: "https://mission-indol.vercel.app/" },
   { id: 9, title: "The Forgotten Echo", desc: "Every visit leaves behind more than memories. What the page forgets, the browser may still preserve. Recover the final fragment.", link: "https://secure-vault-endpoint.vercel.app/" },
   { id: 10, title: "LAST CIPHER", desc: "Nine fragments. Nine pieces of evidence. None reveal the truth alone. Arrange them correctly. The Master Key has always been in your hands.", link: "#" },
