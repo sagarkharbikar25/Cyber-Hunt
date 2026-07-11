@@ -8,7 +8,19 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function importTeams() {
   console.log("Reading Excel file...");
-  const workbook = xlsx.readFile('resources/Cyber_Hunt.xlsx');
+  const fs = require('fs');
+  const fileWithSpace = 'resources/Cyber Hunt.xlsx';
+  const fileWithUnderscore = 'resources/Cyber_Hunt.xlsx';
+  let filePath = '';
+  if (fs.existsSync(fileWithSpace)) {
+    filePath = fileWithSpace;
+  } else if (fs.existsSync(fileWithUnderscore)) {
+    filePath = fileWithUnderscore;
+  } else {
+    console.error("Excel file not found at:", fileWithSpace, "or", fileWithUnderscore);
+    return;
+  }
+  const workbook = xlsx.readFile(filePath);
   const sheetName = workbook.SheetNames[0];
   const data = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
   

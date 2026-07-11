@@ -165,12 +165,23 @@ async function addTeams() {
     }
   ];
 
-  // Generate 40 additional test users dynamically
-  for (let i = 1; i <= 40; i++) {
-    const padId = i.toString().padStart(2, '0');
+  console.log("Cleaning up old test users (TEST-USER-)...");
+  const { error: deleteError } = await supabase
+    .from('teams')
+    .delete()
+    .like('team_id', 'TEST-USER-%');
+
+  if (deleteError) {
+    console.error("Failed to delete old test users:", deleteError);
+  } else {
+    console.log("Cleaned up old test users successfully.");
+  }
+
+  // Generate 40 additional test users dynamically starting from 40 to 79
+  for (let i = 40; i <= 79; i++) {
     teamsToInsert.push({
-      team_id: `TEST-USER-${padId}`,
-      team_name: `Test Squad ${padId}`,
+      team_id: `TEST-USER-${i}`,
+      team_name: `Test Squad ${i}`,
       leader_email: `testuser${i}@example.com`,
       fragments: ["", "", "", "", "", "", "", "", ""],
       score: 0,
@@ -188,7 +199,7 @@ async function addTeams() {
   if (error) {
     console.error("Failed to insert/update teams:", error);
   } else {
-    console.log("Successfully inserted/updated TA-CH-087, TA-CH-088, and TA-CH-089!");
+    console.log("Successfully inserted/updated all configured teams and test users!");
   }
 }
 
