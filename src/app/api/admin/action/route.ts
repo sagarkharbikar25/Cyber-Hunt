@@ -40,18 +40,30 @@ export async function POST(request: NextRequest) {
       const scoreDec = Math.floor(basePoints * multiplier);
       const newScore = Math.max(0, (teamData.score || 0) - scoreDec);
 
-      // Remove the fragment
-      const fragments = teamData.fragments || Array(9).fill("");
-      if (level_id >= 1 && level_id <= 9) {
-        fragments[level_id - 1] = "";
+      // Mark submission as rejected in the database first
+      await supabase.from("submissions").update({ status: "rejected" }).eq("id", submission_id);
+
+      // Query all remaining non-rejected submissions to dynamically compute fragments and avoid race conditions
+      const { data: subs } = await supabase
+        .from("submissions")
+        .select("level_id, answer")
+        .eq("team_id", team_id)
+        .neq("status", "rejected");
+
+      const fragments = Array(9).fill("");
+      if (subs) {
+        for (const s of subs) {
+          const idx = s.level_id - 1;
+          if (idx >= 0 && idx < 9) {
+            fragments[idx] = s.answer.substring(0, 1).toUpperCase();
+          }
+        }
       }
 
       await supabase.from("teams").update({ 
         score: newScore,
         fragments: fragments 
       }).eq("team_id", team_id);
-
-      await supabase.from("submissions").update({ status: "rejected" }).eq("id", submission_id);
       
       await supabase.from("activity_logs").insert({
         message: `Mission Control REJECTED intel for ${teamData.team_name}. Penalty applied.`

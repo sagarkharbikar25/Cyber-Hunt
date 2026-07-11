@@ -121,10 +121,22 @@ export async function GET(request: NextRequest) {
     // Team's own submissions (small query, always fresh)
     const { data: teamSubmissions } = await supabase
       .from("submissions")
-      .select("level_id")
+      .select("level_id, answer, status")
       .eq("team_id", user.team_id);
 
-    const submitted_levels = (teamSubmissions ?? []).map((s) => s.level_id);
+    const submitted_levels: number[] = [];
+    const fragments = Array(9).fill("");
+    if (teamSubmissions) {
+      for (const s of teamSubmissions) {
+        submitted_levels.push(s.level_id);
+        if (s.status !== "rejected") {
+          const idx = s.level_id - 1;
+          if (idx >= 0 && idx < 9) {
+            fragments[idx] = s.answer.substring(0, 1).toUpperCase();
+          }
+        }
+      }
+    }
 
     return NextResponse.json({
       team: {
@@ -134,7 +146,7 @@ export async function GET(request: NextRequest) {
         hints_used: teamData.global_hints_used || 0,
         ai_strikes: teamData.ai_strikes || 0,
         score: teamData.score || 0,
-        fragments: teamData.fragments || Array(9).fill(""),
+        fragments,
         is_disqualified: teamData.is_disqualified || false,
         startedAt: startTime,
         level10_started_at: teamData.level10_started_at || null,

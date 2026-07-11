@@ -123,6 +123,21 @@ export async function POST(request: NextRequest) {
  
        const { data: teamData } = await supabase.from("teams").select("*").eq("team_id", user.team_id).single();
        if (!teamData) return NextResponse.json({ error: "Team not found" }, { status: 404 });
+  
+       // Prevent duplicate submission for levels 1-9
+       if (level_id >= 1 && level_id <= 9) {
+         const { data: existingSub } = await supabase
+           .from("submissions")
+           .select("id")
+           .eq("team_id", user.team_id)
+           .eq("level_id", level_id)
+           .maybeSingle();
+
+         if (existingSub) {
+           console.warn(`[submit] duplicate submission blocked for team_id=${user.team_id} level=${level_id}`);
+           return NextResponse.json({ error: "Mission already attempted. Action locked." }, { status: 400 });
+         }
+       }
  
        if (level_id === 10) {
          const attempts = teamData.level10_attempts || 0;
@@ -164,11 +179,21 @@ export async function POST(request: NextRequest) {
       const scoreInc = Math.floor(basePoints * multiplier);
       const newScore = (teamData.score || 0) + scoreInc;
 
-      const fragments = teamData.fragments || Array(9).fill("");
-      const levelIndex = level_id - 1;
+      // Fetch all non-rejected submissions for the team to dynamically compute fragments and avoid race conditions
+      const { data: subs } = await supabase
+        .from("submissions")
+        .select("level_id, answer")
+        .eq("team_id", user.team_id)
+        .neq("status", "rejected");
 
-      if (levelIndex >= 0 && levelIndex < 9) {
-        fragments[levelIndex] = answer.substring(0, 1).toUpperCase();
+      const fragments = Array(9).fill("");
+      if (subs) {
+        for (const s of subs) {
+          const idx = s.level_id - 1;
+          if (idx >= 0 && idx < 9) {
+            fragments[idx] = s.answer.substring(0, 1).toUpperCase();
+          }
+        }
       }
 
       const updatePayload: Record<string, unknown> = {
