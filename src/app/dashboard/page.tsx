@@ -31,15 +31,15 @@ interface DashboardData {
 }
 
 const MISSIONS = [
-  { id: 1, title: "ZERO HOUR", desc: "Every story begins with what is written. Every breach begins with what is ignored. The application appears flawless. But developers have a habit of leaving secrets behind. Read what the machine refuses to read.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 2, title: "BURIED HISTORY", desc: "The best detectives never ask where the evidence is. They ask where it disappeared. Every mistake leaves a timeline. Time never truly forgets.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 3, title: "FALSE FRONT", desc: "Some doors open with stolen credentials. This one opens with your own. Your identity is your clearance.", link: "https://github.com/kharbikarsagar17-pixel/cipher-core.git" },
-  { id: 4, title: "HIDDEN LAYER", desc: "The screen tells one story. The browser tells another. Engineers listen where ordinary users never look.", link: "https://cyberhunt-2.vercel.app/login" },
-  { id: 5, title: "THE SIGNAL LEAK", desc: "Every organization leaves a public trail. The clue isn't hidden. It's simply waiting for someone curious enough to follow it.", link: "https://www.instagram.com/techalfa_/" },
-  { id: 6, title: "FINE PRINT", desc: "Millions accept it. Almost nobody reads it. The safest place to hide something is where nobody chooses to look.", link: "https://techalfa-website-ivory.vercel.app/" },
-  { id: 7, title: "THE GAUNTLET", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
-  { id: 8, title: "CRACKED VAULT", desc: "The password still exists. It simply no longer looks like one. Restore its original identity.", link: "/database_leak.txt" },
-  { id: 9, title: "NO TRACE", desc: "Everyone searched the page. Nobody questioned the delivery. The secret never lived inside the message. It travelled with it.", link: "https://secure-vault-endpoint.vercel.app/" },
+  { id: 1, title: "The Beginning", desc: "Not every secret is buried in code. Some are left where everyone can look, yet few ever notice. Follow the trail, not the crowd. The fragment waits for the one who observes.", link: "https://www.instagram.com/techalfa_/" },
+  { id: 2, title: "First Response", desc: "Before a webpage is displayed, a conversation takes place. Listen to what arrives first. Recover the hidden fragment.", link: "https://secure-vault-endpoint.vercel.app/" },
+  { id: 3, title: "Unheard Voices", desc: "The page may appear ordinary. But beneath the surface, something is trying to get your attention. Find the next fragment.", link: "https://cyberhunt-2.vercel.app/" },
+  { id: 4, title: "Beyond the Spotlight", desc: "Not every page exists to attract attention. Some exist because they must. Find the hidden fragment.", link: "https://cyberhunt-2.vercel.app/login" },
+  { id: 5, title: "THE GAUNTLET", desc: "Four problems. Four answers. Individually meaningless. Together they reveal the next destination.", link: "/debug_challenge.pdf" },
+  { id: 6, title: "Beyond the Code", desc: "Not every secret is committed to the codebase. Some are preserved as achievements. Recover the hidden fragment.", link: "https://github.com/kharbikarsagar17-pixel/testrepo.git" },
+  { id: 7, title: "THE FORGOTTEN KEY", desc: "I speak without words. I change without shifting. Four silent guardians decide my fate. Find the rule they obey, and I shall reveal my secret", link: "https://github.com/ayush21-r/core-utils.git" },
+  { id: 8, title: "Sweet Secrets", desc: "Some visitors leave empty-handed. Others know that every visit leaves something behind. Recover the next fragment.", link: "https://mission-indol.vercel.app/" },
+  { id: 9, title: "The Forgotten Echo", desc: "Every visit leaves behind more than memories. What the page forgets, the browser may still preserve. Recover the final fragment.", link: "https://secure-vault-endpoint.vercel.app/" },
   { id: 10, title: "LAST CIPHER", desc: "Nine fragments. Nine pieces of evidence. None reveal the truth alone. Arrange them correctly. The Master Key has always been in your hands.", link: "#" },
 ];
 

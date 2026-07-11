@@ -37,44 +37,45 @@ export async function POST(request: NextRequest) {
       const { data: team } = await supabase.from("teams").select("*").eq("team_id", user.team_id).single();
       if (!team) return NextResponse.json({ error: "Team not found" }, { status: 404 });
 
-      const HINTS: Record<string, Record<string, string>> = {
+       const HINTS: Record<string, Record<string, string>> = {
         "1": {
-          "1": "The secret isn't buried in the past; it lives in the present. You must systematically inspect every single file in the provided GitHub repository.",
-          "2": "Developers often leave comments or hardcoded secrets behind. Open the files and read the source code line by line to find the hidden fragment."
+          "1": "A profile is more than its posts. The smallest details often lead to the biggest discoveries.",
+          "2": "The answer isn't hidden in the feed. Look where profiles connect to the outside world."
         },
         "2": {
-          "1": "Sometimes you must reuse the exact same credentials to pass a completely different gate. Your operational identity here is the same as your identity there.",
-          "2": "Infiltrate the dashboard and secure the PDF document. But do not trust the extension; disguise is the best defense. Force extract or unzip the file to reveal its true contents."
+          "1": "Every request receives a response.",
+          "2": "Disable cache, then refresh the page."
         },
         "3": {
-          "1": "The present state of the repository reveals nothing. But code has memory. Where do we look to see what came before?",
-          "2": "A footprint remains long after the foot has moved. Track the chronological steps of the creator. A specific commit holds the fragment you seek."
+          "1": "A perfect page isn't always a silent one.",
+          "2": "Your browser records more than what it displays."
         },
         "4": {
-          "1": "Return to the scene of your previous infiltration. The surface layer of that website is a distraction; you must look deeper.",
-          "2": "When things break behind the scenes, the browser quietly bleeds red. Use your diagnostic tools to inspect what the machine is secretly complaining about."
+          "1": "Look beyond the pages made for visitors.",
+          "2": "Some secrets become easier to notice when you Ctrl + A."
         },
         "5": {
-          "1": "Organizations don't hide in the shadows; they broadcast their daily activities to the world. Seek out the official social channel of the architects (TechAlfa).",
-          "2": "Evidence that vanishes after 24 hours is live right now. You must watch their temporary visual broadcasts very carefully—the secret is hidden among the noise."
-        },
-        "6": {
-          "1": "The deepest secrets are hidden in plain sight on the official TechAlfa website's most boring page. Read every single line of the legal jargon; the answer lies just below a button.",
-          "2": "Sometimes, words are written in the exact same color as their surroundings. You must select everything on the screen to force the invisible text into the light."
-        },
-        "7": {
           "1": "Compute the four trials systematically. When their solutions are stitched together sequentially, they will form a pathway to a professional network.",
           "2": "Once you reach the destination, look back at the very beginning of this journey. Find the professional announcement for this exact operation; the secret is buried in its text."
         },
+        "6": {
+          "1": "A repository contains more than source files.",
+          "2": "Think about where developers share important milestones with users."
+        },
+        "7": {
+          "1": "Not every cipher replaces letters. Some transform them using mathematics.",
+          "2": "Rows and columns hold the secret. Classical cryptography has used this language for decades."
+        },
         "8": {
-          "1": "The scrambled text is a one-way mathematical transformation. It cannot be reversed, but it can be matched.",
-          "2": "Isolate the target. You do not need to do the math yourself—visit https://crackstation.net/ to restore its true form."
+          "1": "A website often leaves a small souvenir behind after every visit.",
+          "2": "Isolate the target. atob(decodeURIComponent(\"\"))"
         },
         "9": {
-          "1": "Something loads and disappears before you can click it. Reloading won't help if you weren't already looking.",
-          "2": "There's a setting near where you were looking. It changes whether old results get reused."
+          "1": "Not everything disappears after it's loaded. Some traces are kept for another visit.",
+          "2": "(async () => {\n  const cache = await caches.open('__vercel_speed_insights');"
         }
       };
+
 
       const hintText = HINTS[lvl.toString()]?.[hint_num.toString()] || "Hint not found.";
 
@@ -147,7 +148,7 @@ export async function POST(request: NextRequest) {
          if (attempts >= 2) {
            return NextResponse.json({ error: "MAXIMUM ATTEMPTS REACHED. MISSION LOCKED." }, { status: 403 });
          }
-         if (answer.toUpperCase().trim() !== "ARCHLINUX") {
+         if (answer.toUpperCase().trim() !== "WIRESHARK") {
            await supabase.from("teams").update({ level10_attempts: attempts + 1 }).eq("team_id", user.team_id);
            const remaining = 2 - (attempts + 1);
            console.warn(`[submit] wrong level-10 answer team_id=${user.team_id} attempts=${attempts + 1}`);
