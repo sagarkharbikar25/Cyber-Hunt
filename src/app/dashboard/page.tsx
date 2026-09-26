@@ -24,7 +24,9 @@ interface DashboardData {
     level10_attempts?: number;
     submitted_levels?: number[];
     extra_minutes?: number;
+    coins?: number;
   };
+  activeAttack?: string | null;
   liveFeed: { id: string; time: string; text: string; }[];
   activeAgents: { id: string; name: string; level: number; status: string; }[];
   total_levels: number;
@@ -64,6 +66,8 @@ export default function DashboardPage() {
   const [showVictory, setShowVictory] = useState<boolean>(false);
   const [showLevel10Rules, setShowLevel10Rules] = useState<boolean>(false);
   const [acceptedRules, setAcceptedRules] = useState<boolean>(false);
+  const [showBlackMarket, setShowBlackMarket] = useState<boolean>(false);
+  const [attackSubmitting, setAttackSubmitting] = useState(false);
 
   const [selectedMission, setSelectedMission] = useState(1);
 
@@ -136,7 +140,7 @@ export default function DashboardPage() {
     }
 
     fetchDashboardData();
-    const interval = setInterval(fetchDashboardData, 180000); // Every 3 minutes to reduce DB load
+    const interval = setInterval(fetchDashboardData, 5000); // Poll every 5 seconds for real-time attacks
     return () => clearInterval(interval);
   }, [selectedMission, data?.team?.startedAt]);
 
@@ -349,6 +353,29 @@ export default function DashboardPage() {
     }
   };
 
+  const handleAttack = async (targetTeamId: string, attackType: string) => {
+    setAttackSubmitting(true);
+    try {
+      const res = await fetch("/api/sabotage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target_team_id: targetTeamId, attack_type: attackType })
+      });
+      const json = await res.json();
+      if (json.success) {
+        alert(`✅ ATTACK LAUNCHED: ${json.message}`);
+        setShowBlackMarket(false);
+        fetchDashboardData();
+      } else {
+        alert(`❌ ATTACK FAILED: ${json.error}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("❌ CRITICAL ERROR: Network failure during attack transmission.");
+    }
+    setAttackSubmitting(false);
+  };
+
   if (loading || !data) {
     return (
       <div className="min-h-screen bg-bg0 flex items-center justify-center font-mono">
@@ -408,7 +435,7 @@ export default function DashboardPage() {
   const isCurrentMissionSolved = selectedMission < 10 ? fragments[selectedMission - 1] !== "" : (team?.submitted_levels?.includes(10) || false);
 
   return (
-    <div className="min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col overflow-hidden">
+    <div className={`min-h-screen bg-bg0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(0,255,136,0.05)_0%,transparent_60%)] flex flex-col overflow-hidden ${data.activeAttack === 'ddos' ? 'animate-pulse blur-[1px] hue-rotate-180 contrast-150 saturate-200' : ''}`}>
 
       {/* TOP BAR */}
       <div className="relative flex items-center justify-between px-10 h-[80px] bg-gradient-to-r from-bg1 via-bg2 to-bg1 border-b border-neon/20 shrink-0 shadow-[0_4px_30px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(0,255,136,0.05)] backdrop-blur-md bg-opacity-95 overflow-hidden">
@@ -559,18 +586,30 @@ export default function DashboardPage() {
           </div>
 
           {/* TEAM STATUS */}
-          <div className="p-5 flex items-center justify-center gap-8 border-b border-border-g2 bg-bg0">
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Hints Used</span>
-              <span className="font-orb text-[20px] text-white font-bold leading-none">{team?.hints_used || 0}</span>
+          <div className="p-5 flex flex-col items-center justify-center gap-4 border-b border-border-g2 bg-bg0">
+            <div className="flex items-center justify-center gap-6 w-full">
+              <div className="flex flex-col items-center justify-center">
+                <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Coins</span>
+                <span className="font-orb text-[20px] text-amber font-bold leading-none">{team?.coins || 0}</span>
+              </div>
+              <div className="w-[1px] h-10 bg-border-g2 opacity-80"></div>
+              <div className="flex flex-col items-center justify-center">
+                <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Hints</span>
+                <span className="font-orb text-[20px] text-white font-bold leading-none">{team?.hints_used || 0}</span>
+              </div>
+              <div className="w-[1px] h-10 bg-border-g2 opacity-80"></div>
+              <div className="flex flex-col items-center justify-center">
+                <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">Strikes</span>
+                <span className={`font-orb text-[20px] font-bold leading-none ${team?.ai_strikes ? 'text-red text-glow-red' : 'text-white'}`}>{team?.ai_strikes || 0}<span className="text-[12px] text-text2/50">/3</span></span>
+              </div>
             </div>
-
-            <div className="w-[1px] h-10 bg-border-g2 opacity-80"></div>
-
-            <div className="flex flex-col items-center justify-center">
-              <span className="font-mono text-[10px] text-neon mb-1.5 uppercase whitespace-nowrap tracking-[2px]">AI Strikes</span>
-              <span className={`font-orb text-[20px] font-bold leading-none ${team?.ai_strikes ? 'text-red text-glow-red' : 'text-white'}`}>{team?.ai_strikes || 0}<span className="text-[12px] text-text2/50">/3</span></span>
-            </div>
+            
+            <button 
+              onClick={() => setShowBlackMarket(true)}
+              className="mt-2 w-full border border-amber/40 text-amber bg-[#ffaa0010] hover:bg-amber hover:text-black py-2 font-orb text-[10px] tracking-[3px] transition-colors shadow-[0_0_10px_rgba(255,170,0,0.2)]"
+            >
+              BLACK MARKET
+            </button>
           </div>
 
           {/* MISSION PROGRESS */}
@@ -696,6 +735,7 @@ export default function DashboardPage() {
               hasAttempted={!!team?.submitted_levels?.includes(selectedMission)}
               level10Attempts={team?.level10_attempts || 0}
               onSubmit={handleSubmit}
+              isRansomware={data.activeAttack === 'ransomware'}
             />
           </div>
         </div>
@@ -762,6 +802,65 @@ export default function DashboardPage() {
         </div>
 
       </div>
+
+      {showBlackMarket && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+          <div className="relative w-full max-w-2xl bg-[#0a0709] border border-amber p-6 md:p-8 shadow-[0_0_40px_rgba(255,170,0,0.15)] font-mono">
+            <button onClick={() => setShowBlackMarket(false)} className="absolute top-4 right-4 text-text2 hover:text-white">✕</button>
+            <h3 className="font-orb text-xl font-black text-amber tracking-[3px] mb-2 uppercase">Black Market</h3>
+            <p className="text-text2 text-xs mb-6 font-raj">Purchase offensive capabilities to sabotage other teams. Cost is deducted from your team's coins.</p>
+            
+            <div className="flex justify-between items-center bg-bg1 p-4 border border-border-g2 mb-6">
+              <span className="text-sm tracking-widest text-text2 uppercase">Your Balance</span>
+              <span className="font-orb text-lg text-amber font-bold">{team?.coins || 0} COINS</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="border border-border-g2 p-4 flex flex-col">
+                <div className="font-orb text-sm text-neon font-bold tracking-[2px] mb-2">DDoS ATTACK</div>
+                <div className="text-xs text-text2 mb-4 font-raj flex-1">Scrambles the target's visual interface and HUD for 3 minutes.</div>
+                <div className="flex justify-between items-center mt-auto">
+                  <span className="font-mono font-bold text-amber text-xs">50 COINS</span>
+                </div>
+              </div>
+              <div className="border border-border-g2 p-4 flex flex-col">
+                <div className="font-orb text-sm text-red font-bold tracking-[2px] mb-2">RANSOMWARE</div>
+                <div className="text-xs text-text2 mb-4 font-raj flex-1">Completely locks the target's submission interface for 2 minutes.</div>
+                <div className="flex justify-between items-center mt-auto">
+                  <span className="font-mono font-bold text-amber text-xs">100 COINS</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="max-h-[300px] overflow-y-auto border border-border-g2">
+              {activeAgents.filter(a => a.id !== team?.id).map(agent => (
+                <div key={agent.id} className="flex items-center justify-between p-3 border-b border-border-g2 last:border-b-0 hover:bg-bg2 transition-colors">
+                  <span className="text-sm font-bold text-white uppercase">{agent.name}</span>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => handleAttack(agent.id, 'ddos')}
+                      disabled={attackSubmitting || (team?.coins || 0) < 50}
+                      className="px-3 py-1 bg-neon/10 border border-neon text-neon text-[10px] font-orb font-bold tracking-[2px] hover:bg-neon hover:text-black disabled:opacity-30 transition-colors"
+                    >
+                      DDoS
+                    </button>
+                    <button 
+                      onClick={() => handleAttack(agent.id, 'ransomware')}
+                      disabled={attackSubmitting || (team?.coins || 0) < 100}
+                      className="px-3 py-1 bg-red/10 border border-red text-red text-[10px] font-orb font-bold tracking-[2px] hover:bg-red hover:text-black disabled:opacity-30 transition-colors"
+                    >
+                      RANSOMWARE
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {activeAgents.filter(a => a.id !== team?.id).length === 0 && (
+                <div className="p-4 text-center text-text2 text-xs">No other agents detected on the network.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {showLevel10Rules && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 overflow-y-auto">

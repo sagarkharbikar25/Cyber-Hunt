@@ -13,6 +13,7 @@ interface SubmissionControlProps {
   hasAttempted: boolean;
   level10Attempts: number;
   onSubmit: (e: React.FormEvent) => void;
+  isRansomware?: boolean;
 }
 
 export default function SubmissionControl({
@@ -27,6 +28,7 @@ export default function SubmissionControl({
   hasAttempted,
   level10Attempts,
   onSubmit,
+  isRansomware,
 }: SubmissionControlProps) {
   return (
     <div className="mt-2 pt-2">
@@ -51,6 +53,15 @@ export default function SubmissionControl({
           </div>
           <div className="font-mono text-[10px] text-text2 tracking-[1px]">
             You have already exhausted your single attempt for this mission.
+          </div>
+        </div>
+      ) : isRansomware ? (
+        <div className="bg-red/20 border-2 border-red p-6 text-center animate-pulse">
+          <div className="font-orb text-[16px] text-red font-black tracking-[4px] mb-2 uppercase">
+            ⚠️ SYSTEM LOCKED BY RANSOMWARE
+          </div>
+          <div className="font-mono text-[12px] text-white tracking-[2px] uppercase">
+            Submission controls offline until attack expires.
           </div>
         </div>
       ) : (

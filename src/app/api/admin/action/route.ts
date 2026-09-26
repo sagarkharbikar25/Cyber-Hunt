@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
       
       const scoreDec = Math.floor(basePoints * multiplier);
       const newScore = Math.max(0, (teamData.score || 0) - scoreDec);
+      const newCoins = Math.max(0, (teamData.coins || 0) - 50);
 
       // Mark submission as rejected in the database first
       await supabase.from("submissions").update({ status: "rejected" }).eq("id", submission_id);
@@ -62,6 +63,7 @@ export async function POST(request: NextRequest) {
 
       await supabase.from("teams").update({ 
         score: newScore,
+        coins: newCoins,
         fragments: fragments 
       }).eq("team_id", team_id);
       

@@ -11,22 +11,7 @@ interface FeedRow  { id: string; time: string; text: string }
 // This replaces the old in-memory globalCache which died on every cold start.
 // Now 300 concurrent users share a single cached copy in Upstash Redis.
 async function getSharedData(): Promise<{ agents: AgentRow[]; feed: FeedRow[] }> {
-
-  // Try Redis first
-  if (redis) {
-    try {
-      const [cachedAgents, cachedFeed] = await Promise.all([
-        redis.get<AgentRow[]>(CK.dashboardAgents),
-        redis.get<FeedRow[]>(CK.dashboardFeed),
-      ]);
-
-      if (cachedAgents && cachedFeed) {
-        return { agents: cachedAgents, feed: cachedFeed };
-      }
-    } catch (err) {
-      console.error("[dashboard] Redis read error:", err);
-    }
-  }
+  // Redis disabled for testing real-time updates
 
   // Cache miss — query DB once and write to Redis
   const [{ data: teamsSnapshot }, { data: feedSnapshot }] = await Promise.all([
@@ -138,6 +123,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Fetch active attacks
+    const { data: activeAttacks } = await supabase
+      .from("active_attacks")
+      .select("attack_type")
+      .eq("target_team_id", user.team_id)
+      .gt("expires_at", new Date().toISOString())
+      .limit(1);
+
+    const activeAttack = activeAttacks && activeAttacks.length > 0 ? activeAttacks[0].attack_type : null;
+
     return NextResponse.json({
       team: {
         id: teamData.team_id,
@@ -146,6 +141,7 @@ export async function GET(request: NextRequest) {
         hints_used: teamData.global_hints_used || 0,
         ai_strikes: teamData.ai_strikes || 0,
         score: teamData.score || 0,
+        coins: teamData.coins || 0,
         fragments,
         is_disqualified: teamData.is_disqualified || false,
         startedAt: startTime,
@@ -155,6 +151,7 @@ export async function GET(request: NextRequest) {
         submitted_levels,
         extra_minutes: teamData.extra_minutes || 0,
       },
+      activeAttack,
       liveFeed: feed,
       activeAgents: agents,
       total_levels: 10,

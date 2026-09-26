@@ -202,6 +202,7 @@ export async function POST(request: NextRequest) {
 
       const updatePayload: Record<string, unknown> = {
         score: newScore,
+        coins: (teamData.coins || 0) + 50,
         last_submission_at: new Date().toISOString(),
         fragments,
         current_level: Math.max(teamData.current_level || 1, level_id + 1)
